@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "net.glacierclient.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [],
+  "client": [
+    "MixinGameRenderer",
+    "MixinInGameHud",
+    "MixinMinecraft",
+    "MixinClientPlayerEntity",
+    "MixinChatHud"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

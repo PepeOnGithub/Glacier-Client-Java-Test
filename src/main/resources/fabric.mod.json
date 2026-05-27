@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "id": "glacierclient",
+  "version": "${version}",
+  "name": "Glacier Client",
+  "description": "The ultimate performance-first Minecraft utility client.",
+  "authors": ["Glacier Client Team"],
+  "contact": {
+    "homepage": "https://glacierclient.net",
+    "issues": "https://github.com/pepeongithub/glacier-client-java-test/issues"
+  },
+  "license": "MIT",
+  "icon": "assets/glacierclient/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["net.glacierclient.GlacierClient"]
+  },
+  "mixins": ["mixins.glacierclient.json"],
+  "depends": {
+    "fabricloader": ">=0.15.7",
+    "fabric-api": "*",
+    "minecraft": "~1.20.4",
+    "java": ">=17"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "glacierclient.category.hud": "HUD",
+  "glacierclient.category.render": "Render",
+  "glacierclient.category.pvp": "PvP",
+  "glacierclient.category.performance": "Performance",
+  "glacierclient.category.qol": "Quality of Life",
+  "glacierclient.category.advanced": "Advanced",
+  "glacierclient.category.engine": "Engine",
+  "glacierclient.category.cosmetics": "Cosmetics",
+  "glacierclient.gui.title": "Glacier Client",
+  "glacierclient.gui.search": "Search modules...",
+  "glacierclient.gui.enabled": "Enabled",
+  "glacierclient.gui.disabled": "Disabled"
+}
