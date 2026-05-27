@@ -1,8 +1,9 @@
 package net.glacierclient.gui.screens;
 
 import net.glacierclient.GlacierClient;
+import net.glacierclient.core.hud.HUDEditor;
 import net.glacierclient.core.hud.HUDMod;
-import net.glacierclient.core.module.GlacierMod;
+import net.glacierclient.core.hud.HUDProfile;
 import net.glacierclient.core.theme.GlacierTheme;
 import net.glacierclient.core.util.RenderUtil;
 import net.minecraft.client.gui.DrawContext;
@@ -10,186 +11,154 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Deque;
 import java.util.List;
 
-/**
- * HUD Editor Screen — opened via the HOME key by default.
- *
- * Features:
- *  - All active HUD elements shown as draggable bordered boxes.
- *  - Snap-to-grid (8 px) with visible grid lines while dragging.
- *  - Scale handle at the bottom-right corner of the selected element.
- *  - Undo / redo with Ctrl+Z / Ctrl+Y (up to 64 states).
- *  - "Done" button closes the screen.
- */
 public class HUDEditorScreen extends Screen {
 
-    // -----------------------------------------------------------------------
-    // Constants
-    // -----------------------------------------------------------------------
-    private static final int SNAP          = 8;
-    private static final int HANDLE_SIZE   = 8;
-    private static final int DONE_W        = 60;
-    private static final int DONE_H        = 20;
-    private static final int HEADER_H      = 24;
-    private static final int MAX_HISTORY   = 64;
+    private static final int GRID_SIZE   = 10;
+    private static final int HANDLE_SIZE = 8;
+    private static final int TOOLBAR_H   = 30;
+    private static final int SNAP_DIST   = 5;
 
-    // Glacier theme colours (mirrors GlacierTheme for convenience)
-    private static final int C_BG          = GlacierTheme.BG;           // #23272A
-    private static final int C_PANEL       = GlacierTheme.BG_PANEL;     // #2C2F33
-    private static final int C_ITEM        = GlacierTheme.BG_ITEM;      // 4 % white
-    private static final int C_ITEM_HOVER  = GlacierTheme.BG_ITEM_HOVER;
-    private static final int C_ACCENT      = GlacierTheme.ACCENT;       // #7289DA
-    private static final int C_ACCENT_BG   = GlacierTheme.ACCENT_BG;
-    private static final int C_TEXT        = GlacierTheme.TEXT;
-    private static final int C_TEXT_DIM    = GlacierTheme.TEXT_DIM;
-    private static final int C_GREEN       = GlacierTheme.GREEN;
-    private static final int C_RED         = GlacierTheme.RED;
-
-    // Grid line colour — very subtle
-    private static final int C_GRID        = 0x18FFFFFF;
-
-    // -----------------------------------------------------------------------
-    // State
-    // -----------------------------------------------------------------------
-
-    /** Snapshot of every HUD element's position/scale — used for undo/redo. */
-    private record ElementState(HUDMod mod, int x, int y, float scale) {}
-
-    private final Deque<List<ElementState>> undoStack = new ArrayDeque<>();
-    private final Deque<List<ElementState>> redoStack = new ArrayDeque<>();
+    private final HUDEditor hudEditor;
 
     // Drag state
-    private HUDMod draggingMod    = null;
-    private int    dragOffsetX    = 0;
-    private int    dragOffsetY    = 0;
+    private HUDMod dragging;
+    private int dragOffsetX, dragOffsetY;
 
-    // Scale-handle state
-    private HUDMod scalingMod     = null;
-    private double scaleStartX    = 0;
-    private float  scaleStartVal  = 1f;
+    // Scale state
+    private HUDMod scaling;
+    private int scaleStartX, scaleStartY;
+    private float scaleStartScale;
 
-    // Selected (right-click or currently interacting)
-    private HUDMod selectedMod    = null;
+    // Hover
+    private HUDMod hoveredMod;
+    private HUDMod selectedMod;
 
-    // -----------------------------------------------------------------------
-    // Constructor
-    // -----------------------------------------------------------------------
+    // Grid
+    private boolean showGrid = true;
 
     public HUDEditorScreen() {
         super(Text.literal("HUD Editor"));
-    }
-
-    // -----------------------------------------------------------------------
-    // Screen lifecycle
-    // -----------------------------------------------------------------------
-
-    @Override
-    protected void init() {
-        super.init();
+        this.hudEditor = new HUDEditor();
     }
 
     @Override
-    public boolean shouldPause() {
-        return false;
+    public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
+        // Dark transparent overlay
+        ctx.fill(0, 0, width, height, 0xCC101214);
+
+        if (showGrid) renderGrid(ctx);
+        renderHUDElements(ctx, mouseX, mouseY);
+        renderToolbar(ctx, mouseX, mouseY);
+
+        super.render(ctx, mouseX, mouseY, delta);
     }
 
-    // -----------------------------------------------------------------------
-    // Rendering
-    // -----------------------------------------------------------------------
-
-    @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        // Semi-transparent overlay
-        context.fill(0, 0, width, height, 0xB0000000);
-
-        // Grid lines (only while dragging or scaling)
-        if (draggingMod != null || scalingMod != null) {
-            drawGrid(context);
+    private void renderGrid(DrawContext ctx) {
+        int gridColor = 0x18FFFFFF;
+        for (int x = 0; x < width; x += GRID_SIZE) {
+            ctx.fill(x, 0, x + 1, height, gridColor);
         }
-
-        // Render each HUD element box
-        List<HUDMod> huds = getHUDMods();
-        for (HUDMod hud : huds) {
-            drawHUDBox(context, hud, mouseX, mouseY);
+        for (int y = TOOLBAR_H; y < height; y += GRID_SIZE) {
+            ctx.fill(0, y, width, y + 1, gridColor);
         }
+        // Center cross
+        ctx.fill(width / 2 - 1, 0, width / 2 + 1, height, 0x22FFFFFF);
+        ctx.fill(0, height / 2 - 1, width, height / 2 + 1, 0x22FFFFFF);
+    }
 
-        // Header bar
-        context.fill(0, 0, width, HEADER_H, C_PANEL);
-        context.fill(0, HEADER_H - 1, width, HEADER_H, C_ACCENT_BG);
-        context.drawCenteredTextWithShadow(textRenderer, "HUD Editor", width / 2, 6, C_ACCENT);
+    private void renderHUDElements(DrawContext ctx, int mouseX, int mouseY) {
+        List<HUDMod> mods = hudEditor.getActiveHUDMods();
+        hoveredMod = null;
 
-        // Hint text
-        String hint = "Drag to move  |  Drag ▣ to scale  |  Ctrl+Z undo  |  Ctrl+Y redo";
-        context.drawText(textRenderer, hint, 6, 7, C_TEXT_DIM, false);
+        for (HUDMod hud : mods) {
+            int ex = hud.getX(width);
+            int ey = hud.getY(height);
+            int ew = hud.getScaledWidth();
+            int eh = hud.getScaledHeight();
+
+            boolean hov = mouseX >= ex && mouseX <= ex + ew && mouseY >= ey && mouseY <= ey + eh;
+            boolean sel = hud == selectedMod;
+            if (hov) hoveredMod = hud;
+
+            // Draw element box
+            int bg = sel ? GlacierTheme.ACCENT_BG : (hov ? GlacierTheme.BG_ITEM_HOVER : GlacierTheme.BG_ITEM);
+            RenderUtil.drawRoundedRect(ctx, ex, ey, ew, eh, GlacierTheme.RADIUS_SM, bg);
+
+            // Outline
+            int borderColor = sel ? GlacierTheme.ACCENT : (hov ? GlacierTheme.ACCENT_GLOW : 0x33FFFFFF);
+            RenderUtil.drawOutline(ctx, ex, ey, ew, eh, 1, borderColor);
+
+            // Name label
+            ctx.drawTextWithShadow(textRenderer, hud.getName(), ex + 3, ey + (eh - 8) / 2,
+                    sel ? GlacierTheme.ACCENT : GlacierTheme.TEXT_DIM);
+
+            // Scale handle in bottom-right corner
+            if (hov || sel) {
+                int hx = ex + ew - HANDLE_SIZE;
+                int hy = ey + eh - HANDLE_SIZE;
+                ctx.fill(hx, hy, hx + HANDLE_SIZE, hy + HANDLE_SIZE, GlacierTheme.ACCENT);
+                RenderUtil.drawOutline(ctx, hx, hy, HANDLE_SIZE, HANDLE_SIZE, 1, GlacierTheme.ACCENT_HOVER);
+            }
+
+            // Snap guidelines when dragging this element
+            if (dragging == hud) {
+                // Vertical center line
+                int cx = ex + ew / 2;
+                if (Math.abs(cx - width / 2) < SNAP_DIST) {
+                    ctx.fill(width / 2, 0, width / 2 + 1, height, GlacierTheme.ACCENT_GLOW);
+                }
+                // Horizontal center line
+                int cy = ey + eh / 2;
+                if (Math.abs(cy - height / 2) < SNAP_DIST) {
+                    ctx.fill(0, height / 2, width, height / 2 + 1, GlacierTheme.ACCENT_GLOW);
+                }
+            }
+
+            // Render the actual HUD element (optional - may depend on HUD impl)
+            try {
+                hud.render(ctx, 0f);
+            } catch (Exception ignored) {}
+        }
+    }
+
+    private void renderToolbar(DrawContext ctx, int mouseX, int mouseY) {
+        // Toolbar background
+        ctx.fill(0, 0, width, TOOLBAR_H, GlacierTheme.BG_PANEL);
+        ctx.fill(0, TOOLBAR_H - 1, width, TOOLBAR_H, GlacierTheme.ACCENT_GLOW);
+
+        // Title
+        ctx.drawTextWithShadow(textRenderer, "HUD Editor", 10, 11, GlacierTheme.ACCENT);
+
+        // Undo/Redo
+        renderToolbarBtn(ctx, width / 2 - 60, 5, 50, 20, "Undo", mouseX, mouseY);
+        renderToolbarBtn(ctx, width / 2 - 5, 5, 50, 20, "Redo", mouseX, mouseY);
+
+        // Grid toggle
+        renderToolbarBtn(ctx, width / 2 + 60, 5, 60, 20, showGrid ? "Grid ON" : "Grid OFF", mouseX, mouseY);
 
         // Done button
-        int doneX = width  - DONE_W - 8;
-        int doneY = (HEADER_H - DONE_H) / 2;
-        boolean doneHover = isOver(mouseX, mouseY, doneX, doneY, DONE_W, DONE_H);
-        context.fill(doneX, doneY, doneX + DONE_W, doneY + DONE_H, doneHover ? C_ACCENT : C_ACCENT_BG);
-        RenderUtil.drawOutline(context, doneX, doneY, DONE_W, DONE_H, 1, C_ACCENT);
-        context.drawCenteredTextWithShadow(textRenderer, "Done", doneX + DONE_W / 2, doneY + 6, C_TEXT);
+        renderToolbarBtn(ctx, width - 70, 5, 60, 20, "Done", mouseX, mouseY);
 
-        super.render(context, mouseX, mouseY, delta);
-    }
-
-    /** Draw a subtle 8-px snap grid across the whole screen. */
-    private void drawGrid(DrawContext context) {
-        for (int x = 0; x < width; x += SNAP) {
-            context.fill(x, HEADER_H, x + 1, height, C_GRID);
-        }
-        for (int y = HEADER_H; y < height; y += SNAP) {
-            context.fill(0, y, width, y + 1, C_GRID);
+        // Selected mod info
+        if (selectedMod != null) {
+            String info = String.format("%s  |  scale: %.2f", selectedMod.getName(), selectedMod.getScale());
+            ctx.drawTextWithShadow(textRenderer, info, 10 + textRenderer.getWidth("HUD Editor") + 20, 11, GlacierTheme.TEXT_DIM);
         }
     }
 
-    /** Draw an individual HUD element as a labelled, bordered box. */
-    private void drawHUDBox(DrawContext context, HUDMod hud, int mouseX, int mouseY) {
-        int x = hud.getHudX();
-        int y = hud.getHudY();
-        int w = hud.getHudWidth();
-        int h = hud.getHudHeight();
-
-        boolean isSelected = hud == selectedMod;
-        boolean hovered    = isOver(mouseX, mouseY, x, y, w, h);
-
-        // Background
-        int bg = isSelected ? C_ITEM_HOVER : (hovered ? C_ITEM_HOVER : C_ITEM);
-        context.fill(x, y, x + w, y + h, bg);
-
-        // Border
-        int borderColor = isSelected ? C_ACCENT : (hovered ? 0x66FFFFFF : 0x33FFFFFF);
-        RenderUtil.drawOutline(context, x, y, w, h, 1, borderColor);
-
-        // Accent left edge if selected
-        if (isSelected) {
-            context.fill(x, y, x + 2, y + h, C_ACCENT);
-        }
-
-        // Module name label
-        context.drawText(textRenderer, hud.getName(), x + 4, y + (h / 2) - 4, isSelected ? C_ACCENT : C_TEXT_DIM, false);
-
-        // Scale handle at bottom-right
-        int hx = x + w - HANDLE_SIZE;
-        int hy = y + h - HANDLE_SIZE;
-        boolean handleHover = isOver(mouseX, mouseY, hx, hy, HANDLE_SIZE, HANDLE_SIZE);
-        context.fill(hx, hy, hx + HANDLE_SIZE, hy + HANDLE_SIZE,
-                handleHover ? C_ACCENT : C_ACCENT_BG);
-        RenderUtil.drawOutline(context, hx, hy, HANDLE_SIZE, HANDLE_SIZE, 1, C_ACCENT);
-
-        // Position / scale info when selected
-        if (isSelected) {
-            String info = x + ", " + y + "  " + String.format("%.2f×", hud.getHudScale());
-            context.drawText(textRenderer, info, x + 2, y + h + 2, C_TEXT_DIM, false);
-        }
+    private void renderToolbarBtn(DrawContext ctx, int x, int y, int w, int h, String label, int mouseX, int mouseY) {
+        boolean hov = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
+        int bg = hov ? GlacierTheme.ACCENT_BG : GlacierTheme.BG_ITEM;
+        RenderUtil.drawRoundedRect(ctx, x, y, w, h, GlacierTheme.RADIUS_SM, bg);
+        if (hov) RenderUtil.drawOutline(ctx, x, y, w, h, 1, GlacierTheme.ACCENT_GLOW);
+        ctx.drawTextWithShadow(textRenderer, label, x + (w - textRenderer.getWidth(label)) / 2, y + (h - 8) / 2,
+                hov ? GlacierTheme.TEXT : GlacierTheme.TEXT_DIM);
     }
 
     // -----------------------------------------------------------------------
-    // Mouse interaction
+    // INPUT
     // -----------------------------------------------------------------------
 
     @Override
@@ -197,38 +166,62 @@ public class HUDEditorScreen extends Screen {
         int mx = (int) mouseX;
         int my = (int) mouseY;
 
-        // Done button
-        int doneX = width  - DONE_W - 8;
-        int doneY = (HEADER_H - DONE_H) / 2;
-        if (isOver(mx, my, doneX, doneY, DONE_W, DONE_H)) {
-            this.close();
+        // Toolbar buttons
+        if (my <= TOOLBAR_H) {
+            // Undo
+            if (mx >= width / 2 - 60 && mx <= width / 2 - 10 && my >= 5 && my <= 25) {
+                hudEditor.undo();
+                return true;
+            }
+            // Redo
+            if (mx >= width / 2 - 5 && mx <= width / 2 + 45 && my >= 5 && my <= 25) {
+                hudEditor.redo();
+                return true;
+            }
+            // Grid toggle
+            if (mx >= width / 2 + 60 && mx <= width / 2 + 120 && my >= 5 && my <= 25) {
+                showGrid = !showGrid;
+                return true;
+            }
+            // Done
+            if (mx >= width - 70 && mx <= width - 10 && my >= 5 && my <= 25) {
+                close();
+                return true;
+            }
             return true;
         }
 
-        // Check scale handles first, then drag
-        for (HUDMod hud : getHUDMods()) {
-            int x = hud.getHudX();
-            int y = hud.getHudY();
-            int w = hud.getHudWidth();
-            int h = hud.getHudHeight();
-            int hx = x + w - HANDLE_SIZE;
-            int hy = y + h - HANDLE_SIZE;
-
-            if (button == 0 && isOver(mx, my, hx, hy, HANDLE_SIZE, HANDLE_SIZE)) {
-                pushUndo();
-                scalingMod    = hud;
-                scaleStartX   = mouseX;
-                scaleStartVal = hud.getHudScale();
-                selectedMod   = hud;
+        // Check scale handles first
+        for (HUDMod hud : hudEditor.getActiveHUDMods()) {
+            int ex = hud.getX(width);
+            int ey = hud.getY(height);
+            int ew = hud.getScaledWidth();
+            int eh = hud.getScaledHeight();
+            int hx = ex + ew - HANDLE_SIZE;
+            int hy = ey + eh - HANDLE_SIZE;
+            if (mx >= hx && mx <= hx + HANDLE_SIZE && my >= hy && my <= hy + HANDLE_SIZE) {
+                scaling = hud;
+                scaleStartX = mx;
+                scaleStartY = my;
+                scaleStartScale = hud.getScale();
+                selectedMod = hud;
+                hudEditor.saveSnapshot();
                 return true;
             }
+        }
 
-            if (button == 0 && isOver(mx, my, x, y, w, h)) {
-                pushUndo();
-                draggingMod = hud;
-                dragOffsetX = mx - x;
-                dragOffsetY = my - y;
+        // Check element drag
+        for (HUDMod hud : hudEditor.getActiveHUDMods()) {
+            int ex = hud.getX(width);
+            int ey = hud.getY(height);
+            int ew = hud.getScaledWidth();
+            int eh = hud.getScaledHeight();
+            if (mx >= ex && mx <= ex + ew && my >= ey && my <= ey + eh) {
+                dragging = hud;
+                dragOffsetX = mx - ex;
+                dragOffsetY = my - ey;
                 selectedMod = hud;
+                hudEditor.saveSnapshot();
                 return true;
             }
         }
@@ -242,20 +235,30 @@ public class HUDEditorScreen extends Screen {
         int mx = (int) mouseX;
         int my = (int) mouseY;
 
-        if (draggingMod != null) {
-            int nx = snap(mx - dragOffsetX);
-            int ny = snap(my - dragOffsetY);
-            // Clamp within screen bounds
-            nx = Math.max(0, Math.min(width  - draggingMod.getHudWidth(),  nx));
-            ny = Math.max(HEADER_H, Math.min(height - draggingMod.getHudHeight(), ny));
-            draggingMod.setHudPosition(nx, ny);
+        if (dragging != null) {
+            int newX = mx - dragOffsetX;
+            int newY = my - dragOffsetY;
+
+            // Grid snap
+            newX = snapToGrid(newX);
+            newY = snapToGrid(newY);
+
+            // Center snap
+            int cx = newX + dragging.getScaledWidth() / 2;
+            int cy = newY + dragging.getScaledHeight() / 2;
+            if (Math.abs(cx - width / 2) < SNAP_DIST) newX = width / 2 - dragging.getScaledWidth() / 2;
+            if (Math.abs(cy - height / 2) < SNAP_DIST) newY = height / 2 - dragging.getScaledHeight() / 2;
+
+            dragging.setX((float) newX / width);
+            dragging.setY((float) newY / height);
             return true;
         }
 
-        if (scalingMod != null) {
-            double dx    = mouseX - scaleStartX;
-            float  scale = Math.max(0.5f, Math.min(3.0f, scaleStartVal + (float)(dx / 100.0)));
-            scalingMod.setHudScale(scale);
+        if (scaling != null) {
+            int dx = mx - scaleStartX;
+            int dy = my - scaleStartY;
+            float delta2 = (dx + dy) / 100.0f;
+            scaling.setScale(scaleStartScale + delta2);
             return true;
         }
 
@@ -264,92 +267,49 @@ public class HUDEditorScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        draggingMod = null;
-        scalingMod  = null;
+        dragging = null;
+        scaling = null;
         return super.mouseReleased(mouseX, mouseY, button);
     }
 
-    // -----------------------------------------------------------------------
-    // Keyboard interaction — Ctrl+Z / Ctrl+Y
-    // -----------------------------------------------------------------------
-
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        boolean ctrl = (modifiers & GLFW.GLFW_MOD_CONTROL) != 0;
-
-        if (ctrl && keyCode == GLFW.GLFW_KEY_Z) {
-            undo();
+        // Ctrl+Z = undo
+        if (keyCode == GLFW.GLFW_KEY_Z && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
+            hudEditor.undo();
             return true;
         }
-        if (ctrl && keyCode == GLFW.GLFW_KEY_Y) {
-            redo();
+        // Ctrl+Y = redo
+        if (keyCode == GLFW.GLFW_KEY_Y && (modifiers & GLFW.GLFW_MOD_CONTROL) != 0) {
+            hudEditor.redo();
             return true;
         }
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-            this.close();
+            close();
             return true;
+        }
+        // Arrow key nudge
+        if (selectedMod != null) {
+            float nudge = (modifiers & GLFW.GLFW_MOD_SHIFT) != 0 ? 10f : 1f;
+            if (keyCode == GLFW.GLFW_KEY_LEFT)  { selectedMod.setX(selectedMod.getXPercent() - nudge / width); return true; }
+            if (keyCode == GLFW.GLFW_KEY_RIGHT) { selectedMod.setX(selectedMod.getXPercent() + nudge / width); return true; }
+            if (keyCode == GLFW.GLFW_KEY_UP)    { selectedMod.setY(selectedMod.getYPercent() - nudge / height); return true; }
+            if (keyCode == GLFW.GLFW_KEY_DOWN)  { selectedMod.setY(selectedMod.getYPercent() + nudge / height); return true; }
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     // -----------------------------------------------------------------------
-    // Undo / Redo helpers
+    // HELPERS
     // -----------------------------------------------------------------------
 
-    private void pushUndo() {
-        List<ElementState> snapshot = captureState();
-        undoStack.push(snapshot);
-        if (undoStack.size() > MAX_HISTORY) undoStack.pollLast();
-        redoStack.clear();
+    private int snapToGrid(int value) {
+        return Math.round((float) value / GRID_SIZE) * GRID_SIZE;
     }
 
-    private void undo() {
-        if (undoStack.isEmpty()) return;
-        redoStack.push(captureState());
-        applyState(undoStack.pop());
-    }
+    @Override
+    public boolean shouldPause() { return false; }
 
-    private void redo() {
-        if (redoStack.isEmpty()) return;
-        undoStack.push(captureState());
-        applyState(redoStack.pop());
-    }
-
-    private List<ElementState> captureState() {
-        List<ElementState> states = new ArrayList<>();
-        for (HUDMod hud : getHUDMods()) {
-            states.add(new ElementState(hud, hud.getHudX(), hud.getHudY(), hud.getHudScale()));
-        }
-        return states;
-    }
-
-    private void applyState(List<ElementState> states) {
-        for (ElementState s : states) {
-            s.mod().setHudPosition(s.x(), s.y());
-            s.mod().setHudScale(s.scale());
-        }
-    }
-
-    // -----------------------------------------------------------------------
-    // Utility helpers
-    // -----------------------------------------------------------------------
-
-    /** Collect all enabled HUD modules. */
-    private List<HUDMod> getHUDMods() {
-        List<HUDMod> list = new ArrayList<>();
-        for (GlacierMod mod : GlacierClient.getInstance().getModuleManager().getModules()) {
-            if (mod instanceof HUDMod hud && hud.isEnabled()) {
-                list.add(hud);
-            }
-        }
-        return list;
-    }
-
-    private int snap(int value) {
-        return Math.round((float) value / SNAP) * SNAP;
-    }
-
-    private boolean isOver(int mx, int my, int x, int y, int w, int h) {
-        return mx >= x && mx <= x + w && my >= y && my <= y + h;
-    }
+    @Override
+    public boolean shouldCloseOnEsc() { return true; }
 }

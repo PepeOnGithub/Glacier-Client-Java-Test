@@ -2,13 +2,14 @@
   "required": true,
   "package": "net.glacierclient.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [],
   "client": [
     "MixinGameRenderer",
-    "MixinInGameHud",
-    "MixinMinecraft",
+    "MixinMinecraftClient",
     "MixinClientPlayerEntity",
-    "MixinChatHud"
+    "MixinChatHud",
+    "MixinClientPlayNetworkHandler",
+    "MixinKeyboard",
+    "MixinMouse"
   ],
   "injectors": {
     "defaultRequire": 1

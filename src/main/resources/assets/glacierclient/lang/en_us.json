@@ -1,4 +1,12 @@
 {
+  "modmenu.nameTranslation.glacierclient": "Glacier Client",
+  "modmenu.descriptionTranslation.glacierclient": "A feature-rich Fabric client mod for Minecraft 1.20.4",
+
+  "glacierclient.gui.title": "Glacier Client",
+  "glacierclient.gui.search": "Search modules...",
+  "glacierclient.gui.no_settings": "No settings",
+  "glacierclient.gui.select_module": "Select a module",
+
   "glacierclient.category.hud": "HUD",
   "glacierclient.category.render": "Render",
   "glacierclient.category.pvp": "PvP",
@@ -7,8 +15,20 @@
   "glacierclient.category.advanced": "Advanced",
   "glacierclient.category.engine": "Engine",
   "glacierclient.category.cosmetics": "Cosmetics",
-  "glacierclient.gui.title": "Glacier Client",
-  "glacierclient.gui.search": "Search modules...",
-  "glacierclient.gui.enabled": "Enabled",
-  "glacierclient.gui.disabled": "Disabled"
+
+  "glacierclient.hud_editor.title": "HUD Editor",
+  "glacierclient.hud_editor.done": "Done",
+  "glacierclient.hud_editor.undo": "Undo",
+  "glacierclient.hud_editor.redo": "Redo",
+  "glacierclient.hud_editor.grid": "Grid",
+
+  "glacierclient.notification.type.info": "Info",
+  "glacierclient.notification.type.success": "Success",
+  "glacierclient.notification.type.warning": "Warning",
+  "glacierclient.notification.type.error": "Error",
+
+  "glacierclient.profile.default": "Default",
+  "glacierclient.profile.pvp": "PvP",
+  "glacierclient.profile.recording": "Recording",
+  "glacierclient.profile.performance": "Performance"
 }
