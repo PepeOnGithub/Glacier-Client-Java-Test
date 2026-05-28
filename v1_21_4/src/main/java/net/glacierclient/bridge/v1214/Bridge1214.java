@@ -25,7 +25,7 @@ public class Bridge1214 extends AbstractVersionBridge {
     @Override public boolean isSneaking()   { return isInGame() && mc().player.isSneaking(); }
     @Override public boolean isOnGround()   { return !isInGame() || mc().player.isOnGround(); }
     @Override public boolean isFlying()     { return isInGame() && mc().player.getAbilities().flying; }
-    @Override public boolean isElytraFlying() { return isInGame() && mc().player.isFallFlying(); }
+    @Override public boolean isElytraFlying() { return isInGame() && mc().player.isGliding(); }
     @Override public float   getHorizontalSpeed() {
         if (!isInGame()) return 0;
         double vx = mc().player.getVelocity().x, vz = mc().player.getVelocity().z;
