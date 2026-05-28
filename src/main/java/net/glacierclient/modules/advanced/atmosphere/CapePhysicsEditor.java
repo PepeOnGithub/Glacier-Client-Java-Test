@@ -30,9 +30,9 @@ public class CapePhysicsEditor extends GlacierMod {
     @Override
     public void onTick() {
         if (!fancyPhysics.getValue()) return;
-        float g = (float) gravity.getValue();
-        float w = (float) wind.getValue();
-        float s = (float) stiffness.getValue();
+        float g = (float)(double) gravity.getValue();
+        float w = (float)(double) wind.getValue();
+        float s = (float)(double) stiffness.getValue();
         for (int i = 0; i < 6; i++) {
             capeVelocities[i * 3 + 1] -= g * 0.01f;
             capeVelocities[i * 3] += (float) (Math.sin(System.currentTimeMillis() * 0.001) * w * 0.005);
@@ -44,6 +44,6 @@ public class CapePhysicsEditor extends GlacierMod {
     }
 
     public float[] getCapePositions() { return capePositions; }
-    public float getGravity() { return (float) gravity.getValue(); }
-    public float getWind() { return (float) wind.getValue(); }
+    public float getGravity() { return (float)(double) gravity.getValue(); }
+    public float getWind() { return (float)(double) wind.getValue(); }
 }

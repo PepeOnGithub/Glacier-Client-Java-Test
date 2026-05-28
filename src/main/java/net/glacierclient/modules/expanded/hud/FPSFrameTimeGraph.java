@@ -36,7 +36,7 @@ public class FPSFrameTimeGraph extends HUDMod {
 
         // Record frame time
         float ft = delta * 50f;
-        if (frameTimes.size() >= (int) history.getValue()) frameTimes.pollFirst();
+        if (frameTimes.size() >= (int)(double) history.getValue()) frameTimes.pollFirst();
         frameTimes.addLast(ft);
 
         // Background

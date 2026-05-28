@@ -50,7 +50,7 @@ public class TPSGraphOverlay extends HUDMod {
             tpsHistory.addLast(currentTPS);
             tickCount = 0;
             lastSampleTime = now;
-            int maxSamples = (int) historySeconds.getValue();
+            int maxSamples = (int)(double) historySeconds.getValue();
             while (tpsHistory.size() > maxSamples) {
                 tpsHistory.pollFirst();
             }

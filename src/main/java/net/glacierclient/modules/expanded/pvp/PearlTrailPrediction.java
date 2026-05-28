@@ -28,7 +28,7 @@ public class PearlTrailPrediction extends GlacierMod {
     public void onDisable() {}
 
     public int getArcColor() { return arcColor.getValue(); }
-    public int getArcSegments() { return (int) arcSegments.getValue(); }
+    public int getArcSegments() { return (int)(double) arcSegments.getValue(); }
     public boolean isShowLanding() { return showLanding.getValue(); }
     public int getLandingColor() { return landingColor.getValue(); }
 }

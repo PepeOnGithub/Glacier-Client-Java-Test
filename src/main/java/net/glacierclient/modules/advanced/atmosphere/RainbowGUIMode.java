@@ -30,7 +30,7 @@ public class RainbowGUIMode extends GlacierMod {
 
     public int getRainbowColor(float offset) {
         float h = (hue + offset) % 1f;
-        float s = (float) saturation.getValue();
+        float s = (float)(double) saturation.getValue();
         return java.awt.Color.HSBtoRGB(h, s, 1.0f) | 0xFF000000;
     }
 

@@ -25,5 +25,5 @@ public class EatingAnimationFix extends GlacierMod {
     public void onTick() {}
 
     public boolean isAlwaysAnimate() { return alwaysAnimate.getValue(); }
-    public float getAnimationSpeed() { return (float) animationSpeed.getValue(); }
+    public float getAnimationSpeed() { return (float)(double) animationSpeed.getValue(); }
 }

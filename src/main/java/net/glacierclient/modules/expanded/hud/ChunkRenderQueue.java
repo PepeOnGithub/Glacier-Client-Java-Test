@@ -33,7 +33,7 @@ public class ChunkRenderQueue extends HUDMod {
         context.fill(x, y, x + w, y + h, 0xCC1E1E2E);
 
         int queueDepth = 128; // Placeholder value
-        boolean busy = queueDepth > (int) warnThreshold.getValue();
+        boolean busy = queueDepth > (int)(double) warnThreshold.getValue();
         int col = busy ? busyColor.getValue() : GlacierTheme.TEXT;
 
         StringBuilder sb = new StringBuilder();

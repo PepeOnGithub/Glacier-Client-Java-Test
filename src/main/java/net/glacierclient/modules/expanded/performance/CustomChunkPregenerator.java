@@ -24,7 +24,7 @@ public class CustomChunkPregenerator extends GlacierMod {
     public void onDisable() {}
 
     public boolean isEnabled() { return enabled.getValue(); }
-    public int getRadius() { return (int) radius.getValue(); }
-    public int getMaxPerSecond() { return (int) maxPerSecond.getValue(); }
+    public int getRadius() { return (int)(double) radius.getValue(); }
+    public int getMaxPerSecond() { return (int)(double) maxPerSecond.getValue(); }
     public boolean isOnlyDuringIdle() { return onlyDuringIdle.getValue(); }
 }

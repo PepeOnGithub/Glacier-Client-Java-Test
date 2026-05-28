@@ -28,11 +28,11 @@ public class TextureMIPMapOptimizer extends GlacierMod {
     private void applySettings() {
         net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
         if (mc.options != null) {
-            mc.options.getMipmapLevels().setValue((int) mipMapLevel.getValue());
+            mc.options.getMipmapLevels().setValue((int)(double) mipMapLevel.getValue());
         }
     }
 
-    public int getMipMapLevel() { return (int) mipMapLevel.getValue(); }
+    public int getMipMapLevel() { return (int)(double) mipMapLevel.getValue(); }
     public boolean isAF() { return anisotropicFiltering.getValue(); }
-    public int getAFLevel() { return (int) anisoLevel.getValue(); }
+    public int getAFLevel() { return (int)(double) anisoLevel.getValue(); }
 }

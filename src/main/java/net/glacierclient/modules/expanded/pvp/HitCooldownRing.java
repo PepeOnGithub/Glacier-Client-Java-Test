@@ -30,6 +30,6 @@ public class HitCooldownRing extends GlacierMod {
     public String getStyle() { return style.getValue(); }
     public int getFillColor() { return fillColor.getValue(); }
     public int getEmptyColor() { return emptyColor.getValue(); }
-    public int getSize() { return (int) size.getValue(); }
+    public int getSize() { return (int)(double) size.getValue(); }
     public boolean isShowOnlyDuring() { return showOnlyDuring.getValue(); }
 }

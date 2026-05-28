@@ -30,7 +30,7 @@ public class BlockOverlay extends GlacierMod {
     public void onTick() {}
 
     public int getColor() { return color.getValue(); }
-    public float getLineWidth() { return (float) lineWidth.getValue(); }
+    public float getLineWidth() { return (float)(double) lineWidth.getValue(); }
     public boolean isFill() { return fill.getValue(); }
     public int getFillColor() { return fillColor.getValue(); }
     public String getStyle() { return style.getValue(); }

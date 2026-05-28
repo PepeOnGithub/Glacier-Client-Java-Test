@@ -44,7 +44,7 @@ public class ProfileManagerMod extends GlacierMod {
     }
 
     public void addProfile(String name) {
-        if (profiles.size() < (int) maxProfiles.getValue() && !profiles.contains(name)) {
+        if (profiles.size() < (int)(double) maxProfiles.getValue() && !profiles.contains(name)) {
             profiles.add(name);
         }
     }

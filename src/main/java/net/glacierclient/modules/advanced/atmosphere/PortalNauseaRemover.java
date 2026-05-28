@@ -41,5 +41,5 @@ public class PortalNauseaRemover extends GlacierMod {
     }
 
     public boolean shouldRemoveOverlay() { return removePortalOverlay.getValue(); }
-    public float getIntensityOverride() { return (float) intensity.getValue(); }
+    public float getIntensityOverride() { return (float)(double) intensity.getValue(); }
 }

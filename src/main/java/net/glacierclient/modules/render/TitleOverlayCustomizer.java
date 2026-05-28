@@ -27,8 +27,8 @@ public class TitleOverlayCustomizer extends GlacierMod {
     @Override
     public void onTick() {}
 
-    public float getTextScale() { return (float) textScale.getValue(); }
-    public float getPosY(int height) { return height * (float) posY.getValue() / 100f; }
+    public float getTextScale() { return (float)(double) textScale.getValue(); }
+    public float getPosY(int height) { return height * (float)(double) posY.getValue() / 100f; }
     public boolean isTitleHidden() { return hideTitle.getValue(); }
     public boolean isSubtitleHidden() { return hideSubtitle.getValue(); }
     public boolean isActionBarHidden() { return hideActionBar.getValue(); }

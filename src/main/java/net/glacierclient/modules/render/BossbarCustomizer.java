@@ -28,8 +28,8 @@ public class BossbarCustomizer extends GlacierMod {
     public void onTick() {}
 
     public boolean isBossbarHidden() { return hideBossbar.getValue(); }
-    public float getPosX(int width) { return width * (float) posX.getValue() / 100f; }
-    public float getPosY(int height) { return height * (float) posY.getValue() / 100f; }
-    public float getScale() { return (float) scale.getValue(); }
+    public float getPosX(int width) { return width * (float)(double) posX.getValue() / 100f; }
+    public float getPosY(int height) { return height * (float)(double) posY.getValue() / 100f; }
+    public float getScale() { return (float)(double) scale.getValue(); }
     public boolean isOnlyText() { return showOnlyText.getValue(); }
 }

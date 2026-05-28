@@ -28,6 +28,6 @@ public class TotemPopTracker extends GlacierMod {
 
     public boolean isShowInChat() { return showInChat.getValue(); }
     public boolean isShowHeadIcon() { return showHeadIcon.getValue(); }
-    public int getIconDuration() { return (int) iconDuration.getValue(); }
+    public int getIconDuration() { return (int)(double) iconDuration.getValue(); }
     public int getPopColor() { return popColor.getValue(); }
 }

@@ -23,6 +23,6 @@ public class ScreenShakeMultiplier extends GlacierMod {
     public float applyShakeMultiplier(float original, boolean isExplosion) {
         if (isExplosion && disableExplosionShake.getValue()) return 0;
         if (!isExplosion && disableDamageShake.getValue()) return 0;
-        return original * (float) multiplier.getValue();
+        return original * (float)(double) multiplier.getValue();
     }
 }

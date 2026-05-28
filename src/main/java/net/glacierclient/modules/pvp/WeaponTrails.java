@@ -38,5 +38,5 @@ public class WeaponTrails extends GlacierMod {
     }
 
     public String getStyle() { return style.getValue(); }
-    public float getDuration() { return (float) duration.getValue(); }
+    public float getDuration() { return (float)(double) duration.getValue(); }
 }

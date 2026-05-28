@@ -26,7 +26,7 @@ public class FOVChanger extends GlacierMod {
 
     @Override
     public void onEnable() {
-        currentFOV = (float) baseFOV.getValue();
+        currentFOV = (float)(double) baseFOV.getValue();
     }
 
     @Override public void onDisable() {}
@@ -37,9 +37,9 @@ public class FOVChanger extends GlacierMod {
         if (mc.player == null) return;
         inCombat = combatFOV.getValue() && (System.currentTimeMillis() - lastHitTime < 3000);
         float targetFOV;
-        if (inCombat) targetFOV = (float) combatFOVValue.getValue();
-        else if (mc.player.isSprinting()) targetFOV = (float) sprintFOV.getValue();
-        else targetFOV = (float) baseFOV.getValue();
+        if (inCombat) targetFOV = (float)(double) combatFOVValue.getValue();
+        else if (mc.player.isSprinting()) targetFOV = (float)(double) sprintFOV.getValue();
+        else targetFOV = (float)(double) baseFOV.getValue();
         if (smoothTransition.getValue()) {
             float speed = (float) (transitionSpeed.getValue() * 0.1);
             currentFOV += (targetFOV - currentFOV) * speed;

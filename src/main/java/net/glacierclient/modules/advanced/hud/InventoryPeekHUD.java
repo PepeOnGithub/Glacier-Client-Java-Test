@@ -31,7 +31,7 @@ public class InventoryPeekHUD extends HUDMod {
         context.fill(x, y, x + w, y + h, 0xAA1A1A2E);
         context.drawText(mc.textRenderer, "Inventory", x + 4, y + 2, GlacierTheme.ACCENT, true);
         if (mc.player == null) return;
-        int sz = (int) slotSize.getValue();
+        int sz = (int)(double) slotSize.getValue();
         int rowX = x + 4, rowY = y + 14;
         // Armor
         if (showArmor.getValue()) {

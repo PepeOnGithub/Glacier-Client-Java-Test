@@ -44,6 +44,6 @@ public class MotionBlur extends GlacierMod {
 
     public float getEffectiveStrength() {
         if (onlyOnMove.getValue() && !isMoving) return 0f;
-        return (float) strength.getValue();
+        return (float)(double) strength.getValue();
     }
 }

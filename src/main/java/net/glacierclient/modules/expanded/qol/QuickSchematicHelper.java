@@ -26,6 +26,6 @@ public class QuickSchematicHelper extends GlacierMod {
 
     public boolean isShowGrid() { return showGrid.getValue(); }
     public boolean isSnapToGrid() { return snapToGrid.getValue(); }
-    public int getGridSize() { return (int) gridSize.getValue(); }
+    public int getGridSize() { return (int)(double) gridSize.getValue(); }
     public int getGridColor() { return gridColor.getValue(); }
 }

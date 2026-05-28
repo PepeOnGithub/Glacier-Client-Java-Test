@@ -21,8 +21,8 @@ public class HandProgressModifier extends GlacierMod {
     @Override public void onDisable() {}
     @Override public void onTick() {}
 
-    public float getSwayIntensity() { return (float) swayIntensity.getValue(); }
-    public float getBobbingIntensity() { return (float) bobbingIntensity.getValue(); }
+    public float getSwayIntensity() { return (float)(double) swayIntensity.getValue(); }
+    public float getBobbingIntensity() { return (float)(double) bobbingIntensity.getValue(); }
     public boolean isSquishRemoved() { return removeSquish.getValue(); }
-    public float getZoomLevel() { return (float) zoomLevel.getValue(); }
+    public float getZoomLevel() { return (float)(double) zoomLevel.getValue(); }
 }

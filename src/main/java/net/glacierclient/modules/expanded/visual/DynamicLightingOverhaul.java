@@ -31,6 +31,6 @@ public class DynamicLightingOverhaul extends GlacierMod {
     public boolean isPlayerLight() { return playerLight.getValue(); }
     public boolean isTorchLight() { return torchLight.getValue(); }
     public boolean isGlowstoneLight() { return glowstoneLight.getValue(); }
-    public int getLightRadius() { return (int) lightRadius.getValue(); }
-    public int getUpdateRate() { return (int) updateRate.getValue(); }
+    public int getLightRadius() { return (int)(double) lightRadius.getValue(); }
+    public int getUpdateRate() { return (int)(double) updateRate.getValue(); }
 }

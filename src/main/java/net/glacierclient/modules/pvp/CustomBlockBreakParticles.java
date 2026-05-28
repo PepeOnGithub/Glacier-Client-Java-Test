@@ -32,5 +32,5 @@ public class CustomBlockBreakParticles extends GlacierMod {
     public boolean isRemoved() { return removeParticles.getValue(); }
     public String getStyle() { return style.getValue(); }
     public int getParticleColor() { return color.getValue(); }
-    public int getParticleCount() { return (int) count.getValue(); }
+    public int getParticleCount() { return (int)(double) count.getValue(); }
 }

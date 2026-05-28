@@ -31,5 +31,5 @@ public class FastRenderHook extends GlacierMod {
     public boolean isFastBlock() { return fastBlock.getValue(); }
     public boolean isFastParticle() { return fastParticle.getValue(); }
     public boolean isFastCloud() { return fastCloud.getValue(); }
-    public int getRenderBatchSize() { return (int) renderBatchSize.getValue(); }
+    public int getRenderBatchSize() { return (int)(double) renderBatchSize.getValue(); }
 }

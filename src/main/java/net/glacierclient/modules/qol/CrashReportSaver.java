@@ -47,7 +47,7 @@ public class CrashReportSaver extends GlacierMod {
         File[] files = dir.listFiles();
         if (files == null) return;
         java.util.Arrays.sort(files, java.util.Comparator.comparingLong(File::lastModified));
-        int max = (int) maxSaved.getValue();
+        int max = (int)(double) maxSaved.getValue();
         for (int i = 0; i < files.length - max; i++) files[i].delete();
     }
 }

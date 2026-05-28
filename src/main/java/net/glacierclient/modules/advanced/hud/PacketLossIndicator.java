@@ -53,7 +53,7 @@ public class PacketLossIndicator extends HUDMod {
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
         var tr = MinecraftClient.getInstance().textRenderer;
         context.fill(x, y, x + w, y + h, 0xAA1A1A2E);
-        int warn = (int) warnThreshold.getValue();
+        int warn = (int)(double) warnThreshold.getValue();
         int color = lossPercent == 0 ? normalColor.getValue()
             : lossPercent < warn ? normalColor.getValue()
             : lossPercent < warn * 3 ? warnColor.getValue()

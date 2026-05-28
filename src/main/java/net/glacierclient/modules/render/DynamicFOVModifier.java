@@ -26,7 +26,7 @@ public class DynamicFOVModifier extends GlacierMod {
     @Override
     public void onTick() {}
 
-    public float getMultiplier() { return (float) multiplier.getValue(); }
+    public float getMultiplier() { return (float)(double) multiplier.getValue(); }
     public boolean isSpeedFOVDisabled() { return disableSpeedFOV.getValue(); }
     public boolean isSlownessFOVDisabled() { return disableSlownessFOV.getValue(); }
     public boolean isSprintFOVDisabled() { return disableSprintFOV.getValue(); }

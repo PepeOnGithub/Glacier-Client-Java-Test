@@ -24,9 +24,9 @@ public class LODRenderer extends GlacierMod {
     @Override
     public void onDisable() {}
 
-    public int getLodDistance() { return (int) lodDistance.getValue(); }
-    public int getLodQuality() { return (int) lodQuality.getValue(); }
+    public int getLodDistance() { return (int)(double) lodDistance.getValue(); }
+    public int getLodQuality() { return (int)(double) lodQuality.getValue(); }
     public boolean isTerrain() { return terrain.getValue(); }
     public boolean isEntities() { return entities.getValue(); }
-    public int getFadeRange() { return (int) fadeRange.getValue(); }
+    public int getFadeRange() { return (int)(double) fadeRange.getValue(); }
 }

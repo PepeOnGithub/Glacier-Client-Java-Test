@@ -33,15 +33,15 @@ public class ScoreboardCustomizer extends HUDMod {
     }
 
     public int getBackgroundAlpha() {
-        return (int) backgroundAlpha.getValue();
+        return (int)(double) backgroundAlpha.getValue();
     }
 
     public float getScoreboardPosX(int screenWidth) {
-        return screenWidth * (float) posX.getValue() / 100f;
+        return screenWidth * (float)(double) posX.getValue() / 100f;
     }
 
     public float getScoreboardPosY(int screenHeight) {
-        return screenHeight * (float) posY.getValue() / 100f;
+        return screenHeight * (float)(double) posY.getValue() / 100f;
     }
 
     @Override

@@ -21,7 +21,7 @@ public class CrosshairDynamicGap extends GlacierMod {
     }
 
     @Override
-    public void onEnable() { currentGap = (float) baseGap.getValue(); }
+    public void onEnable() { currentGap = (float)(double) baseGap.getValue(); }
     @Override public void onDisable() {}
 
     @Override
@@ -32,9 +32,9 @@ public class CrosshairDynamicGap extends GlacierMod {
             (mc.player.input.movementForward != 0 || mc.player.input.movementSideways != 0);
         boolean isAttacking = System.currentTimeMillis() - lastAttackTime < 300;
         float targetGap;
-        if (isAttacking) targetGap = (float) attackGap.getValue();
-        else if (isMoving) targetGap = (float) movingGap.getValue();
-        else targetGap = (float) baseGap.getValue();
+        if (isAttacking) targetGap = (float)(double) attackGap.getValue();
+        else if (isMoving) targetGap = (float)(double) movingGap.getValue();
+        else targetGap = (float)(double) baseGap.getValue();
         float speed = (float) (transitionSpeed.getValue() * 0.15);
         currentGap += (targetGap - currentGap) * speed;
     }

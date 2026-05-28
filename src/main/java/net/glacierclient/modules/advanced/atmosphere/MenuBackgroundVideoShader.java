@@ -38,15 +38,15 @@ public class MenuBackgroundVideoShader extends GlacierMod {
     public void onTick() {
         time += (float) (speed.getValue() * 0.02);
         for (int i = 0; i < 100; i++) {
-            particleX[i] += particleVX[i] * (float) speed.getValue();
-            particleY[i] += particleVY[i] * (float) speed.getValue();
+            particleX[i] += particleVX[i] * (float)(double) speed.getValue();
+            particleY[i] += particleVY[i] * (float)(double) speed.getValue();
             if (particleX[i] < 0 || particleX[i] > 1) particleVX[i] = -particleVX[i];
             if (particleY[i] < 0 || particleY[i] > 1) particleVY[i] = -particleVY[i];
         }
     }
 
     public void renderBackground(DrawContext context, int w, int h) {
-        float intens = (float) intensity.getValue();
+        float intens = (float)(double) intensity.getValue();
         String shaderVal = shader.getValue();
         if ("Glacier".equals(shaderVal)) {
             // Aurora bands

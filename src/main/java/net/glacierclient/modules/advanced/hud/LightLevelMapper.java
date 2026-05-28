@@ -43,7 +43,7 @@ public class LightLevelMapper extends HUDMod {
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
         var tr = MinecraftClient.getInstance().textRenderer;
         context.fill(x, y, x + w, y + h, 0xAA1A1A2E);
-        boolean danger = lightLevel <= (int) spawnThreshold.getValue();
+        boolean danger = lightLevel <= (int)(double) spawnThreshold.getValue();
         int color = colorCode.getValue() ? (danger ? dangerColor.getValue() : safeColor.getValue()) : GlacierTheme.TEXT;
         String text = "Light: " + lightLevel + " (sky:" + skyLight + " blk:" + blockLight + ")";
         if (danger) text += " SPAWN!";

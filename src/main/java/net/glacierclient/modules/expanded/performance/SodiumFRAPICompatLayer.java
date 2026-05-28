@@ -26,5 +26,5 @@ public class SodiumFRAPICompatLayer extends GlacierMod {
     public boolean isEnabled() { return enabled.getValue(); }
     public boolean isMergeDrawCalls() { return mergeDrawCalls.getValue(); }
     public boolean isRebuildChunks() { return rebuildChunks.getValue(); }
-    public int getRebuildDelay() { return (int) rebuildDelay.getValue(); }
+    public int getRebuildDelay() { return (int)(double) rebuildDelay.getValue(); }
 }

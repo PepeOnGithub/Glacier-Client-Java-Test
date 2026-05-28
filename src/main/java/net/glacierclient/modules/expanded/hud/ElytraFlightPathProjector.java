@@ -33,7 +33,7 @@ public class ElytraFlightPathProjector extends HUDMod {
 
         context.fill(x, y, x + w, y + h, 0xCC1E1E2E);
         context.drawTextWithShadow(mc.textRenderer,
-            "ETA: " + (int) lookAhead.getValue() + "s",
+            "ETA: " + (int)(double) lookAhead.getValue() + "s",
             x + 4, y + 5,
             lineColor.getValue());
     }

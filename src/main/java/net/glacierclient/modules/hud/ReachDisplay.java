@@ -40,7 +40,7 @@ public class ReachDisplay extends HUDMod {
         if (mc.textRenderer == null) return;
         boolean show = !showOnHit.getValue() || (System.currentTimeMillis() - lastHitTime < 2000);
         if (!show) return;
-        int dp = (int) decimalPlaces.getValue();
+        int dp = (int)(double) decimalPlaces.getValue();
         String fmt = "Reach: %." + dp + "f blocks";
         String text = String.format(fmt, lastReach);
         context.drawText(mc.textRenderer, text, getX() + 2, getY() + 4, GlacierTheme.TEXT, false);

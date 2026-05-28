@@ -44,7 +44,7 @@ public class EncounterHistory extends HUDMod {
         long now = System.currentTimeMillis();
         long clearMs = (long) (clearAfter.getValue() * 1000);
         encounters.removeIf(e -> (now - e.timestamp) > clearMs);
-        int max = (int) maxEntries.getValue();
+        int max = (int)(double) maxEntries.getValue();
         while (encounters.size() > max) encounters.remove(0);
     }
 
@@ -59,7 +59,7 @@ public class EncounterHistory extends HUDMod {
         context.fill(x, y, x + w, y + h, 0xAA1A1A2E);
         context.drawText(tr, "Encounters", x + 4, y + 4, GlacierTheme.ACCENT, true);
         int lineY = y + 16;
-        for (int i = 0; i < Math.min(encounters.size(), (int) maxEntries.getValue()); i++) {
+        for (int i = 0; i < Math.min(encounters.size(), (int)(double) maxEntries.getValue()); i++) {
             Encounter e = encounters.get(i);
             if (lineY + 10 > y + h) break;
             int color = "Kill".equals(e.result) ? 0xFF43B581 : "Death".equals(e.result) ? 0xFFF04747 : GlacierTheme.TEXT;

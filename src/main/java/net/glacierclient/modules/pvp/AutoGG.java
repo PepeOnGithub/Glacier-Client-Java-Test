@@ -43,6 +43,6 @@ public class AutoGG extends GlacierMod {
         if ("loss".equals(outcome) && !onLoss.getValue()) return;
         if ("draw".equals(outcome) && !onDraw.getValue()) return;
         pendingSend = true;
-        sendAt = System.currentTimeMillis() + (long) delay.getValue();
+        sendAt = System.currentTimeMillis() + (long)(double) delay.getValue();
     }
 }

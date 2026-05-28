@@ -30,6 +30,6 @@ public class ParticlesMultiplier extends GlacierMod {
         if ("crit".equals(type) && !affectCrit.getValue()) return 1f;
         if ("sweep".equals(type) && !affectSweep.getValue()) return 1f;
         if ("block".equals(type) && !affectBlock.getValue()) return 1f;
-        return (float) multiplier.getValue();
+        return (float)(double) multiplier.getValue();
     }
 }

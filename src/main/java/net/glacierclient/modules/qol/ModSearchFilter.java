@@ -38,7 +38,7 @@ public class ModSearchFilter extends GlacierMod {
                 boolean descMatch = searchDescription.getValue() && m.getDescription().toLowerCase().contains(q);
                 return nameMatch || descMatch;
             })
-            .limit((int) maxResults.getValue())
+            .limit((int)(double) maxResults.getValue())
             .collect(Collectors.toList());
     }
 

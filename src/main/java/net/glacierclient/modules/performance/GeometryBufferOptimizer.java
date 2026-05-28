@@ -26,6 +26,6 @@ public class GeometryBufferOptimizer extends GlacierMod {
     public void onTick() {}
 
     public boolean isMergeBuffers() { return mergeBuffers.getValue(); }
-    public int getBufferSize() { return (int) bufferSize.getValue(); }
+    public int getBufferSize() { return (int)(double) bufferSize.getValue(); }
     public boolean isReuseBuffers() { return reuseBuffers.getValue(); }
 }

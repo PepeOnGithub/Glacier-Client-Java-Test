@@ -38,7 +38,7 @@ public class PackDisplay extends HUDMod {
             .map(p -> p.getDisplayName().getString())
             .filter(n -> !n.equals("Default"))
             .findFirst().orElse("Default");
-        int maxLen = (int) maxLength.getValue();
+        int maxLen = (int)(double) maxLength.getValue();
         if (packName.length() > maxLen) packName = packName.substring(0, maxLen - 3) + "...";
         context.drawText(mc.textRenderer, "Pack: " + packName, getX() + 2, getY() + 4, GlacierTheme.TEXT, false);
     }

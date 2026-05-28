@@ -46,13 +46,13 @@ public class HeldItemLargeDisplay extends HUDMod {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (displayName.isEmpty()) return;
         long elapsed = System.currentTimeMillis() - shownAt;
-        long fade = (long) fadeTime.getValue();
+        long fade = (long)(double) fadeTime.getValue();
         if (elapsed > fade) return;
         float alpha = elapsed < fade - 1000 ? 1.0f : (fade - elapsed) / 1000.0f;
         int a = Math.max(0, Math.min(255, (int) (alpha * 255)));
         int col = (a << 24) | (textColor.getValue() & 0x00FFFFFF);
         context.fill(x, y, x + w, y + h, (a / 2) << 24 | 0x1A1A2E);
-        float sc = (float) scale.getValue();
+        float sc = (float)(double) scale.getValue();
         var matrix = context.getMatrices();
         matrix.push();
         matrix.translate(x + 4, y + h / 2f - 4, 0);

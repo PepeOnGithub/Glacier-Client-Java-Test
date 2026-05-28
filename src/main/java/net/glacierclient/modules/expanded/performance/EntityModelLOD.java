@@ -24,8 +24,8 @@ public class EntityModelLOD extends GlacierMod {
     @Override
     public void onDisable() {}
 
-    public int getLodDistance() { return (int) lodDistance.getValue(); }
-    public int getLodDetail() { return (int) lodDetail.getValue(); }
+    public int getLodDistance() { return (int)(double) lodDistance.getValue(); }
+    public int getLodDetail() { return (int)(double) lodDetail.getValue(); }
     public boolean isAffectPlayers() { return affectPlayers.getValue(); }
     public boolean isAffectMobs() { return affectMobs.getValue(); }
     public boolean isSmoothTransition() { return smoothTransition.getValue(); }

@@ -42,7 +42,7 @@ public class MinimapModule extends HUDMod {
     public void render(DrawContext context, float tickDelta) {
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
         MinecraftClient mc = MinecraftClient.getInstance();
-        int alpha = (int) opacity.getValue();
+        int alpha = (int)(double) opacity.getValue();
         context.fill(x, y, x + w, y + h, (alpha << 24) | 0x1A1A2E);
         // Border
         context.fill(x, y, x + w, y + 1, GlacierTheme.ACCENT);
@@ -52,7 +52,7 @@ public class MinimapModule extends HUDMod {
 
         if (mc.player == null || mc.world == null) return;
         BlockPos playerPos = mc.player.getBlockPos();
-        int z2 = (int) zoom.getValue();
+        int z2 = (int)(double) zoom.getValue();
         // Draw grid lines
         int centerX = x + w / 2, centerZ = y + h / 2;
         for (int cx = centerX; cx < x + w; cx += 16 * z2) context.fill(cx, y, cx + 1, y + h, 0x22FFFFFF);

@@ -26,5 +26,5 @@ public class ReportBotAssist extends GlacierMod {
     public boolean isAutoCollect() { return autoCollect.getValue(); }
     public boolean isAutoScreenshot() { return autoScreenshot.getValue(); }
     public boolean isPackageEvidence() { return packageEvidence.getValue(); }
-    public int getChatHistoryLines() { return (int) chatHistoryLines.getValue(); }
+    public int getChatHistoryLines() { return (int)(double) chatHistoryLines.getValue(); }
 }

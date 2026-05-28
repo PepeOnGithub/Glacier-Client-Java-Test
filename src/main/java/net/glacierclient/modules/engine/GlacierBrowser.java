@@ -30,9 +30,9 @@ public class GlacierBrowser extends GlacierMod {
     }
 
     public boolean isShowOverlay() { return showOverlay.getValue(); }
-    public int getWidth() { return (int) width.getValue(); }
-    public int getHeight() { return (int) height.getValue(); }
-    public int getOpacity() { return (int) opacity.getValue(); }
-    public int getPosX() { return (int) posX.getValue(); }
-    public int getPosY() { return (int) posY.getValue(); }
+    public int getWidth() { return (int)(double) width.getValue(); }
+    public int getHeight() { return (int)(double) height.getValue(); }
+    public int getOpacity() { return (int)(double) opacity.getValue(); }
+    public int getPosX() { return (int)(double) posX.getValue(); }
+    public int getPosY() { return (int)(double) posY.getValue(); }
 }

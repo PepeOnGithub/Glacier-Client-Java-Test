@@ -21,7 +21,7 @@ public class ExplosionFlashMuter extends GlacierMod {
 
     public float getEffectiveFlashIntensity(float original) {
         if (removeCompletely.getValue()) return 0;
-        return original * (float) flashIntensity.getValue();
+        return original * (float)(double) flashIntensity.getValue();
     }
 
     public boolean shouldBlockFlash() { return removeCompletely.getValue(); }

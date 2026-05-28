@@ -45,7 +45,7 @@ public class WeaponDurabilityWarning extends HUDMod {
             return;
         }
         int remaining = held.getMaxDamage() - held.getDamage();
-        boolean warn = remaining <= (int) threshold.getValue();
+        boolean warn = remaining <= (int)(double) threshold.getValue();
         int color = warn ? warningColor.getValue() : GlacierTheme.TEXT;
         float pct = remaining / (float) held.getMaxDamage();
         String label = held.getName().getString() + " " + remaining + "/" + held.getMaxDamage();

@@ -22,7 +22,7 @@ public class AntiStreamSnipingBlocker extends GlacierMod {
     @Override
     public void onDisable() {}
 
-    public int getJoinDelay() { return (int) joinDelay.getValue(); }
+    public int getJoinDelay() { return (int)(double) joinDelay.getValue(); }
     public boolean isShuffleFriendNotifs() { return shuffleFriendNotifs.getValue(); }
     public boolean isShowIndicator() { return showIndicator.getValue(); }
 }

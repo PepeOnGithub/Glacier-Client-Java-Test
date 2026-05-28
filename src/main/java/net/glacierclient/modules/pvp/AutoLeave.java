@@ -41,6 +41,6 @@ public class AutoLeave extends GlacierMod {
         if (isDeath && !onDeath.getValue()) return;
         if (!isDeath && !onGameEnd.getValue()) return;
         pending = true;
-        leaveAt = System.currentTimeMillis() + (long) delay.getValue();
+        leaveAt = System.currentTimeMillis() + (long)(double) delay.getValue();
     }
 }

@@ -34,7 +34,7 @@ public class CompactChat extends GlacierMod {
 
     public boolean shouldShowMessage(String msg) {
         int count = messageCounts.getOrDefault(msg, 0);
-        if (count >= (int) maxStack.getValue()) return false;
+        if (count >= (int)(double) maxStack.getValue()) return false;
         messageCounts.put(msg, count + 1);
         return true;
     }

@@ -35,6 +35,6 @@ public class AudioDeviceOutputSelector extends GlacierMod {
     }
 
     public String getDevice() { return device.getValue(); }
-    public int getBufferSize() { return (int) bufferSize.getValue(); }
+    public int getBufferSize() { return (int)(double) bufferSize.getValue(); }
     public boolean isExclusiveMode() { return exclusiveMode.getValue(); }
 }

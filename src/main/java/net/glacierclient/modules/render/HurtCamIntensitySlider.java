@@ -26,6 +26,6 @@ public class HurtCamIntensitySlider extends GlacierMod {
 
     public float getIntensity(boolean isCrit) {
         if (isCrit && disableOnCrit.getValue()) return 0f;
-        return (float) intensity.getValue();
+        return (float)(double) intensity.getValue();
     }
 }

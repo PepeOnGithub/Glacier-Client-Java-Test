@@ -30,7 +30,7 @@ public class TileEntityCulling extends GlacierMod {
     public boolean shouldRender(boolean isChest) {
         if (!enabled.getValue()) return true;
         if (isChest && skipChests.getValue()) return false;
-        if (renderedCount >= (int) maxTileEntities.getValue()) return false;
+        if (renderedCount >= (int)(double) maxTileEntities.getValue()) return false;
         renderedCount++;
         return true;
     }

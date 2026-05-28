@@ -49,8 +49,8 @@ public class NotificationToastSystem extends GlacierMod {
     }
 
     public void show(String title, String body) {
-        if (toasts.size() >= (int) maxVisible.getValue()) toasts.remove(0);
-        long until = System.currentTimeMillis() + (long) duration.getValue();
+        if (toasts.size() >= (int)(double) maxVisible.getValue()) toasts.remove(0);
+        long until = System.currentTimeMillis() + (long)(double) duration.getValue();
         toasts.add(new Toast(title, body, until));
         if (sounds.getValue()) {
             MinecraftClient mc = MinecraftClient.getInstance();

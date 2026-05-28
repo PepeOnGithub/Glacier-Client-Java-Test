@@ -34,7 +34,7 @@ public class AccountSwitcher extends GlacierMod {
     public void onTick() {}
 
     public void addAccount(String uuid) {
-        if (accounts.size() < (int) maxAccounts.getValue() && !accounts.contains(uuid)) {
+        if (accounts.size() < (int)(double) maxAccounts.getValue() && !accounts.contains(uuid)) {
             accounts.add(uuid);
         }
     }

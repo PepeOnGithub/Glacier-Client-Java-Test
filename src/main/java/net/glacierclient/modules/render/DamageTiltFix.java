@@ -26,6 +26,6 @@ public class DamageTiltFix extends GlacierMod {
 
     public float getTiltMultiplier() {
         if (removeCompletely.getValue()) return 0f;
-        return (float) intensity.getValue();
+        return (float)(double) intensity.getValue();
     }
 }

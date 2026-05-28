@@ -42,7 +42,7 @@ public class Keystrokes extends HUDMod {
     public void render(DrawContext context, float partialTicks) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.textRenderer == null || mc.options == null) return;
-        int ks = (int) keySize.getValue();
+        int ks = (int)(double) keySize.getValue();
         int gap = 2;
         int bx = getX();
         int by = getY();

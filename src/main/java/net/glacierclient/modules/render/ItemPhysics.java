@@ -27,5 +27,5 @@ public class ItemPhysics extends GlacierMod {
 
     public boolean isRotationEnabled() { return rotation.getValue(); }
     public boolean isBounceEnabled() { return bounce.getValue(); }
-    public float getRotationSpeed() { return (float) rotationSpeed.getValue(); }
+    public float getRotationSpeed() { return (float)(double) rotationSpeed.getValue(); }
 }

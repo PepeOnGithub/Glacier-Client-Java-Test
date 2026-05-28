@@ -27,12 +27,12 @@ public class GlintScaleModifier extends GlacierMod {
     @Override
     public void onTick() {
         if (animated.getValue()) {
-            animOffset = (animOffset + 0.05f * (float) speed.getValue()) % ((float) Math.PI * 2f);
+            animOffset = (animOffset + 0.05f * (float)(double) speed.getValue()) % ((float) Math.PI * 2f);
         }
     }
 
     public float getEffectiveScale() {
-        float base = (float) scale.getValue();
+        float base = (float)(double) scale.getValue();
         if (animated.getValue()) base += (float) Math.sin(animOffset) * 0.2f;
         return base;
     }

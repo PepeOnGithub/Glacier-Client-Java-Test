@@ -21,7 +21,7 @@ public class CameraClipTweak extends GlacierMod {
 
     @Override
     public void onEnable() {
-        currentNearClip = (float) nearClip.getValue();
+        currentNearClip = (float)(double) nearClip.getValue();
         targetNearClip = currentNearClip;
     }
 
@@ -29,7 +29,7 @@ public class CameraClipTweak extends GlacierMod {
 
     @Override
     public void onTick() {
-        targetNearClip = (float) nearClip.getValue();
+        targetNearClip = (float)(double) nearClip.getValue();
         if (smoothTransitions.getValue()) {
             float lerpSpeed = (float) (transitionSpeed.getValue() * 0.1);
             currentNearClip += (targetNearClip - currentNearClip) * lerpSpeed;

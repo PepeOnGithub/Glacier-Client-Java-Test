@@ -25,5 +25,5 @@ public class ChunkAnimator extends GlacierMod {
     public void onTick() {}
 
     public String getAnimationStyle() { return style.getValue(); }
-    public float getAnimationSpeed() { return (float) speed.getValue(); }
+    public float getAnimationSpeed() { return (float)(double) speed.getValue(); }
 }

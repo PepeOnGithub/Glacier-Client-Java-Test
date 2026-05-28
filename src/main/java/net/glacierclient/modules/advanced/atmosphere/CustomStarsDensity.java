@@ -36,7 +36,7 @@ public class CustomStarsDensity extends GlacierMod {
         if (twinkle.getValue()) {
             twinkleOffset += (float) (twinkleSpeed.getValue() * 0.02);
         }
-        int d = (int) density.getValue();
+        int d = (int)(double) density.getValue();
         if (d != lastDensity || needsRegen) {
             generateStars(d);
             lastDensity = d;
@@ -56,6 +56,6 @@ public class CustomStarsDensity extends GlacierMod {
 
     public int[] getStarPositions() { return starPositions; }
     public float getTwinkleOffset() { return twinkleOffset; }
-    public float getBrightness() { return (float) brightness.getValue(); }
+    public float getBrightness() { return (float)(double) brightness.getValue(); }
     public boolean isTwinkleEnabled() { return twinkle.getValue(); }
 }

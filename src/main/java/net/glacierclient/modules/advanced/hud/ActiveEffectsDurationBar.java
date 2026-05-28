@@ -37,7 +37,7 @@ public class ActiveEffectsDurationBar extends HUDMod {
             return;
         }
         int lineY = y + 4;
-        int bw = (int) barWidth.getValue();
+        int bw = (int)(double) barWidth.getValue();
         for (StatusEffectInstance effect : effects) {
             if (lineY + 12 > y + getHeight()) break;
             String name = effect.getEffectType().getName().getString();

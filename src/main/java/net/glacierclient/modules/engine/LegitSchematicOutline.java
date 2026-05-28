@@ -30,7 +30,7 @@ public class LegitSchematicOutline extends GlacierMod {
     }
 
     public boolean isShowGhostBlocks() { return showGhostBlocks.getValue(); }
-    public int getOpacity() { return (int) opacity.getValue(); }
+    public int getOpacity() { return (int)(double) opacity.getValue(); }
     public int getGhostColor() { return ghostColor.getValue(); }
     public boolean isShowMissingOnly() { return showMissingOnly.getValue(); }
     public boolean isSnapToGrid() { return snapToGrid.getValue(); }

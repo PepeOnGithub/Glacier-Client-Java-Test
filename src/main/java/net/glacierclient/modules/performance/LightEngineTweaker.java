@@ -25,7 +25,7 @@ public class LightEngineTweaker extends GlacierMod {
     @Override
     public void onTick() {}
 
-    public int getLightUpdatesPerTick() { return (int) lightUpdatesPerTick.getValue(); }
+    public int getLightUpdatesPerTick() { return (int)(double) lightUpdatesPerTick.getValue(); }
     public boolean isFastPropagation() { return fastLightPropagation.getValue(); }
     public boolean isSkipSkylight() { return skipSkylight.getValue(); }
 }

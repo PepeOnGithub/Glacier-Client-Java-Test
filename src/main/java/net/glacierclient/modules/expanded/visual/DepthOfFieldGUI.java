@@ -27,7 +27,7 @@ public class DepthOfFieldGUI extends GlacierMod {
         // Remove blur shader
     }
 
-    public int getBlurRadius() { return (int) blurRadius.getValue(); }
+    public int getBlurRadius() { return (int)(double) blurRadius.getValue(); }
     public double getBlurStrength() { return blurStrength.getValue(); }
     public boolean isAnimate() { return animate.getValue(); }
     public double getAnimSpeed() { return animSpeed.getValue(); }

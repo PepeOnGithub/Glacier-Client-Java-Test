@@ -27,7 +27,7 @@ public class FontRendererOptimizer extends GlacierMod {
     public void onTick() {}
 
     public boolean isUseCache() { return useCache.getValue(); }
-    public int getCacheSize() { return (int) cacheSize.getValue(); }
+    public int getCacheSize() { return (int)(double) cacheSize.getValue(); }
     public boolean isAntiAlias() { return antiAlias.getValue(); }
     public boolean isSmoothRendering() { return smoothRendering.getValue(); }
 }

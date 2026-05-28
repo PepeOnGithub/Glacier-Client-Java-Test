@@ -30,7 +30,7 @@ public class ScreenSpaceReflections extends GlacierMod {
 
     public boolean isOnWater() { return onWater.getValue(); }
     public boolean isOnGlass() { return onGlass.getValue(); }
-    public int getQuality() { return (int) quality.getValue(); }
+    public int getQuality() { return (int)(double) quality.getValue(); }
     public double getIntensity() { return intensity.getValue(); }
-    public int getMaxSteps() { return (int) maxSteps.getValue(); }
+    public int getMaxSteps() { return (int)(double) maxSteps.getValue(); }
 }

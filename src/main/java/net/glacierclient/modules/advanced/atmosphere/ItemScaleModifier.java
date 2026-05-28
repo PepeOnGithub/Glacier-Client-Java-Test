@@ -20,7 +20,7 @@ public class ItemScaleModifier extends GlacierMod {
     @Override public void onDisable() {}
     @Override public void onTick() {}
 
-    public float getFirstPersonScale() { return (float) firstPersonScale.getValue(); }
-    public float getThirdPersonScale() { return (float) thirdPersonScale.getValue(); }
+    public float getFirstPersonScale() { return (float)(double) firstPersonScale.getValue(); }
+    public float getThirdPersonScale() { return (float)(double) thirdPersonScale.getValue(); }
     public boolean isSeparateHands() { return separateHands.getValue(); }
 }
