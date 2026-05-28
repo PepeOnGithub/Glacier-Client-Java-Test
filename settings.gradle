@@ -1,0 +1,16 @@
+pluginManagement {
+    repositories {
+        maven { url 'https://maven.fabricmc.net/' }
+        gradlePluginPortal()
+    }
+}
+
+rootProject.name = 'glacier-client'
+
+include ':core'
+include ':v1_8_9'
+include ':v1_12_2'
+include ':v1_16_5'
+include ':v1_21_4'
+include ':v1_21_11'
+include ':launcher'
