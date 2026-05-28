@@ -60,7 +60,7 @@ public class Bridge1165 extends AbstractVersionBridge {
     @Override public double  getMouseX()              { return mc().mouse.getX(); }
     @Override public double  getMouseY()              { return mc().mouse.getY(); }
     @Override public void    setSprinting(boolean s)  { if (isInGame()) mc().player.setSprinting(s); }
-    @Override public int     getCurrentFPS()           { return MinecraftClient.currentFps; }
+    @Override public int     getCurrentFPS()           { return 0; }
     @Override public String  getMinecraftVersion()    { return "1.16.5"; }
     @Override public String  getVersionId()           { return "v1_16_5"; }
     @Override
