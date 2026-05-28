@@ -20,10 +20,10 @@ jobs:
         include:
           - version: "1.8.9"
             subproject: "v1_8_9"
-            java: "8"
+            java: "17"
           - version: "1.12.2"
             subproject: "v1_12_2"
-            java: "8"
+            java: "17"
           - version: "1.16.5"
             subproject: "v1_16_5"
             java: "17"
