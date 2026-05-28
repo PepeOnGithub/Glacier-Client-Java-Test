@@ -13,11 +13,15 @@ java {
 repositories {
     mavenCentral()
     maven { url 'https://libraries.minecraft.net/' }
+    maven { url 'https://repo.spongepowered.org/maven/' }
+    maven {
+        name 'Forge'
+        url 'https://maven.minecraftforge.net/'
+    }
 }
 
 dependencies {
     api project(':core')
-    // LaunchWrapper is the 1.8.9 tweaker host; available from Mojang libraries
     compileOnly 'com.mojang:launchwrapper:1.12'
 }
 

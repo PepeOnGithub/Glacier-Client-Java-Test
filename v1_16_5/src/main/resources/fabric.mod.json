@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "glacierclient-1165",
+  "version": "1.0.0",
+  "name": "Glacier Client 1.16.5",
+  "description": "Glacier Client — 1.16.5 bridge adapter",
+  "authors": ["Glacier Client Team"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["net.glacierclient.bridge.v1165.GlacierInit1165"]
+  },
+  "depends": {
+    "fabricloader": ">=0.14.21",
+    "fabric-api": "*",
+    "minecraft": "~1.16.5",
+    "java": ">=17"
+  }
+}
