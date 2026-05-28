@@ -10,6 +10,21 @@ public class NumberSetting extends Setting<Double> {
         this(name, description, min, max, defaultValue, 0.1);
     }
 
+    // (name, default, min, max) — used by some modules
+    public NumberSetting(String name, double defaultValue, double min, double max) {
+        this(name, "", min, max, defaultValue, 0.1);
+    }
+
+    // (name, desc, default) — convenience
+    public NumberSetting(String name, String description, double defaultValue) {
+        this(name, description, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, defaultValue, 0.1);
+    }
+
+    // (name, default)
+    public NumberSetting(String name, double defaultValue) {
+        this(name, "", Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, defaultValue, 0.1);
+    }
+
     public NumberSetting(String name, String description, double min, double max, double defaultValue, double increment) {
         super(name, description, defaultValue);
         this.min = min;
@@ -28,8 +43,13 @@ public class NumberSetting extends Setting<Double> {
     public double getMin() { return min; }
     public double getMax() { return max; }
     public double getIncrement() { return increment; }
-    public float getPercent() { return (float) ((value - min) / (max - min)); }
+    public float getPercent() {
+        if (Double.isInfinite(min) || Double.isInfinite(max) || max == min) return 0f;
+        return (float) ((value - min) / (max - min));
+    }
     public int getValueAsInt() { return value.intValue(); }
+    public double get() { return value; }
+    public float getAsFloat() { return value.floatValue(); }
 
     @Override
     public String getTypeName() { return "number"; }

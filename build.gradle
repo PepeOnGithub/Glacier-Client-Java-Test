@@ -1,8 +1,45 @@
-// Root project is a container for subprojects only.
-// The 1.20.4 fabric client previously living here references a large
-// framework (GlacierClient, EventBus, HUDMod, settings system, etc.)
-// that does not exist in this repo. Until that framework is in place,
-// the root project produces no artifacts and only aggregates subprojects.
+plugins {
+    id 'fabric-loom' version '1.7.4'
+    id 'maven-publish'
+}
 
 group = 'net.glacierclient'
-version = '1.0.0'
+version = '1.0.0-mc1.20.4'
+
+base {
+    archivesName = 'Glacier'
+}
+
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.20.4'
+    mappings 'net.fabricmc:yarn:1.20.4+build.3:v2'
+    modImplementation 'net.fabricmc:fabric-loader:0.15.7'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.97.0+1.20.4'
+}
+
+processResources {
+    inputs.property 'version', project.version
+    filteringCharset 'UTF-8'
+    filesMatching('fabric.mod.json') {
+        expand 'version': project.version
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = 17
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+    archiveBaseName = 'Glacier'
+    archiveVersion = '1.20.4'
+}

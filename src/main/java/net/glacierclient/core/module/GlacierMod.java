@@ -18,11 +18,15 @@ public abstract class GlacierMod implements EventTarget {
     private final List<Setting<?>> settings = new ArrayList<>();
 
     protected GlacierMod(String name, String description, Category category) {
+        this(name, description, category, -1);
+    }
+
+    protected GlacierMod(String name, String description, Category category, int keybind) {
         this.name = name;
         this.description = description;
         this.category = category;
         this.enabled = false;
-        this.keybind = -1;
+        this.keybind = keybind;
     }
 
     protected void addSettings(Setting<?>... newSettings) {

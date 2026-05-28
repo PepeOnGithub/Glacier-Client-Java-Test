@@ -9,10 +9,14 @@ public class ModeSetting extends Setting<String> {
 
     public ModeSetting(String name, String description, String defaultMode, String... modes) {
         super(name, description, defaultMode);
-        this.modes = Arrays.asList(modes);
+        this.modes = new java.util.ArrayList<>(Arrays.asList(modes));
         if (!this.modes.contains(defaultMode)) {
-            throw new IllegalArgumentException("Default mode must be in the modes list");
+            this.modes.add(0, defaultMode);
         }
+    }
+
+    public ModeSetting(String name, String defaultMode, String... modes) {
+        this(name, "", defaultMode, modes);
     }
 
     public void cycle() {

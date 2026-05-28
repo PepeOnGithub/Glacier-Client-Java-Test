@@ -77,6 +77,10 @@ jobs:
           ./gradlew :v1_16_5:build --no-daemon
           find v1_16_5/build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1 | xargs -I{} cp {} release-artifacts/Glacier-1.16.5.jar
 
+          # 1.20.4 (root project — full mod)
+          ./gradlew build --no-daemon -x test -x :core:build -x :v1_12_2:build -x :v1_16_5:build -x :v1_21_4:build -x :v1_21_11:build -x :launcher:build
+          find build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1 | xargs -I{} cp {} release-artifacts/Glacier-1.20.4.jar
+
           # 1.21.4
           ./gradlew :v1_21_4:build --no-daemon
           find v1_21_4/build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1 | xargs -I{} cp {} release-artifacts/Glacier-1.21.4.jar
@@ -103,6 +107,7 @@ jobs:
           
           SHA_1122=$(compute_sha release-artifacts/Glacier-1.12.2.jar)
           SHA_1165=$(compute_sha release-artifacts/Glacier-1.16.5.jar)
+          SHA_1204=$(compute_sha release-artifacts/Glacier-1.20.4.jar)
           SHA_1214=$(compute_sha release-artifacts/Glacier-1.21.4.jar)
           SHA_12111=$(compute_sha release-artifacts/Glacier-1.21.11.jar)
           
@@ -131,6 +136,18 @@ jobs:
                 "tag": "${TAG}",
                 "url": "https://cdn.glacierclient.xyz/builds/1.16.5/Glacier-1.16.5.jar",
                 "sha256": "${SHA_1165}",
+                "fabric": true,
+                "forge": false,
+                "javaVersion": 17,
+                "changelog": "Multi-version Glacier Client release ${TAG}"
+              },
+              {
+                "id": "1.20.4",
+                "name": "Glacier for 1.20.4",
+                "releaseDate": "${DATE}",
+                "tag": "${TAG}",
+                "url": "https://cdn.glacierclient.xyz/builds/1.20.4/Glacier-1.20.4.jar",
+                "sha256": "${SHA_1204}",
                 "fabric": true,
                 "forge": false,
                 "javaVersion": 17,
@@ -169,6 +186,44 @@ jobs:
           }
           EOF
 
+      - name: Upload to Cloudflare R2
+        env:
+          CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.CF_R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.CF_R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          R2_BUCKET: ${{ secrets.CF_R2_BUCKET }}
+          TAG: ${{ steps.tag.outputs.tag }}
+        run: |
+          if [ -z "$CF_ACCOUNT_ID" ] || [ -z "$AWS_ACCESS_KEY_ID" ]; then
+            echo "::warning::Cloudflare R2 secrets not configured — skipping upload."
+            exit 0
+          fi
+          ENDPOINT="https://${CF_ACCOUNT_ID}.r2.cloudflarestorage.com"
+
+          # Per-version jars under builds/<mc>/Glacier-<mc>.jar
+          for v in 1.12.2 1.16.5 1.20.4 1.21.4 1.21.11; do
+            f="release-artifacts/Glacier-${v}.jar"
+            if [ -f "$f" ]; then
+              aws s3 cp "$f" "s3://${R2_BUCKET}/builds/${v}/Glacier-${v}.jar" \
+                --endpoint-url "$ENDPOINT" --no-progress
+              aws s3 cp "$f" "s3://${R2_BUCKET}/builds/${v}/${TAG}/Glacier-${v}.jar" \
+                --endpoint-url "$ENDPOINT" --no-progress
+            fi
+          done
+
+          # Launcher
+          aws s3 cp release-artifacts/GlacierLauncher.jar \
+            "s3://${R2_BUCKET}/launcher/GlacierLauncher.jar" \
+            --endpoint-url "$ENDPOINT" --no-progress
+
+          # Manifest — uploaded last so clients never see a stale manifest
+          # pointing at jars that aren't there yet.
+          aws s3 cp release-artifacts/versions.json \
+            "s3://${R2_BUCKET}/versions.json" \
+            --endpoint-url "$ENDPOINT" --no-progress \
+            --content-type application/json --cache-control "max-age=60"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -184,6 +239,7 @@ jobs:
             |-----------|--------|------|
             | 1.12.2 | stub | 17 |
             | 1.16.5 | Fabric | 17 |
+            | 1.20.4 | Fabric | 17 |
             | 1.21.4 | Fabric | 21 |
             | 1.21.11 | Fabric | 21 |
             

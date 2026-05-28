@@ -6,7 +6,12 @@ public class BooleanSetting extends Setting<Boolean> {
         super(name, description, defaultValue);
     }
 
+    public BooleanSetting(String name, boolean defaultValue) {
+        super(name, "", defaultValue);
+    }
+
     public void toggle() { setValue(!value); }
+    public boolean get() { return value; }
 
     @Override
     public String getTypeName() { return "boolean"; }
