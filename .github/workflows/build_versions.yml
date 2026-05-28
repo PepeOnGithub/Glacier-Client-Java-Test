@@ -53,7 +53,7 @@ jobs:
       - name: Build ${{ matrix.version }}
         run: |
           if [ "${{ matrix.subproject }}" = "root" ]; then
-            ./gradlew build --no-daemon -x :core:build -x :v1_8_9:build -x :v1_12_2:build -x :v1_16_5:build -x :v1_21_4:build -x :v1_21_11:build -x :launcher:build
+            ./gradlew build --no-daemon -x :core:build -x :v1_12_2:build -x :v1_16_5:build -x :v1_21_4:build -x :v1_21_11:build -x :launcher:build
           else
             ./gradlew :${{ matrix.subproject }}:build --no-daemon
           fi
