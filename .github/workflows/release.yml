@@ -68,23 +68,23 @@ jobs:
       - name: Build and collect all version JARs
         run: |
           mkdir -p release-artifacts
-          
+
+          # 1.12.2 (stub, no MC deps)
+          ./gradlew :v1_12_2:build --no-daemon
+          find v1_12_2/build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1 | xargs -I{} cp {} release-artifacts/Glacier-1.12.2.jar
+
           # 1.16.5
           ./gradlew :v1_16_5:build --no-daemon
           find v1_16_5/build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1 | xargs -I{} cp {} release-artifacts/Glacier-1.16.5.jar
-          
-          # 1.20.4 (root)
-          ./gradlew build --no-daemon -x test -x :core:build -x :v1_8_9:build -x :v1_12_2:build -x :v1_16_5:build -x :v1_21_4:build -x :v1_21_11:build -x :launcher:build 2>/dev/null || true
-          find build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1 | xargs -I{} cp {} release-artifacts/Glacier-1.20.4.jar
-          
+
           # 1.21.4
           ./gradlew :v1_21_4:build --no-daemon
           find v1_21_4/build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1 | xargs -I{} cp {} release-artifacts/Glacier-1.21.4.jar
-          
+
           # 1.21.11
           ./gradlew :v1_21_11:build --no-daemon
           find v1_21_11/build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1 | xargs -I{} cp {} release-artifacts/Glacier-1.21.11.jar
-          
+
           # Launcher
           cp launcher/build/libs/GlacierLauncher.jar release-artifacts/GlacierLauncher.jar
 
@@ -101,10 +101,8 @@ jobs:
             fi
           }
           
-          SHA_189=$(compute_sha release-artifacts/Glacier-1.8.9.jar)
           SHA_1122=$(compute_sha release-artifacts/Glacier-1.12.2.jar)
           SHA_1165=$(compute_sha release-artifacts/Glacier-1.16.5.jar)
-          SHA_1204=$(compute_sha release-artifacts/Glacier-1.20.4.jar)
           SHA_1214=$(compute_sha release-artifacts/Glacier-1.21.4.jar)
           SHA_12111=$(compute_sha release-artifacts/Glacier-1.21.11.jar)
           
@@ -114,18 +112,6 @@ jobs:
             "latestRelease": "${TAG}",
             "releaseDate": "${DATE}",
             "versions": [
-              {
-                "id": "1.8.9",
-                "name": "Glacier for 1.8.9",
-                "releaseDate": "${DATE}",
-                "tag": "${TAG}",
-                "url": "https://cdn.glacierclient.xyz/builds/1.8.9/Glacier-1.8.9.jar",
-                "sha256": "${SHA_189}",
-                "fabric": false,
-                "forge": true,
-                "javaVersion": 8,
-                "changelog": "Multi-version Glacier Client release ${TAG}"
-              },
               {
                 "id": "1.12.2",
                 "name": "Glacier for 1.12.2",
@@ -145,18 +131,6 @@ jobs:
                 "tag": "${TAG}",
                 "url": "https://cdn.glacierclient.xyz/builds/1.16.5/Glacier-1.16.5.jar",
                 "sha256": "${SHA_1165}",
-                "fabric": true,
-                "forge": false,
-                "javaVersion": 17,
-                "changelog": "Multi-version Glacier Client release ${TAG}"
-              },
-              {
-                "id": "1.20.4",
-                "name": "Glacier for 1.20.4",
-                "releaseDate": "${DATE}",
-                "tag": "${TAG}",
-                "url": "https://cdn.glacierclient.xyz/builds/1.20.4/Glacier-1.20.4.jar",
-                "sha256": "${SHA_1204}",
                 "fabric": true,
                 "forge": false,
                 "javaVersion": 17,
@@ -208,10 +182,8 @@ jobs:
             ### Supported Versions
             | Minecraft | Loader | Java |
             |-----------|--------|------|
-            | 1.8.9 | Forge | 8 |
-            | 1.12.2 | Forge | 8 |
+            | 1.12.2 | stub | 17 |
             | 1.16.5 | Fabric | 17 |
-            | 1.20.4 | Fabric | 17 |
             | 1.21.4 | Fabric | 21 |
             | 1.21.11 | Fabric | 21 |
             

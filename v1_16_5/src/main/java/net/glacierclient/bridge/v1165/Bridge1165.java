@@ -18,8 +18,8 @@ public class Bridge1165 extends AbstractVersionBridge {
     @Override public double  getX()            { return isInGame() ? mc().player.getX() : 0; }
     @Override public double  getY()            { return isInGame() ? mc().player.getY() : 0; }
     @Override public double  getZ()            { return isInGame() ? mc().player.getZ() : 0; }
-    @Override public float   getYaw()          { return isInGame() ? mc().player.getYaw() : 0; }
-    @Override public float   getPitch()        { return isInGame() ? mc().player.getPitch() : 0; }
+    @Override public float   getYaw()          { return isInGame() ? mc().player.yaw : 0; }
+    @Override public float   getPitch()        { return isInGame() ? mc().player.pitch : 0; }
     @Override public float   getHealth()       { return isInGame() ? mc().player.getHealth() : 20; }
     @Override public float   getMaxHealth()    { return isInGame() ? mc().player.getMaxHealth() : 20; }
     @Override public int     getFood()         { return isInGame() ? mc().player.getHungerManager().getFoodLevel() : 20; }
@@ -27,7 +27,7 @@ public class Bridge1165 extends AbstractVersionBridge {
     @Override public boolean isSprinting()     { return isInGame() && mc().player.isSprinting(); }
     @Override public boolean isSneaking()      { return isInGame() && mc().player.isSneaking(); }
     @Override public boolean isOnGround()      { return !isInGame() || mc().player.isOnGround(); }
-    @Override public boolean isFlying()        { return isInGame() && mc().player.getAbilities().flying; }
+    @Override public boolean isFlying()        { return isInGame() && mc().player.abilities.flying; }
     @Override public boolean isElytraFlying()  { return isInGame() && mc().player.isFallFlying(); }
     @Override public float   getHorizontalSpeed() {
         if (!isInGame()) return 0;
@@ -60,7 +60,7 @@ public class Bridge1165 extends AbstractVersionBridge {
     @Override public double  getMouseX()              { return mc().mouse.getX(); }
     @Override public double  getMouseY()              { return mc().mouse.getY(); }
     @Override public void    setSprinting(boolean s)  { if (isInGame()) mc().player.setSprinting(s); }
-    @Override public int     getCurrentFPS()           { return mc().getCurrentFps(); }
+    @Override public int     getCurrentFPS()           { return 0; }
     @Override public String  getMinecraftVersion()    { return "1.16.5"; }
     @Override public String  getVersionId()           { return "v1_16_5"; }
     @Override

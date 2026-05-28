@@ -1,6 +1,7 @@
 package net.glacierclient.launcher.install;
 
 import net.glacierclient.launcher.cdn.VersionEntry;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
