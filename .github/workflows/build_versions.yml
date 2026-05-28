@@ -47,6 +47,14 @@ jobs:
           distribution: temurin
           cache: gradle
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.6"
+
+      - name: Generate Gradle wrapper
+        run: gradle wrapper --gradle-version 8.6
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
@@ -70,26 +78,21 @@ jobs:
             JAR=$(find ${{ matrix.subproject }}/build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1)
           fi
           echo "jar_path=$JAR" >> $GITHUB_OUTPUT
-          echo "Found JAR: $JAR"
 
       - name: Rename JAR
-        run: |
-          cp "${{ steps.locate.outputs.jar_path }}" "Glacier-${{ matrix.version }}.jar"
+        run: cp "${{ steps.locate.outputs.jar_path }}" "Glacier-${{ matrix.version }}.jar"
 
       - name: Compute SHA256
-        id: sha
+        id: sha_final
         run: |
           SHA=$(sha256sum "Glacier-${{ matrix.version }}.jar" | cut -d' ' -f1)
           echo "sha256=$SHA" >> $GITHUB_OUTPUT
-          echo "SHA256: $SHA"
 
-      - name: Obfuscate JAR (string encryption + control flow)
+      - name: Obfuscate JAR (ProGuard)
         run: |
-          # Download a lightweight class renamer/obfuscator (ProGuard)
           wget -q https://github.com/Guardsquare/proguard/releases/download/v7.4.2/proguard-7.4.2.zip -O proguard.zip
           unzip -q proguard.zip
           PROGUARD_JAR=$(find proguard-*/lib -name "proguard.jar" | head -1)
-          RT_JAR=$(java -XshowSettings:all -version 2>&1 | grep "java.home" | awk '{print $3}')
           cat > proguard.conf << 'PGEOF'
           -injars      Glacier-${{ matrix.version }}.jar
           -outjars     Glacier-${{ matrix.version }}-obf.jar
@@ -107,12 +110,6 @@ jobs:
           PGEOF
           java -jar "$PROGUARD_JAR" @proguard.conf 2>/dev/null || cp "Glacier-${{ matrix.version }}.jar" "Glacier-${{ matrix.version }}-obf.jar"
           mv "Glacier-${{ matrix.version }}-obf.jar" "Glacier-${{ matrix.version }}.jar"
-
-      - name: Recompute SHA256 after obfuscation
-        id: sha_final
-        run: |
-          SHA=$(sha256sum "Glacier-${{ matrix.version }}.jar" | cut -d' ' -f1)
-          echo "sha256=$SHA" >> $GITHUB_OUTPUT
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -151,6 +148,14 @@ jobs:
           java-version: 17
           distribution: temurin
           cache: gradle
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.6"
+
+      - name: Generate Gradle wrapper
+        run: gradle wrapper --gradle-version 8.6
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
