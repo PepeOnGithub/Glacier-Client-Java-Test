@@ -21,8 +21,8 @@ public class CustomFogDensity extends GlacierMod {
     @Override public void onDisable() {}
     @Override public void onTick() {}
 
-    public float getDensity() { return (float) density.getValue(); }
-    public float getFogStart() { return (float) start.getValue(); }
-    public float getFogEnd() { return (float) end.getValue(); }
+    public float getDensity() { return (float)(double) density.getValue(); }
+    public float getFogStart() { return (float)(double) start.getValue(); }
+    public float getFogEnd() { return (float)(double) end.getValue(); }
     public int getFogColor() { return fogColor.getValue(); }
 }

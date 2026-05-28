@@ -29,8 +29,8 @@ public class FluidFrustumCulling extends GlacierMod {
     }
 
     public boolean isMultiThreaded() { return multiThreaded.getValue(); }
-    public int getHierarchyDepth() { return (int) hierarchyDepth.getValue(); }
+    public int getHierarchyDepth() { return (int)(double) hierarchyDepth.getValue(); }
     public boolean isAggressiveCull() { return aggressiveCull.getValue(); }
-    public int getTargetDrawCalls() { return (int) targetDrawCalls.getValue(); }
+    public int getTargetDrawCalls() { return (int)(double) targetDrawCalls.getValue(); }
     public boolean isDynamicLOD() { return dynamicLOD.getValue(); }
 }

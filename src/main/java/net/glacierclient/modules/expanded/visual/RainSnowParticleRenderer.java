@@ -27,7 +27,7 @@ public class RainSnowParticleRenderer extends GlacierMod {
         // Restore vanilla weather particles
     }
 
-    public int getParticleCount() { return (int) particleCount.getValue(); }
+    public int getParticleCount() { return (int)(double) particleCount.getValue(); }
     public double getDropSize() { return dropSize.getValue(); }
     public boolean isSplash() { return splash.getValue(); }
     public boolean isWindEffect() { return windEffect.getValue(); }

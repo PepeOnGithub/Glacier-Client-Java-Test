@@ -38,12 +38,12 @@ public class CinematicCameraTweak extends GlacierMod {
         float factor = (float) (1.0 / smoothness.getValue());
         if (horizontal.getValue()) {
             float yawDiff = mc.player.getYaw() - smoothYaw;
-            float capped = Math.max(-(float) maxSpeed.getValue(), Math.min((float) maxSpeed.getValue(), yawDiff));
+            float capped = Math.max(-(float)(double) maxSpeed.getValue(), Math.min((float)(double) maxSpeed.getValue(), yawDiff));
             smoothYaw += capped * factor;
         }
         if (vertical.getValue()) {
             float pitchDiff = mc.player.getPitch() - smoothPitch;
-            float capped = Math.max(-(float) maxSpeed.getValue(), Math.min((float) maxSpeed.getValue(), pitchDiff));
+            float capped = Math.max(-(float)(double) maxSpeed.getValue(), Math.min((float)(double) maxSpeed.getValue(), pitchDiff));
             smoothPitch += capped * factor;
         }
     }

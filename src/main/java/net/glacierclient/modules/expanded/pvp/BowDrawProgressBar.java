@@ -29,5 +29,5 @@ public class BowDrawProgressBar extends GlacierMod {
     public String getStyle() { return style.getValue(); }
     public int getEmptyColor() { return emptyColor.getValue(); }
     public int getFullColor() { return fullColor.getValue(); }
-    public int getSize() { return (int) size.getValue(); }
+    public int getSize() { return (int)(double) size.getValue(); }
 }

@@ -28,7 +28,7 @@ public class SmoothFPSStabilizer extends GlacierMod {
     @Override
     public void onTick() {}
 
-    public int getTargetFPS() { return (int) targetFPS.getValue(); }
+    public int getTargetFPS() { return (int)(double) targetFPS.getValue(); }
     public boolean isVsync() { return vsync.getValue(); }
-    public int getSleepError() { return (int) sleepError.getValue(); }
+    public int getSleepError() { return (int)(double) sleepError.getValue(); }
 }

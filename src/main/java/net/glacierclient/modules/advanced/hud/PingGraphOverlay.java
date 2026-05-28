@@ -51,7 +51,7 @@ public class PingGraphOverlay extends HUDMod {
                 }
             }
             pingHistory.addLast(currentPing);
-            int maxSamples = (int) historySeconds.getValue();
+            int maxSamples = (int)(double) historySeconds.getValue();
             while (pingHistory.size() > maxSamples) {
                 pingHistory.pollFirst();
             }

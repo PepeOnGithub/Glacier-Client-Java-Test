@@ -26,6 +26,6 @@ public class LazyChunkLoading extends GlacierMod {
     public void onTick() {}
 
     public boolean isPrioritizeVisible() { return prioritizeVisible.getValue(); }
-    public int getLoadDelay() { return (int) loadDelay.getValue(); }
-    public int getMaxPerTick() { return (int) maxPerTick.getValue(); }
+    public int getLoadDelay() { return (int)(double) loadDelay.getValue(); }
+    public int getMaxPerTick() { return (int)(double) maxPerTick.getValue(); }
 }

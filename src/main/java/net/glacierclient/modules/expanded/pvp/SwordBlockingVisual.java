@@ -23,6 +23,6 @@ public class SwordBlockingVisual extends GlacierMod {
     public void onDisable() {}
 
     public boolean isShowOnRightClick() { return showOnRightClick.getValue(); }
-    public int getHoldDelay() { return (int) holdDelay.getValue(); }
+    public int getHoldDelay() { return (int)(double) holdDelay.getValue(); }
     public boolean isThirdPersonOnly() { return thirdPersonOnly.getValue(); }
 }

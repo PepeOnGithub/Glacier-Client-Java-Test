@@ -27,5 +27,5 @@ public class FastChestOpenFix extends GlacierMod {
 
     public boolean isSkipAnimation() { return skipAnimation.getValue(); }
     public boolean isInstantOpen() { return instantOpen.getValue(); }
-    public float getAnimationSpeed() { return (float) animationSpeed.getValue(); }
+    public float getAnimationSpeed() { return (float)(double) animationSpeed.getValue(); }
 }

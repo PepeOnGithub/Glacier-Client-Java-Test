@@ -35,7 +35,7 @@ public class CustomParticles extends GlacierMod {
         MinecraftClient mc = MinecraftClient.getInstance();
         ClientWorld world = mc.world;
         if (world == null) return;
-        int n = (int) count.getValue();
+        int n = (int)(double) count.getValue();
         for (int i = 0; i < n; i++) {
             double vx = (Math.random() - 0.5) * 0.5;
             double vy = Math.random() * 0.5;

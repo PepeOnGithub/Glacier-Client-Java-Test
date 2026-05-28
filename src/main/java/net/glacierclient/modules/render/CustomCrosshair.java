@@ -36,8 +36,8 @@ public class CustomCrosshair extends GlacierMod {
         MinecraftClient mc = MinecraftClient.getInstance();
         int cx = mc.getWindow().getScaledWidth() / 2;
         int cy = mc.getWindow().getScaledHeight() / 2;
-        int sz = (int) size.getValue();
-        int thick = (int) thickness.getValue();
+        int sz = (int)(double) size.getValue();
+        int thick = (int)(double) thickness.getValue();
         int c = color.getValue();
         String s = style.getValue();
         if ("Default".equals(s)) return;

@@ -29,17 +29,17 @@ public class EnchantGlintColorizer extends GlacierMod {
     @Override
     public void onTick() {
         if (rainbowGlint.getValue()) {
-            hue = (hue + 0.01f * (float) glintSpeed.getValue()) % 1f;
+            hue = (hue + 0.01f * (float)(double) glintSpeed.getValue()) % 1f;
         }
     }
 
     public int getCurrentGlintColor() {
         if (rainbowGlint.getValue()) {
             int rgb = java.awt.Color.HSBtoRGB(hue, 1f, 1f);
-            int alpha = (int) glintAlpha.getValue();
+            int alpha = (int)(double) glintAlpha.getValue();
             return (alpha << 24) | (rgb & 0x00FFFFFF);
         }
         int base = glintColor.getValue() & 0x00FFFFFF;
-        return ((int) glintAlpha.getValue() << 24) | base;
+        return ((int)(double) glintAlpha.getValue() << 24) | base;
     }
 }

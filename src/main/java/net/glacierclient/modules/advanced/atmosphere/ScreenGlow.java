@@ -34,8 +34,8 @@ public class ScreenGlow extends GlacierMod {
 
     public void renderGlow(DrawContext context, int screenW, int screenH) {
         float pulseMultiplier = pulse.getValue() ? (0.7f + 0.3f * (float) Math.sin(pulseOffset)) : 1.0f;
-        float currentIntensity = (float) intensity.getValue() * pulseMultiplier;
-        int r = (int) radius.getValue();
+        float currentIntensity = (float)(double) intensity.getValue() * pulseMultiplier;
+        int r = (int)(double) radius.getValue();
         int baseColor = color.getValue();
         int steps = r / 2;
         for (int i = steps; i > 0; i--) {

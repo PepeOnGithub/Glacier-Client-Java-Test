@@ -36,6 +36,6 @@ public class ControllerSupportHook extends GlacierMod {
     }
 
     public boolean isEnabled() { return enabled.getValue(); }
-    public float getSensitivity() { return (float) sensitivity.getValue(); }
+    public float getSensitivity() { return (float)(double) sensitivity.getValue(); }
     public boolean isVibration() { return vibration.getValue(); }
 }

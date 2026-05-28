@@ -26,6 +26,6 @@ public class FireIntensitySlider extends GlacierMod {
 
     public float getFireScale() {
         if (removeFire.getValue()) return 0f;
-        return (float) intensity.getValue();
+        return (float)(double) intensity.getValue();
     }
 }

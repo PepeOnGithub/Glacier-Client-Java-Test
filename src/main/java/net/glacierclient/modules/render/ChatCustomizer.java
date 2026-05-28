@@ -26,8 +26,8 @@ public class ChatCustomizer extends GlacierMod {
     @Override
     public void onTick() {}
 
-    public int getBackgroundAlpha() { return (int) backgroundAlpha.getValue(); }
+    public int getBackgroundAlpha() { return (int)(double) backgroundAlpha.getValue(); }
     public boolean isSlideAnimation() { return slideAnimation.getValue(); }
-    public int getChatOpacity() { return (int) chatOpacity.getValue(); }
+    public int getChatOpacity() { return (int)(double) chatOpacity.getValue(); }
     public boolean isCompactTimestamps() { return compactTimestamps.getValue(); }
 }

@@ -36,7 +36,7 @@ public class DirectionHUD extends HUDMod {
         if (mc.textRenderer == null || mc.player == null) return;
         float yaw = (mc.player.getYaw() % 360 + 360) % 360;
         int x = getX(), y = getY();
-        int cw = (int) compassWidth.getValue();
+        int cw = (int)(double) compassWidth.getValue();
         // Draw background bar
         context.fill(x, y, x + cw, y + 16, GlacierTheme.BG_PANEL);
         // Draw cardinal markers

@@ -31,6 +31,6 @@ public class CPUThreadingAllocator extends GlacierMod {
     @Override
     public void onTick() {}
 
-    public int getChunkThreads() { return (int) chunkThreads.getValue(); }
-    public int getIOThreads() { return (int) ioThreads.getValue(); }
+    public int getChunkThreads() { return (int)(double) chunkThreads.getValue(); }
+    public int getIOThreads() { return (int)(double) ioThreads.getValue(); }
 }

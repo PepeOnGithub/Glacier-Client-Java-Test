@@ -28,7 +28,7 @@ public class ArmorBreakWarning extends GlacierMod {
     @Override
     public void onDisable() {}
 
-    public int getThreshold() { return (int) threshold.getValue(); }
+    public int getThreshold() { return (int)(double) threshold.getValue(); }
     public boolean isSoundAlert() { return soundAlert.getValue(); }
     public boolean isFlash() { return flash.getValue(); }
     public int getWarningColor() { return warningColor.getValue(); }

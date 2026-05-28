@@ -25,7 +25,7 @@ public class ParticleThrottler extends GlacierMod {
     @Override
     public void onTick() {}
 
-    public int getMaxParticles() { return (int) maxParticles.getValue(); }
-    public float getParticleDistance() { return (float) particleDistance.getValue(); }
+    public int getMaxParticles() { return (int)(double) maxParticles.getValue(); }
+    public float getParticleDistance() { return (float)(double) particleDistance.getValue(); }
     public boolean isSkipInvisible() { return skipInvisible.getValue(); }
 }

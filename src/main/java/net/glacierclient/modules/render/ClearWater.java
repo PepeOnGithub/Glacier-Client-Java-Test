@@ -24,6 +24,6 @@ public class ClearWater extends GlacierMod {
     @Override
     public void onTick() {}
 
-    public float getVisibility() { return (float) visibility.getValue(); }
+    public float getVisibility() { return (float)(double) visibility.getValue(); }
     public boolean shouldRemoveParticles() { return removeParticles.getValue(); }
 }

@@ -37,5 +37,5 @@ public class SoundLocker extends GlacierMod {
         return false;
     }
 
-    public float getMasterMultiplier() { return (float) masterMultiplier.getValue(); }
+    public float getMasterMultiplier() { return (float)(double) masterMultiplier.getValue(); }
 }

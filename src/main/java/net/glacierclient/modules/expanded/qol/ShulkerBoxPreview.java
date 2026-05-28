@@ -25,6 +25,6 @@ public class ShulkerBoxPreview extends GlacierMod {
 
     public boolean isShowTooltip() { return showTooltip.getValue(); }
     public boolean isShowCount() { return showCount.getValue(); }
-    public int getMaxItems() { return (int) maxItems.getValue(); }
+    public int getMaxItems() { return (int)(double) maxItems.getValue(); }
     public boolean isColorByType() { return colorByType.getValue(); }
 }

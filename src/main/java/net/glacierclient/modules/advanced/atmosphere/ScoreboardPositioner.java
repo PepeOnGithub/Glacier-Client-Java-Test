@@ -23,8 +23,8 @@ public class ScoreboardPositioner extends GlacierMod {
     @Override public void onDisable() {}
     @Override public void onTick() {}
 
-    public float getXPercent() { return (float) x.getValue() / 100f; }
-    public float getYPercent() { return (float) y.getValue() / 100f; }
+    public float getXPercent() { return (float)(double) x.getValue() / 100f; }
+    public float getYPercent() { return (float)(double) y.getValue() / 100f; }
     public boolean shouldHideNumbers() { return hideNumbers.getValue(); }
     public int getBgColor() { return bgColor.getValue(); }
     public boolean hasCustomBackground() { return customBackground.getValue(); }

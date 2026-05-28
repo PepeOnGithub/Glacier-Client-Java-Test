@@ -27,5 +27,5 @@ public class ModelRenderingCache extends GlacierMod {
 
     public boolean isCachePlayerModels() { return cachePlayerModels.getValue(); }
     public boolean isCacheMobModels() { return cacheMobModels.getValue(); }
-    public int getCacheLifetime() { return (int) cacheLifetime.getValue(); }
+    public int getCacheLifetime() { return (int)(double) cacheLifetime.getValue(); }
 }

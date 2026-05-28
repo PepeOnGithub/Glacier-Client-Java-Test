@@ -25,7 +25,7 @@ public class InGameVoiceActivityIndicator extends HUDMod {
     public void render(DrawContext context, float delta) {
         int x = getX();
         int y = getY();
-        int size = (int) iconSize.getValue();
+        int size = (int)(double) iconSize.getValue();
         int cx = x + 20;
         int cy = y + 20;
         MinecraftClient mc = MinecraftClient.getInstance();

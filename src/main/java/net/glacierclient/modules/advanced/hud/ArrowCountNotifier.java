@@ -44,7 +44,7 @@ public class ArrowCountNotifier extends HUDMod {
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
         var tr = MinecraftClient.getInstance().textRenderer;
         context.fill(x, y, x + w, y + h, 0xAA1A1A2E);
-        boolean warn = arrowCount <= (int) warnThreshold.getValue();
+        boolean warn = arrowCount <= (int)(double) warnThreshold.getValue();
         int color = warn ? lowColor.getValue() : GlacierTheme.TEXT;
         String text = "Arrows: " + arrowCount + (showMax.getValue() ? "/64" : "");
         context.drawText(tr, text, x + 4, y + 6, color, warn);

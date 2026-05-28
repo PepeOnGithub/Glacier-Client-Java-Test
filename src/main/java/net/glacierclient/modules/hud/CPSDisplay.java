@@ -57,7 +57,7 @@ public class CPSDisplay extends HUDMod {
         int color = textColor.getValue();
         String text;
         if ("Simple".equals(style.getValue())) {
-            int total = Math.min(leftCPS + rightCPS, (int) maxCPS.getValue());
+            int total = Math.min(leftCPS + rightCPS, (int)(double) maxCPS.getValue());
             text = "CPS: " + total;
         } else {
             text = "L:" + leftCPS + " R:" + rightCPS;

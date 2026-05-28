@@ -33,7 +33,7 @@ public class WeightSpeedHUD extends HUDMod {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
         var attr = mc.player.getAttributeInstance(EntityAttributes.GENERIC_MOVEMENT_SPEED);
-        speed = attr != null ? (float) attr.getValue() * 43.178f : 0;
+        speed = attr != null ? (float)(double) attr.getValue() * 43.178f : 0;
         jumpStrength = 1.0f; // simplified
         weight = 0;
         for (int i = 0; i < mc.player.getInventory().size(); i++) {

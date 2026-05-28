@@ -41,7 +41,7 @@ public class AutoRejoin extends GlacierMod {
     public void onDisconnect(boolean kicked) {
         if (kicked && !onKick.getValue()) return;
         if (!kicked && !onTimeout.getValue()) return;
-        if (attempts >= (int) maxAttempts.getValue()) return;
+        if (attempts >= (int)(double) maxAttempts.getValue()) return;
         attempts++;
         pending = true;
         reconnectAt = System.currentTimeMillis() + (long) delay.getValue();

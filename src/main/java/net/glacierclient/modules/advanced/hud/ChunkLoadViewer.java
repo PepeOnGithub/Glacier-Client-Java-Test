@@ -38,7 +38,7 @@ public class ChunkLoadViewer extends HUDMod {
     public void render(DrawContext context, float tickDelta) {
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
         var tr = MinecraftClient.getInstance().textRenderer;
-        boolean warn = pendingChunks > (int) warnThreshold.getValue();
+        boolean warn = pendingChunks > (int)(double) warnThreshold.getValue();
         context.fill(x, y, x + w, y + h, 0xAA1A1A2E);
         int textColor = warn ? 0xFFFAA61A : GlacierTheme.TEXT;
         context.drawText(tr, "Chunks: " + pendingChunks + (warn ? " !" : ""), x + 4, y + 6, textColor, false);

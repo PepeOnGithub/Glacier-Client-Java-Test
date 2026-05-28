@@ -34,7 +34,7 @@ public class ResourcePackQuickSwitch extends GlacierMod {
     public void addRecent(String packName) {
         recentPacks.remove(packName);
         recentPacks.addFirst(packName);
-        while (recentPacks.size() > (int) maxRecent.getValue()) recentPacks.removeLast();
+        while (recentPacks.size() > (int)(double) maxRecent.getValue()) recentPacks.removeLast();
     }
 
     public Deque<String> getRecentPacks() { return recentPacks; }

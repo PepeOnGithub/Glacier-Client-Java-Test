@@ -30,6 +30,6 @@ public class BorderlessWindowedToggle extends GlacierMod {
     public void onTick() {}
 
     public boolean isBorderless() { return borderless.getValue(); }
-    public int getWindowX() { return (int) windowX.getValue(); }
-    public int getWindowY() { return (int) windowY.getValue(); }
+    public int getWindowX() { return (int)(double) windowX.getValue(); }
+    public int getWindowY() { return (int)(double) windowY.getValue(); }
 }

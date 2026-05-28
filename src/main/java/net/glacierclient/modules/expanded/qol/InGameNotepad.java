@@ -25,7 +25,7 @@ public class InGameNotepad extends GlacierMod {
     public void onDisable() {}
 
     public boolean isPersistAcrossSessions() { return persistAcrossSessions.getValue(); }
-    public int getWidth() { return (int) width.getValue(); }
-    public int getHeight() { return (int) height.getValue(); }
+    public int getWidth() { return (int)(double) width.getValue(); }
+    public int getHeight() { return (int)(double) height.getValue(); }
     public int getBgColor() { return bgColor.getValue(); }
 }

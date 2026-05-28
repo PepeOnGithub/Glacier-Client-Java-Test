@@ -31,7 +31,7 @@ public class HideFarPlayers extends GlacierMod {
     public boolean shouldHide(PlayerEntity player) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null || player == mc.player) return false;
-        return player.distanceTo(mc.player) > (float) hideDistance.getValue();
+        return player.distanceTo(mc.player) > (float)(double) hideDistance.getValue();
     }
 
     public boolean isHideNametags() { return hideNametags.getValue(); }

@@ -15,9 +15,6 @@ public class ModeSetting extends Setting<String> {
         }
     }
 
-    public ModeSetting(String name, String defaultMode, String... modes) {
-        this(name, "", defaultMode, modes);
-    }
 
     public void cycle() {
         int idx = modes.indexOf(value);

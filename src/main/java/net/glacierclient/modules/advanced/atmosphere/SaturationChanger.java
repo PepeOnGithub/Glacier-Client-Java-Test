@@ -21,8 +21,8 @@ public class SaturationChanger extends GlacierMod {
     @Override public void onDisable() {}
     @Override public void onTick() {}
 
-    public float getSaturation() { return (float) saturation.getValue(); }
-    public float getContrast() { return (float) contrast.getValue(); }
-    public float getBrightness() { return (float) brightness.getValue(); }
+    public float getSaturation() { return (float)(double) saturation.getValue(); }
+    public float getContrast() { return (float)(double) contrast.getValue(); }
+    public float getBrightness() { return (float)(double) brightness.getValue(); }
     public boolean isNightVisionEnabled() { return nightVision.getValue(); }
 }

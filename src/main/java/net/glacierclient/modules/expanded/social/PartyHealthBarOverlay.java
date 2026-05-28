@@ -31,7 +31,7 @@ public class PartyHealthBarOverlay extends HUDMod {
         context.fill(x, y, x + w, y + h, 0xCC1E1E2E);
         context.drawTextWithShadow(mc.textRenderer, "Party", x + 4, y + 4, GlacierTheme.ACCENT);
 
-        int members = (int) maxMembers.getValue();
+        int members = (int)(double) maxMembers.getValue();
         int lineY = y + 16;
         int barW = w - 60;
 

@@ -25,7 +25,7 @@ public class PotionEffectTicker extends GlacierMod {
     public void onDisable() {}
 
     public String getStyle() { return style.getValue(); }
-    public int getBarWidth() { return (int) barWidth.getValue(); }
-    public int getBarHeight() { return (int) barHeight.getValue(); }
+    public int getBarWidth() { return (int)(double) barWidth.getValue(); }
+    public int getBarHeight() { return (int)(double) barHeight.getValue(); }
     public boolean isShowText() { return showText.getValue(); }
 }

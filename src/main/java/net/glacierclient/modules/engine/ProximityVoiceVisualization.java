@@ -32,7 +32,7 @@ public class ProximityVoiceVisualization extends GlacierMod {
 
     public int getActiveColor() { return activeColor.getValue(); }
     public int getSpeakingColor() { return speakingColor.getValue(); }
-    public int getRingSize() { return (int) ringSize.getValue(); }
+    public int getRingSize() { return (int)(double) ringSize.getValue(); }
     public boolean isAnimate() { return animate.getValue(); }
-    public int getFadeTime() { return (int) fadeTime.getValue(); }
+    public int getFadeTime() { return (int)(double) fadeTime.getValue(); }
 }

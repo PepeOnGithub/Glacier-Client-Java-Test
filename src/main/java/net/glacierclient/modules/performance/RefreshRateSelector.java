@@ -21,7 +21,7 @@ public class RefreshRateSelector extends GlacierMod {
     public void onEnable() {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.options != null) {
-            mc.options.getMaxFps().setValue((int) targetRate.getValue());
+            mc.options.getMaxFps().setValue((int)(double) targetRate.getValue());
         }
     }
 
@@ -31,7 +31,7 @@ public class RefreshRateSelector extends GlacierMod {
     @Override
     public void onTick() {}
 
-    public int getTargetRate() { return (int) targetRate.getValue(); }
+    public int getTargetRate() { return (int)(double) targetRate.getValue(); }
     public boolean isAllowHigher() { return allowHigher.getValue(); }
     public boolean isAdaptiveSync() { return adaptiveSync.getValue(); }
 }

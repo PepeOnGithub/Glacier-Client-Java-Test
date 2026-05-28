@@ -28,7 +28,7 @@ public class GlacierAuroraOverlay extends GlacierMod {
         // Remove aurora skybox renderer
     }
 
-    public int getBands() { return (int) bands.getValue(); }
+    public int getBands() { return (int)(double) bands.getValue(); }
     public int getPrimaryColor() { return primaryColor.getValue(); }
     public int getSecondaryColor() { return secondaryColor.getValue(); }
     public double getSpeed() { return speed.getValue(); }

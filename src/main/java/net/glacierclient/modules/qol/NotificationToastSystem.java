@@ -49,7 +49,7 @@ public class NotificationToastSystem extends GlacierMod {
     }
 
     public void show(String title, String body) {
-        if (toasts.size() >= (int) maxVisible.getValue()) toasts.remove(0);
+        if (toasts.size() >= (int)(double) maxVisible.getValue()) toasts.remove(0);
         long until = System.currentTimeMillis() + (long) duration.getValue();
         toasts.add(new Toast(title, body, until));
         if (sounds.getValue()) {

@@ -34,5 +34,5 @@ public class DynamicTextureUnloader extends GlacierMod {
     }
 
     public boolean isUnloadOnDimension() { return unloadOnDimension.getValue(); }
-    public int getMaxTextureCache() { return (int) maxTextureCache.getValue(); }
+    public int getMaxTextureCache() { return (int)(double) maxTextureCache.getValue(); }
 }

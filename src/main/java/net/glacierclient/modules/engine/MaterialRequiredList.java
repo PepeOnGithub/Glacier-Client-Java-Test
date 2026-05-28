@@ -37,7 +37,7 @@ public class MaterialRequiredList extends HUDMod {
 
         int lineY = y + 16;
         int lineH = 10;
-        int count = (int) maxDisplay.getValue();
+        int count = (int)(double) maxDisplay.getValue();
 
         for (int i = 0; i < count && lineY + lineH < y + 200; i++) {
             boolean missing = highlightMissing.getValue() && (i % 3 == 0);

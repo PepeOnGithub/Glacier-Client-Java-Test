@@ -24,7 +24,7 @@ public class VRAMUsageTargeter extends GlacierMod {
     @Override
     public void onDisable() {}
 
-    public int getTargetMB() { return (int) targetMB.getValue(); }
+    public int getTargetMB() { return (int)(double) targetMB.getValue(); }
     public boolean isAutoAdjustMipmap() { return autoAdjustMipmap.getValue(); }
     public boolean isAutoAdjustDistance() { return autoAdjustDistance.getValue(); }
     public boolean isAutoAdjustAtlas() { return autoAdjustAtlas.getValue(); }

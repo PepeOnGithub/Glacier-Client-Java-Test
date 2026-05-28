@@ -40,5 +40,5 @@ public class GlacierSkybox extends GlacierMod {
     public float getAnimOffset() { return animOffset; }
     public int getPrimaryColor() { return primaryColor.getValue(); }
     public int getSecondaryColor() { return secondaryColor.getValue(); }
-    public float getIntensity() { return (float) intensity.getValue(); }
+    public float getIntensity() { return (float)(double) intensity.getValue(); }
 }

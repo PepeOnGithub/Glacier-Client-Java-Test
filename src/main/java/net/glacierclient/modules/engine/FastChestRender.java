@@ -31,6 +31,6 @@ public class FastChestRender extends GlacierMod {
     public boolean isBakedWhenClosed() { return bakedWhenClosed.getValue(); }
     public boolean isBakedBarrels() { return bakedBarrels.getValue(); }
     public boolean isBakedShulkers() { return bakedShulkers.getValue(); }
-    public int getBakeDistance() { return (int) bakeDistance.getValue(); }
+    public int getBakeDistance() { return (int)(double) bakeDistance.getValue(); }
     public boolean isKeepLidAnimation() { return keepLidAnimation.getValue(); }
 }

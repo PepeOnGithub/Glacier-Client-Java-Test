@@ -26,6 +26,6 @@ public class SoundStreamingFix extends GlacierMod {
     public void onTick() {}
 
     public boolean isFixStreamingBugs() { return fixStreamingBugs.getValue(); }
-    public int getBufferSize() { return (int) bufferSize.getValue(); }
+    public int getBufferSize() { return (int)(double) bufferSize.getValue(); }
     public boolean isReduceLatency() { return reduceLatency.getValue(); }
 }

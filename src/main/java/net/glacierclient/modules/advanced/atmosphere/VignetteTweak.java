@@ -37,7 +37,7 @@ public class VignetteTweak extends GlacierMod {
         if (removeOnHighHealth.getValue() && health > 0.99f) return;
         float pulseBoost = (pulseOnLowHealth.getValue() && health < 0.25f)
             ? (float) (0.3 * Math.sin(pulseOffset)) : 0;
-        float currentIntensity = (float) intensity.getValue() + pulseBoost;
+        float currentIntensity = (float)(double) intensity.getValue() + pulseBoost;
         int steps = 30;
         int base = color.getValue();
         for (int i = steps; i > 0; i--) {

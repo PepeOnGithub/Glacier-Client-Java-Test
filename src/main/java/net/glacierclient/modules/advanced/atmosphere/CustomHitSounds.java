@@ -26,8 +26,8 @@ public class CustomHitSounds extends GlacierMod {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null || mc.world == null) return;
         if ("Silent".equals(sound.getValue())) return;
-        float vol = (float) volume.getValue();
-        float pit = (float) pitch.getValue();
+        float vol = (float)(double) volume.getValue();
+        float pit = (float)(double) pitch.getValue();
         var soundEvent = switch (sound.getValue()) {
             case "Classic" -> SoundEvents.ENTITY_PLAYER_HURT;
             case "Modern" -> SoundEvents.ENTITY_GENERIC_HURT;

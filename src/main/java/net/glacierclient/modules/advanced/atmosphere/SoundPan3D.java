@@ -20,12 +20,12 @@ public class SoundPan3D extends GlacierMod {
     @Override public void onDisable() {}
     @Override public void onTick() {}
 
-    public float getStereoWidth() { return (float) stereoWidth.getValue(); }
-    public float getRolloffFactor() { return (float) rolloffFactor.getValue(); }
+    public float getStereoWidth() { return (float)(double) stereoWidth.getValue(); }
+    public float getRolloffFactor() { return (float)(double) rolloffFactor.getValue(); }
     public boolean isEnhancedSpatial() { return enhancedSpatial.getValue(); }
 
     public float[] processStereo(float left, float right) {
-        float width = (float) stereoWidth.getValue();
+        float width = (float)(double) stereoWidth.getValue();
         float mid = (left + right) * 0.5f;
         float side = (right - left) * 0.5f * width;
         return new float[]{mid - side, mid + side};

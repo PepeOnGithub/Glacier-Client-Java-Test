@@ -44,7 +44,7 @@ public class TotemCountHUD extends HUDMod {
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
         var tr = MinecraftClient.getInstance().textRenderer;
         context.fill(x, y, x + w, y + h, 0xAA1A1A2E);
-        boolean warn = totemCount <= (int) warnThreshold.getValue();
+        boolean warn = totemCount <= (int)(double) warnThreshold.getValue();
         int color = totemCount == 0 ? zeroColor.getValue() : (warn ? 0xFFFAA61A : GlacierTheme.TEXT);
         String text = "Totems: " + totemCount;
         context.drawText(tr, text, x + 4, y + 6, color, warn);

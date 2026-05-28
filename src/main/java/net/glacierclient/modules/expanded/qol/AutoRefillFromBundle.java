@@ -24,5 +24,5 @@ public class AutoRefillFromBundle extends GlacierMod {
 
     public boolean isShowIndicator() { return showIndicator.getValue(); }
     public boolean isPlaySound() { return playSound.getValue(); }
-    public int getThreshold() { return (int) threshold.getValue(); }
+    public int getThreshold() { return (int)(double) threshold.getValue(); }
 }

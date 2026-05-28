@@ -26,6 +26,6 @@ public class LowShieldRender extends GlacierMod {
     public void onTick() {}
 
     public boolean isHidden() { return hideCompletely.getValue(); }
-    public float getScale() { return (float) scale.getValue(); }
-    public float getPosY() { return (float) posY.getValue(); }
+    public float getScale() { return (float)(double) scale.getValue(); }
+    public float getPosY() { return (float)(double) posY.getValue(); }
 }

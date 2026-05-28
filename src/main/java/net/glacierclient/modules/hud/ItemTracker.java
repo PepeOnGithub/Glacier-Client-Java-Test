@@ -55,7 +55,7 @@ public class ItemTracker extends HUDMod {
         if (mc.textRenderer == null) return;
         int x = getX() + 2, y = getY() + 2;
         int shown = 0;
-        int maxD = (int) maxDisplay.getValue();
+        int maxD = (int)(double) maxDisplay.getValue();
         for (Map.Entry<String, Integer> entry : counts.entrySet()) {
             if (shown >= maxD) break;
             context.drawText(mc.textRenderer, entry.getKey() + ": " + entry.getValue(), x, y + shown * 10, GlacierTheme.TEXT, false);

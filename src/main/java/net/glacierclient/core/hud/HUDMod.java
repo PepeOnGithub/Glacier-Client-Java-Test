@@ -27,6 +27,10 @@ public abstract class HUDMod extends GlacierMod {
 
     public int getX(int screenWidth) { return (int)(x * screenWidth); }
     public int getY(int screenHeight) { return (int)(y * screenHeight); }
+    public int getX() { return getX(net.minecraft.client.MinecraftClient.getInstance().getWindow().getScaledWidth()); }
+    public int getY() { return getY(net.minecraft.client.MinecraftClient.getInstance().getWindow().getScaledHeight()); }
+    public int getWidth()  { return getScaledWidth(); }
+    public int getHeight() { return getScaledHeight(); }
     public void setX(float x) { this.x = Math.max(0, Math.min(1, x)); }
     public void setY(float y) { this.y = Math.max(0, Math.min(1, y)); }
     public float getXPercent() { return x; }

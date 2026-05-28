@@ -34,7 +34,7 @@ public class HitmarkerSoundMod extends GlacierMod {
         if ("Silent".equals(sound.getValue())) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.getSoundManager() == null) return;
-        float vol = (float) volume.getValue();
+        float vol = (float)(double) volume.getValue();
         mc.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f + (float)Math.random() * 0.1f, vol));
     }
 }

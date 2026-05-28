@@ -36,7 +36,7 @@ public class PerspectiveMod extends GlacierMod {
     public void onTick() {}
 
     public void rotatePerspective(double dx, double dy) {
-        float mult = (float) sensitivity.getValue();
+        float mult = (float)(double) sensitivity.getValue();
         perspYaw += (float) (dx * 0.15 * mult);
         perspPitch = Math.max(-90f, Math.min(90f, perspPitch + (float)(dy * 0.15 * mult)));
     }

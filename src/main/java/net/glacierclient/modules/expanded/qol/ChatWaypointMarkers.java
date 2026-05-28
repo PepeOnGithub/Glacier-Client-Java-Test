@@ -26,5 +26,5 @@ public class ChatWaypointMarkers extends GlacierMod {
     public boolean isAutoExtract() { return autoExtract.getValue(); }
     public boolean isShowHUD() { return showHUD.getValue(); }
     public boolean isTempWaypoint() { return tempWaypoint.getValue(); }
-    public int getWaypointDuration() { return (int) waypointDuration.getValue(); }
+    public int getWaypointDuration() { return (int)(double) waypointDuration.getValue(); }
 }

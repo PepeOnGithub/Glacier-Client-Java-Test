@@ -37,7 +37,7 @@ public class FactionMapOverlay extends HUDMod {
     @Override
     public void render(DrawContext context, float tickDelta) {
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
-        int alpha = (int) opacity.getValue();
+        int alpha = (int)(double) opacity.getValue();
         int bg = (alpha << 24) | 0x1A1A2E;
         context.fill(x, y, x + w, y + h, bg);
         context.fill(x, y, x + w, y + 1, GlacierTheme.ACCENT);
@@ -49,7 +49,7 @@ public class FactionMapOverlay extends HUDMod {
         if (mc.player == null) return;
 
         BlockPos playerPos = mc.player.getBlockPos();
-        int cellSize = (int) gridSize.getValue();
+        int cellSize = (int)(double) gridSize.getValue();
         int cellsX = w / cellSize;
         int cellsZ = h / cellSize;
         int startChunkX = (playerPos.getX() >> 4) - cellsX / 2;

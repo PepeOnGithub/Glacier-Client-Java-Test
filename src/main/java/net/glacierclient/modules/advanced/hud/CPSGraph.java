@@ -51,7 +51,7 @@ public class CPSGraph extends HUDMod {
             rightCPSHistory.addLast(rightClicks);
             leftClicks = 0;
             rightClicks = 0;
-            int maxSamples = (int) historySeconds.getValue();
+            int maxSamples = (int)(double) historySeconds.getValue();
             while (leftCPSHistory.size() > maxSamples) leftCPSHistory.pollFirst();
             while (rightCPSHistory.size() > maxSamples) rightCPSHistory.pollFirst();
             lastSampleTime = now;

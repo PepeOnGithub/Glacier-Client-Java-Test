@@ -28,7 +28,7 @@ public class RAMCapLimiter extends GlacierMod {
         Runtime rt = Runtime.getRuntime();
         long usedMB = (rt.totalMemory() - rt.freeMemory()) / (1024 * 1024);
         double pct = (double) usedMB / (rt.maxMemory() / (1024 * 1024)) * 100.0;
-        if (usedMB > (int) maxRAM.getValue() || pct > (int) gcThreshold.getValue()) {
+        if (usedMB > (int)(double) maxRAM.getValue() || pct > (int)(double) gcThreshold.getValue()) {
             System.gc();
         }
     }

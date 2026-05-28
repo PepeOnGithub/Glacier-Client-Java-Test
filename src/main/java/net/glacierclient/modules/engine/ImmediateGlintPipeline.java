@@ -33,6 +33,6 @@ public class ImmediateGlintPipeline extends GlacierMod {
     public boolean isSinglePass() { return singlePass.getValue(); }
     public double getGlintScale() { return glintScale.getValue(); }
     public int getDefaultGlintColor() { return defaultGlintColor.getValue(); }
-    public int getGlintAlpha() { return (int) glintAlpha.getValue(); }
+    public int getGlintAlpha() { return (int)(double) glintAlpha.getValue(); }
     public boolean isAnimatedGlint() { return animatedGlint.getValue(); }
 }

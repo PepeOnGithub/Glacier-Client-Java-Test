@@ -25,7 +25,7 @@ public class ComboRetainerOverlay extends GlacierMod {
     @Override
     public void onDisable() {}
 
-    public int getMinCombo() { return (int) minCombo.getValue(); }
+    public int getMinCombo() { return (int)(double) minCombo.getValue(); }
     public boolean isSoundEffect() { return soundEffect.getValue(); }
     public int getIconColor() { return iconColor.getValue(); }
     public boolean isShowFlame() { return showFlame.getValue(); }

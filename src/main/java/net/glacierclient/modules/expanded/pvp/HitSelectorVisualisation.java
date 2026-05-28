@@ -25,7 +25,7 @@ public class HitSelectorVisualisation extends GlacierMod {
     public void onDisable() {}
 
     public int getCircleColor() { return circleColor.getValue(); }
-    public int getRadius() { return (int) radius.getValue(); }
+    public int getRadius() { return (int)(double) radius.getValue(); }
     public boolean isShowOnEnemy() { return showOnEnemy.getValue(); }
     public double getThickness() { return thickness.getValue(); }
 }

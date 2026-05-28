@@ -28,7 +28,7 @@ public class CaveFogRemover extends GlacierMod {
     }
 
     public boolean isRemoveFog() { return removeFog.getValue(); }
-    public int getFadeStart() { return (int) fadeStart.getValue(); }
-    public int getFadeEnd() { return (int) fadeEnd.getValue(); }
+    public int getFadeStart() { return (int)(double) fadeStart.getValue(); }
+    public int getFadeEnd() { return (int)(double) fadeEnd.getValue(); }
     public boolean isKeepAtmosphere() { return keepAtmosphere.getValue(); }
 }
