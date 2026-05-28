@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "id": "glacierclient-1214",
+  "version": "1.0.0",
+  "name": "Glacier Client 1.21.4",
+  "description": "The definitive performance-first Minecraft client — 1.21.4 adapter",
+  "authors": ["Glacier Client Team"],
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["net.glacierclient.bridge.v1214.GlacierInit1214"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.9",
+    "fabric-api": "*",
+    "minecraft": "~1.21.4",
+    "java": ">=21"
+  }
+}

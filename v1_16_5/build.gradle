@@ -1,0 +1,25 @@
+plugins {
+    id 'fabric-loom' version '0.12-SNAPSHOT'
+    id 'maven-publish'
+}
+
+group = 'net.glacierclient'
+version = '1.0.0-mc1.16.5'
+
+dependencies {
+    minecraft 'com.mojang:minecraft:1.16.5'
+    mappings 'net.fabricmc:yarn:1.16.5+build.10:v2'
+    modImplementation 'net.fabricmc:fabric-loader:0.14.21'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.46.4+1.16'
+    implementation project(':core')
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+jar {
+    archiveBaseName = 'Glacier'
+    archiveVersion = '1.16.5'
+}

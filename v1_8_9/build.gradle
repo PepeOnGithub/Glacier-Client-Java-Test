@@ -1,0 +1,43 @@
+buildscript {
+    repositories {
+        maven { url 'https://files.minecraftforge.net/maven' }
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.tweaker-client'
+
+group = 'net.glacierclient'
+version = '1.0.0-mc1.8.9'
+
+minecraft {
+    version = '1.8.9'
+    tweakClass = 'net.glacierclient.launch.GlacierTweaker'
+    runDir = 'run'
+    mappings = 'stable_22'
+}
+
+dependencies {
+    compile project(':core')
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+jar {
+    archiveBaseName = 'Glacier'
+    archiveVersion = '1.8.9'
+    manifest {
+        attributes(
+            'TweakClass': 'net.glacierclient.launch.GlacierTweaker',
+            'TweakOrder': '0',
+            'Main-Class': 'net.minecraft.launchwrapper.Launch'
+        )
+    }
+}
