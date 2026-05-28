@@ -1,0 +1,84 @@
+{
+  "schemaVersion": 1,
+  "latestRelease": "v1.0.0",
+  "releaseDate": "2025-01-01",
+  "versions": [
+    {
+      "id": "1.8.9",
+      "name": "Glacier for 1.8.9",
+      "releaseDate": "2025-01-01",
+      "tag": "v1.0.0",
+      "url": "https://cdn.glacierclient.xyz/builds/1.8.9/Glacier-1.8.9.jar",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "fabric": false,
+      "forge": true,
+      "javaVersion": 8,
+      "changelog": "Initial release"
+    },
+    {
+      "id": "1.12.2",
+      "name": "Glacier for 1.12.2",
+      "releaseDate": "2025-01-01",
+      "tag": "v1.0.0",
+      "url": "https://cdn.glacierclient.xyz/builds/1.12.2/Glacier-1.12.2.jar",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "fabric": false,
+      "forge": true,
+      "javaVersion": 8,
+      "changelog": "Initial release"
+    },
+    {
+      "id": "1.16.5",
+      "name": "Glacier for 1.16.5",
+      "releaseDate": "2025-01-01",
+      "tag": "v1.0.0",
+      "url": "https://cdn.glacierclient.xyz/builds/1.16.5/Glacier-1.16.5.jar",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "fabric": true,
+      "forge": false,
+      "javaVersion": 17,
+      "changelog": "Initial release"
+    },
+    {
+      "id": "1.20.4",
+      "name": "Glacier for 1.20.4",
+      "releaseDate": "2025-01-01",
+      "tag": "v1.0.0",
+      "url": "https://cdn.glacierclient.xyz/builds/1.20.4/Glacier-1.20.4.jar",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "fabric": true,
+      "forge": false,
+      "javaVersion": 17,
+      "changelog": "Initial release"
+    },
+    {
+      "id": "1.21.4",
+      "name": "Glacier for 1.21.4",
+      "releaseDate": "2025-01-01",
+      "tag": "v1.0.0",
+      "url": "https://cdn.glacierclient.xyz/builds/1.21.4/Glacier-1.21.4.jar",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "fabric": true,
+      "forge": false,
+      "javaVersion": 21,
+      "changelog": "Initial release"
+    },
+    {
+      "id": "1.21.11",
+      "name": "Glacier for 1.21.11",
+      "releaseDate": "2025-01-01",
+      "tag": "v1.0.0",
+      "url": "https://cdn.glacierclient.xyz/builds/1.21.11/Glacier-1.21.11.jar",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "fabric": true,
+      "forge": false,
+      "javaVersion": 21,
+      "changelog": "Initial release"
+    }
+  ],
+  "launcher": {
+    "version": "v1.0.0",
+    "url": "https://cdn.glacierclient.xyz/launcher/GlacierLauncher.jar",
+    "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+  }
+}
