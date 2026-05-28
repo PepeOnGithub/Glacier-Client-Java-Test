@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+group = 'net.glacierclient'
+version = '1.0.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(':core')
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'org.apache.httpcomponents.client5:httpclient5:5.3'
+}
+
+application {
+    mainClass = 'net.glacierclient.launcher.Main'
+}
+
+shadowJar {
+    archiveBaseName = 'GlacierLauncher'
+    archiveClassifier = ''
+    archiveVersion = ''
+    manifest {
+        attributes 'Main-Class': 'net.glacierclient.launcher.Main'
+    }
+    mergeServiceFiles()
+}
+
+jar.dependsOn shadowJar
