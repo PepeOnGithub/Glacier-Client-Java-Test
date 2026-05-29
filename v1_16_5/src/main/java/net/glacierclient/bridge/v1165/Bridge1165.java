@@ -3,6 +3,8 @@ package net.glacierclient.bridge.v1165;
 import net.glacierclient.api.bridge.AbstractVersionBridge;
 import net.glacierclient.api.bridge.BridgeCapability;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.util.math.MatrixStack;
 
 public class Bridge1165 extends AbstractVersionBridge {
 
@@ -46,10 +48,23 @@ public class Bridge1165 extends AbstractVersionBridge {
     @Override public boolean isMultiplayer()      { return mc().getCurrentServerEntry() != null; }
     @Override public void    sendChatMessage(String msg) { if (isInGame()) mc().player.sendChatMessage(msg); }
     @Override public void    sendCommand(String cmd)     { sendChatMessage("/" + cmd); }
-    @Override public void  drawRect(Object ctx, float x, float y, float w, float h, int color) {}
-    @Override public void  drawGradientRect(Object ctx, float x, float y, float w, float h, int top, int bot) {}
-    @Override public void  drawText(Object ctx, String t, float x, float y, int c, boolean s) {}
-    @Override public void  drawCenteredText(Object ctx, String t, float cx, float y, int c, boolean s) {}
+    @Override public void  drawRect(Object ctx, float x, float y, float w, float h, int color) {
+        if (ctx instanceof MatrixStack ms) Draw1165.I.rect(ms, (int) x, (int) y, (int) (x + w), (int) (y + h), color);
+    }
+    @Override public void  drawGradientRect(Object ctx, float x, float y, float w, float h, int top, int bot) {
+        if (ctx instanceof MatrixStack ms) Draw1165.I.gradient(ms, (int) x, (int) y, (int) (x + w), (int) (y + h), top, bot);
+    }
+    @Override public void  drawText(Object ctx, String t, float x, float y, int c, boolean s) {
+        if (!(ctx instanceof MatrixStack ms)) return;
+        TextRenderer tr = mc().textRenderer;
+        if (s) tr.drawWithShadow(ms, t, x, y, c); else tr.draw(ms, t, x, y, c);
+    }
+    @Override public void  drawCenteredText(Object ctx, String t, float cx, float y, int c, boolean s) {
+        if (!(ctx instanceof MatrixStack ms)) return;
+        TextRenderer tr = mc().textRenderer;
+        float x = cx - tr.getWidth(t) / 2f;
+        if (s) tr.drawWithShadow(ms, t, x, y, c); else tr.draw(ms, t, x, y, c);
+    }
     @Override public void  drawTexture(Object ctx, String path, float x, float y, float w, float h) {}
     @Override public float getTextWidth(String text)  { return mc().textRenderer != null ? mc().textRenderer.getWidth(text) : text.length() * 6f; }
     @Override public int   getTextHeight()            { return 9; }
