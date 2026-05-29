@@ -2,6 +2,9 @@
   "modmenu.nameTranslation.glacierclient": "Glacier Client",
   "modmenu.descriptionTranslation.glacierclient": "A feature-rich Fabric client mod for Minecraft 1.20.4",
 
+  "category.glacierclient": "Glacier Client",
+  "key.glacierclient.open_gui": "Open Glacier GUI",
+
   "glacierclient.gui.title": "Glacier Client",
   "glacierclient.gui.search": "Search modules...",
   "glacierclient.gui.no_settings": "No settings",

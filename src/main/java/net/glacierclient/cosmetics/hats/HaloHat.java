@@ -1,7 +1,7 @@
 package net.glacierclient.cosmetics.hats;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 public final class HaloHat extends GlacierMod {
@@ -13,7 +13,7 @@ public final class HaloHat extends GlacierMod {
         addSettings(color, glow, speed);
     }
     @EventListen
-    public void onRenderEntity(EventRenderEntity event) {
+    public void onRenderEntity(RenderEvent event) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null || !event.getEntity().equals(mc.player)) return;
         MatrixStack ms = event.getMatrixStack();

@@ -1,6 +1,6 @@
 package net.glacierclient.modules.advanced.hud;
 
-import net.glacierclient.core.module.HUDMod;
+import net.glacierclient.core.hud.HUDMod;
 import net.glacierclient.core.settings.BooleanSetting;
 import net.glacierclient.core.settings.ModeSetting;
 import net.glacierclient.core.theme.GlacierTheme;
@@ -41,7 +41,7 @@ public class BiomeIndicator extends HUDMod {
             }
         });
         temperature = biomeEntry.value().getTemperature();
-        humidity = biomeEntry.value().getDownfall();
+        humidity = 0f; // Biome downfall is not publicly accessible in 1.20.4
     }
 
     @Override

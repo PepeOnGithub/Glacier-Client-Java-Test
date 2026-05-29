@@ -1,7 +1,7 @@
 package net.glacierclient.modules.advanced.mechanics;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 public final class AntiKnockbackMod extends GlacierMod {
     private final NumberSetting reduction = new NumberSetting("Reduction", 100, 0, 100);
     public AntiKnockbackMod() {

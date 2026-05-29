@@ -1,7 +1,7 @@
 package net.glacierclient.modules.advanced.social;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 public final class ChatTimestampMod extends GlacierMod {
@@ -12,7 +12,7 @@ public final class ChatTimestampMod extends GlacierMod {
         addSettings(brackets);
     }
     @EventListen
-    public void onChat(EventChat event) {
+    public void onChat(ChatReceiveEvent event) {
         String ts = LocalTime.now().format(FMT);
         String prefix = brackets.get() ? "[" + ts + "] " : ts + " ";
         event.setMessage(prefix + event.getMessage());

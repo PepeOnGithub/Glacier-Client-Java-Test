@@ -1,7 +1,7 @@
 package net.glacierclient.modules.advanced.mechanics;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.minecraft.client.MinecraftClient;
 public final class AntiVoidMod extends GlacierMod {
     private final NumberSetting yThreshold = new NumberSetting("YThreshold", -60, -200, 0);
@@ -10,7 +10,7 @@ public final class AntiVoidMod extends GlacierMod {
         addSettings(yThreshold);
     }
     @EventListen
-    public void onUpdate(EventUpdate event) {
+    public void onUpdate(TickEvent event) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
         if (mc.player.getY() < yThreshold.get() && !mc.player.isOnGround()) {

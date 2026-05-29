@@ -8,6 +8,12 @@ public class StringSetting extends Setting<String> {
         this(name, description, defaultValue, 256);
     }
 
+    public StringSetting(String name, String defaultValue) {
+        this(name, "", defaultValue, 256);
+    }
+
+    public String get() { return value; }
+
     public StringSetting(String name, String description, String defaultValue, int maxLength) {
         super(name, description, defaultValue);
         this.maxLength = maxLength;

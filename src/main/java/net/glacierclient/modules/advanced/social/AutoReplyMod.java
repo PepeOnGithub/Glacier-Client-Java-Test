@@ -1,7 +1,7 @@
 package net.glacierclient.modules.advanced.social;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.minecraft.client.MinecraftClient;
 public final class AutoReplyMod extends GlacierMod {
     private final BooleanSetting onlyWhisper = new BooleanSetting("OnlyWhispers", true);
@@ -11,7 +11,7 @@ public final class AutoReplyMod extends GlacierMod {
         addSettings(onlyWhisper, message);
     }
     @EventListen
-    public void onChat(EventChat event) {
+    public void onChat(ChatReceiveEvent event) {
         if (onlyWhisper.get() && !event.getMessage().startsWith("/msg")) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player != null) mc.player.networkHandler.sendChatMessage(message.get());

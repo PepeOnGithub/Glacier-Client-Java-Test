@@ -1,7 +1,7 @@
 package net.glacierclient.cosmetics.hats;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;import java.util.List;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
@@ -14,7 +14,7 @@ public final class CrownHat extends GlacierMod {
         addSettings(material);
     }
     @EventListen
-    public void onRenderEntity(EventRenderEntity event) {
+    public void onRenderEntity(RenderEvent event) {
         if (MinecraftClient.getInstance().player == null) return;
         if (!event.getEntity().equals(MinecraftClient.getInstance().player)) return;
         MatrixStack ms = event.getMatrixStack();

@@ -31,7 +31,7 @@ public class CustomHitSounds extends GlacierMod {
         var soundEvent = switch (sound.getValue()) {
             case "Classic" -> SoundEvents.ENTITY_PLAYER_HURT;
             case "Modern" -> SoundEvents.ENTITY_GENERIC_HURT;
-            case "Crunch" -> SoundEvents.ENTITY_BONE_MEAL_USE;
+            case "Crunch" -> SoundEvents.ITEM_BONE_MEAL_USE;
             case "Pop" -> SoundEvents.BLOCK_POINTED_DRIPSTONE_DRIP_WATER_INTO_CAULDRON;
             default -> SoundEvents.ENTITY_PLAYER_HURT;
         };

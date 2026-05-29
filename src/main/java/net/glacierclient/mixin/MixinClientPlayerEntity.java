@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class MixinClientPlayerEntity {
 
     @Inject(method = "sendChatMessage", at = @At("HEAD"), cancellable = true)
-    private void onSendChat(String message, net.minecraft.network.message.MessageMetadata metadata, CallbackInfo ci) {
+    private void onSendChat(String message, net.minecraft.text.Text preview, CallbackInfo ci) {
         if (GlacierClient.getInstance() == null) return;
         ChatSendEvent event = new ChatSendEvent(message);
         GlacierClient.getInstance().getEventBus().post(event);

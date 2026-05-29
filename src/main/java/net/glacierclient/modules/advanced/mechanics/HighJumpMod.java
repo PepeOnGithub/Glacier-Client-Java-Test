@@ -1,7 +1,7 @@
 package net.glacierclient.modules.advanced.mechanics;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.minecraft.client.MinecraftClient;
 public final class HighJumpMod extends GlacierMod {
     private final NumberSetting power = new NumberSetting("Power", 0.5f, 0.1f, 3.0f);
@@ -10,7 +10,7 @@ public final class HighJumpMod extends GlacierMod {
         addSettings(power);
     }
     @EventListen
-    public void onMove(EventPlayerMove event) {
+    public void onMove(PlayerMoveEvent event) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null || !mc.player.isOnGround()) return;
         if (mc.options.jumpKey.isPressed()) {

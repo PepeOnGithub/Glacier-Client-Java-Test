@@ -1,6 +1,6 @@
 package net.glacierclient.modules.advanced.social;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
+import net.glacierclient.core.settings.*;
 public final class BetterChatMod extends GlacierMod {
     private final NumberSetting history = new NumberSetting("HistorySize", 200, 50, 1000);
     private final BooleanSetting infiniteHistory = new BooleanSetting("InfiniteHistory", true);

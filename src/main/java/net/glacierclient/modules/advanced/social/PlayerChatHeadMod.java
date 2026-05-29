@@ -1,6 +1,6 @@
 package net.glacierclient.modules.advanced.social;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
+import net.glacierclient.core.settings.*;
 public final class PlayerChatHeadMod extends GlacierMod {
     private final NumberSetting size = new NumberSetting("Size", 8, 4, 16);
     private final BooleanSetting animate = new BooleanSetting("Animate", true);

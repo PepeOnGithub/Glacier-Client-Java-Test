@@ -1,7 +1,7 @@
 package net.glacierclient.modules.advanced.mechanics;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;import java.util.List;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.minecraft.client.MinecraftClient;
 public final class SpeedMod extends GlacierMod {
     private final NumberSetting speed = new NumberSetting("Speed", 1.5f, 1.0f, 5.0f);
@@ -11,7 +11,7 @@ public final class SpeedMod extends GlacierMod {
         addSettings(speed, mode);
     }
     @EventListen
-    public void onMove(EventPlayerMove event) {
+    public void onMove(PlayerMoveEvent event) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null || !mc.player.isOnGround()) return;
         if ("Strafe".equals(mode.get())) {

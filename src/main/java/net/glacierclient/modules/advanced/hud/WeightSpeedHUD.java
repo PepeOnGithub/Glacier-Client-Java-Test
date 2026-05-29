@@ -1,6 +1,6 @@
 package net.glacierclient.modules.advanced.hud;
 
-import net.glacierclient.core.module.HUDMod;
+import net.glacierclient.core.hud.HUDMod;
 import net.glacierclient.core.settings.BooleanSetting;
 import net.glacierclient.core.settings.ModeSetting;
 import net.glacierclient.core.theme.GlacierTheme;

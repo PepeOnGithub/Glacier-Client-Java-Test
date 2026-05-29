@@ -1,7 +1,7 @@
 package net.glacierclient.modules.advanced.social;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.glacierclient.core.theme.GlacierTheme;
 import net.minecraft.client.MinecraftClient;
 public final class MentionHighlightMod extends GlacierMod {
@@ -12,7 +12,7 @@ public final class MentionHighlightMod extends GlacierMod {
         addSettings(sound, nameOnly);
     }
     @EventListen
-    public void onChat(EventChat event) {
+    public void onChat(ChatReceiveEvent event) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
         String name = mc.player.getName().getString();

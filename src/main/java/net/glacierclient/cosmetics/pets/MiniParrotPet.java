@@ -1,7 +1,7 @@
 package net.glacierclient.cosmetics.pets;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;import java.util.List;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.util.math.MatrixStack;
 public final class MiniParrotPet extends GlacierMod {
@@ -11,7 +11,7 @@ public final class MiniParrotPet extends GlacierMod {
         addSettings(variant);
     }
     @EventListen
-    public void onRenderWorld(EventRenderWorld event) {
+    public void onRenderWorld(RenderEvent event) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
         MatrixStack ms = event.getMatrixStack();

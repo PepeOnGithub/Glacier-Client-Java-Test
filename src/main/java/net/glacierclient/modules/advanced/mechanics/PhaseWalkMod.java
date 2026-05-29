@@ -1,6 +1,6 @@
 package net.glacierclient.modules.advanced.mechanics;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
+import net.glacierclient.core.settings.*;
 public final class PhaseWalkMod extends GlacierMod {
     private final BooleanSetting water = new BooleanSetting("ThroughWater", false);
     private final BooleanSetting web = new BooleanSetting("ThroughCobweb", true);

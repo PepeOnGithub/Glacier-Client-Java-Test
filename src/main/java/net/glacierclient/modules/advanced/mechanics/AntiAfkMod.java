@@ -1,7 +1,7 @@
 package net.glacierclient.modules.advanced.mechanics;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;import java.util.List;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.minecraft.client.MinecraftClient;
 public final class AntiAfkMod extends GlacierMod {
     private final NumberSetting interval = new NumberSetting("Interval", 60, 10, 300);
@@ -12,7 +12,7 @@ public final class AntiAfkMod extends GlacierMod {
         addSettings(interval, action);
     }
     @EventListen
-    public void onUpdate(EventUpdate event) {
+    public void onUpdate(TickEvent event) {
         long now = System.currentTimeMillis();
         if (now - lastAction < interval.get() * 1000L) return;
         lastAction = now;

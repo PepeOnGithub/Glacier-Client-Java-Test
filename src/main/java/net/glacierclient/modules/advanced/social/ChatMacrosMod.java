@@ -1,7 +1,7 @@
 package net.glacierclient.modules.advanced.social;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.option.KeyBinding;
 import org.lwjgl.glfw.GLFW;
@@ -14,7 +14,7 @@ public final class ChatMacrosMod extends GlacierMod {
         addSettings(macro1, macro2, macro3);
     }
     @EventListen
-    public void onKey(EventKeyPress event) {
+    public void onKey(KeyInputEvent event) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null || mc.currentScreen != null) return;
         if (event.getKey() == GLFW.GLFW_KEY_F6) send(mc, macro1.get());

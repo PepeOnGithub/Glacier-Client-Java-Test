@@ -1,6 +1,6 @@
 package net.glacierclient.core.macro;
 
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import java.util.*;
 
 public final class MacroRecorder {
@@ -33,14 +33,14 @@ public final class MacroRecorder {
     public boolean isRecording() { return recording; }
 
     @EventListen
-    public void onKey(EventKeyPress event) {
+    public void onKey(KeyInputEvent event) {
         if (!recording) return;
         long timestamp = System.currentTimeMillis() - recordStart;
         recorded.add(new MacroAction(MacroAction.Type.KEY_PRESS, event.getKey(), timestamp));
     }
 
     @EventListen
-    public void onChatSend(EventChatSend event) {
+    public void onChatSend(ChatSendEvent event) {
         if (!recording) return;
         long timestamp = System.currentTimeMillis() - recordStart;
         recorded.add(new MacroAction(MacroAction.Type.CHAT, event.getMessage(), timestamp));

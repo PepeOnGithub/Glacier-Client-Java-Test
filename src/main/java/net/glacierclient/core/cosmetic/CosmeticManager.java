@@ -33,34 +33,6 @@ public class CosmeticManager {
                  new net.glacierclient.cosmetics.capes.StarfieldCape(),
                  new net.glacierclient.cosmetics.capes.PrismaticCape());
 
-        // Hats
-        register(new net.glacierclient.cosmetics.hats.Halo(),
-                 new net.glacierclient.cosmetics.hats.Crown(),
-                 new net.glacierclient.cosmetics.hats.CatEars(),
-                 new net.glacierclient.cosmetics.hats.TopHat(),
-                 new net.glacierclient.cosmetics.hats.Fedora(),
-                 new net.glacierclient.cosmetics.hats.WitchHat(),
-                 new net.glacierclient.cosmetics.hats.Antlers(),
-                 new net.glacierclient.cosmetics.hats.SantaHat(),
-                 new net.glacierclient.cosmetics.hats.PropellerHat(),
-                 new net.glacierclient.cosmetics.hats.Bandana());
-
-        // Body
-        register(new net.glacierclient.cosmetics.body.ShoulderParrot(),
-                 new net.glacierclient.cosmetics.body.BodyAura(),
-                 new net.glacierclient.cosmetics.body.TrailParticles(),
-                 new net.glacierclient.cosmetics.body.PhoenixAura(),
-                 new net.glacierclient.cosmetics.body.HeartParticles());
-
-        // Pets
-        register(new net.glacierclient.cosmetics.pets.MiniMePet(),
-                 new net.glacierclient.cosmetics.pets.FloatingSlime(),
-                 new net.glacierclient.cosmetics.pets.FriendlyGhost(),
-                 new net.glacierclient.cosmetics.pets.PhoenixCompanion());
-
-        // Emotes
-        register(new net.glacierclient.cosmetics.emotes.WaveEmote(),
-                 new net.glacierclient.cosmetics.emotes.DanceEmote());
     }
 
     private void register(Cosmetic... c) { cosmetics.addAll(Arrays.asList(c)); }

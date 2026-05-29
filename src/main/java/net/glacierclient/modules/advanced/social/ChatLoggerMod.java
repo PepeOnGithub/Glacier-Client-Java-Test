@@ -1,7 +1,7 @@
 package net.glacierclient.modules.advanced.social;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import java.io.*;
 import java.nio.file.*;
 import java.time.*;
@@ -11,7 +11,7 @@ public final class ChatLoggerMod extends GlacierMod {
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("HH:mm:ss");
     public ChatLoggerMod() { super("ChatLogger", "Logs all chat messages to a file", Category.QOL, -1); }
     @EventListen
-    public void onChat(EventChat event) {
+    public void onChat(ChatReceiveEvent event) {
         try {
             Files.createDirectories(LOG_FILE.getParent());
             String line = "[" + LocalTime.now().format(FMT) + "] " + event.getMessage() + "\n";

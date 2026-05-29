@@ -8,6 +8,12 @@ public class ColorSetting extends Setting<Integer> {
         this(name, description, defaultColor, true);
     }
 
+    public ColorSetting(String name, int defaultColor) {
+        this(name, "", defaultColor, true);
+    }
+
+    public int get() { return value; }
+
     public ColorSetting(String name, String description, int defaultColor, boolean allowAlpha) {
         super(name, description, defaultColor);
         this.allowAlpha = allowAlpha;

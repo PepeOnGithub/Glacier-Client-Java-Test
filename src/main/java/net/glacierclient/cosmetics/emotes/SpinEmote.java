@@ -1,7 +1,7 @@
 package net.glacierclient.cosmetics.emotes;
 import net.glacierclient.core.module.*;
-import net.glacierclient.core.setting.*;
-import net.glacierclient.core.event.*;
+import net.glacierclient.core.settings.*;
+import net.glacierclient.core.event.*;import net.glacierclient.core.event.events.*;
 import net.minecraft.client.MinecraftClient;
 import org.lwjgl.glfw.GLFW;
 public final class SpinEmote extends GlacierMod {
@@ -13,11 +13,11 @@ public final class SpinEmote extends GlacierMod {
         addSettings(speed);
     }
     @EventListen
-    public void onKey(EventKeyPress event) {
+    public void onKey(KeyInputEvent event) {
         if (event.getKey() == GLFW.GLFW_KEY_K) { spinning = true; startTime = System.currentTimeMillis(); }
     }
     @EventListen
-    public void onUpdate(EventUpdate event) {
+    public void onUpdate(TickEvent event) {
         if (!spinning) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;

@@ -15,6 +15,16 @@ public class ModeSetting extends Setting<String> {
         }
     }
 
+    public ModeSetting(String name, String description, String[] modes, String defaultMode) {
+        this(name, description, defaultMode, modes);
+    }
+
+    public ModeSetting(String name, List<String> modes, String defaultMode) {
+        this(name, "", defaultMode, modes.toArray(new String[0]));
+    }
+
+    public String get() { return value; }
+
     public void cycle() {
         int idx = modes.indexOf(value);
         setValue(modes.get((idx + 1) % modes.size()));
