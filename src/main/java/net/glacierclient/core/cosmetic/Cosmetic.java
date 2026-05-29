@@ -38,4 +38,10 @@ public abstract class Cosmetic {
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
     public void toggle() { this.enabled = !this.enabled; }
     public List<Setting<?>> getSettings() { return settings; }
+
+    /** Primary colour (ARGB) chosen for this cosmetic — used by previews and renderers. */
+    public int getColor() { return color.getValue(); }
+
+    /** Size scale chosen for this cosmetic. */
+    public double getScale() { return scale.getValue(); }
 }

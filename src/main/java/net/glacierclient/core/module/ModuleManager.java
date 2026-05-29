@@ -88,6 +88,15 @@ public class ModuleManager {
 
     public List<GlacierMod> getModules() { return Collections.unmodifiableList(modules); }
 
+    /** Reorders the module list so {@code from} is placed at the index currently held by {@code target}. */
+    public void moveModule(GlacierMod from, GlacierMod target) {
+        int fromIdx = modules.indexOf(from);
+        int toIdx = modules.indexOf(target);
+        if (fromIdx < 0 || toIdx < 0 || fromIdx == toIdx) return;
+        modules.remove(fromIdx);
+        modules.add(toIdx, from);
+    }
+
     public List<GlacierMod> getModulesByCategory(Category category) {
         return modules.stream().filter(m -> m.getCategory() == category).collect(Collectors.toList());
     }
