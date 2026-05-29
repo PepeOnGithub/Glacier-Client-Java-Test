@@ -15,11 +15,15 @@ import java.util.Map;
  */
 public final class GuiCustomization {
 
-    private static final GuiCustomization INSTANCE = new GuiCustomization();
-    public static GuiCustomization get() { return INSTANCE; }
-
     private static final Path FILE = Paths.get("config", "glacierclient", "gui.json");
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+
+    // Lazily created so the static FILE/GSON constants are guaranteed initialized first.
+    private static GuiCustomization instance;
+    public static GuiCustomization get() {
+        if (instance == null) instance = new GuiCustomization();
+        return instance;
+    }
 
     private final Map<String, CardStyle> styles = new HashMap<>();
     public int globalAccent = 0xFF7289DA;
