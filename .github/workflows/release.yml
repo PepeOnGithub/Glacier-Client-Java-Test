@@ -69,6 +69,10 @@ jobs:
         run: |
           mkdir -p release-artifacts
 
+          # 1.20.4 (root project)
+          ./gradlew :build --no-daemon
+          find build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1 | xargs -I{} cp {} release-artifacts/Glacier-1.20.4.jar
+
           # 1.12.2 (stub, no MC deps)
           ./gradlew :v1_12_2:build --no-daemon
           find v1_12_2/build/libs -name "*.jar" ! -name "*-dev.jar" ! -name "*-sources.jar" | head -1 | xargs -I{} cp {} release-artifacts/Glacier-1.12.2.jar
@@ -103,6 +107,7 @@ jobs:
           
           SHA_1122=$(compute_sha release-artifacts/Glacier-1.12.2.jar)
           SHA_1165=$(compute_sha release-artifacts/Glacier-1.16.5.jar)
+          SHA_1204=$(compute_sha release-artifacts/Glacier-1.20.4.jar)
           SHA_1214=$(compute_sha release-artifacts/Glacier-1.21.4.jar)
           SHA_12111=$(compute_sha release-artifacts/Glacier-1.21.11.jar)
           
@@ -131,6 +136,18 @@ jobs:
                 "tag": "${TAG}",
                 "url": "https://cdn.glacierclient.xyz/builds/1.16.5/Glacier-1.16.5.jar",
                 "sha256": "${SHA_1165}",
+                "fabric": true,
+                "forge": false,
+                "javaVersion": 17,
+                "changelog": "Multi-version Glacier Client release ${TAG}"
+              },
+              {
+                "id": "1.20.4",
+                "name": "Glacier for 1.20.4",
+                "releaseDate": "${DATE}",
+                "tag": "${TAG}",
+                "url": "https://cdn.glacierclient.xyz/builds/1.20.4/Glacier-1.20.4.jar",
+                "sha256": "${SHA_1204}",
                 "fabric": true,
                 "forge": false,
                 "javaVersion": 17,
@@ -184,6 +201,7 @@ jobs:
             |-----------|--------|------|
             | 1.12.2 | stub | 17 |
             | 1.16.5 | Fabric | 17 |
+            | 1.20.4 | Fabric | 17 |
             | 1.21.4 | Fabric | 21 |
             | 1.21.11 | Fabric | 21 |
             
