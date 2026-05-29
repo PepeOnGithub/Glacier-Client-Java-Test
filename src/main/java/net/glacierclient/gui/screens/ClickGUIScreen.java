@@ -12,6 +12,7 @@ import net.glacierclient.core.settings.*;
 import net.glacierclient.core.theme.GlacierTheme;
 import net.glacierclient.core.util.AnimationUtil;
 import net.glacierclient.core.util.Icons;
+import net.glacierclient.core.util.IconTextures;
 import net.glacierclient.core.util.RenderUtil;
 import net.glacierclient.gui.widget.ColorPicker;
 import net.glacierclient.modules.render.BossbarCustomizer;
@@ -20,6 +21,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
+import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
 import org.lwjgl.glfw.GLFW;
 
@@ -74,6 +76,8 @@ public class ClickGUIScreen extends Screen {
     private Runnable popupToggle;
     private BooleanSupplier popupEnabled;
     private int popupScroll = 0;
+    private GlacierMod popupBindTarget;   // module whose keybind can be set (null for cosmetics)
+    private boolean awaitingBind = false; // capturing the next key press as a bind
 
     private final ColorPicker colorPicker = new ColorPicker();
 
@@ -251,7 +255,9 @@ public class ClickGUIScreen extends Screen {
         drawStyledCard(ctx, st, x, y, w, CARD_H, hov, mod.isEnabled(), floating);
 
         int iconColor = mod.isEnabled() ? st.accentColor : GlacierTheme.TEXT;
-        Icons.draw(ctx, textRenderer, mod.getName(), mod.getCategory().name(), x + w / 2, y + 36, 30, iconColor);
+        if (!IconTextures.draw(ctx, mod.getName(), x + w / 2, y + 36, 30)) {
+            Icons.draw(ctx, textRenderer, mod.getName(), mod.getCategory().name(), x + w / 2, y + 36, 30, iconColor);
+        }
 
         // name (centered, trimmed)
         String name = trim(mod.getName(), w - 12);
@@ -491,12 +497,16 @@ public class ClickGUIScreen extends Screen {
         popupTab = PopupTab.SETTINGS;
         popupScroll = 0;
         openDropdown = null;
+        popupBindTarget = null;
+        awaitingBind = false;
     }
 
     private void closePopup() {
         popupOpen = false;
         openDropdown = null;
         draggingSlider = null;
+        awaitingBind = false;
+        popupBindTarget = null;
         colorPicker.close();
     }
 
@@ -536,13 +546,31 @@ public class ClickGUIScreen extends Screen {
             return;
         }
 
+        boolean footer = popupBindTarget != null;
+        int listBottom = footer ? y + POPUP_H - 22 : y + POPUP_H - 8;
         if (popupSettings.isEmpty()) {
             ctx.drawTextWithShadow(textRenderer, "No settings", x + 12, y + 66, GlacierTheme.TEXT_DIM);
-            return;
+        } else {
+            ctx.enableScissor(x, y + 58, x + POPUP_W, listBottom);
+            renderSettingsList(ctx, popupSettings, x + 12, y + 62 - popupScroll, POPUP_W - 24, mouseX, mouseY);
+            ctx.disableScissor();
         }
-        ctx.enableScissor(x, y + 58, x + POPUP_W, y + POPUP_H - 8);
-        renderSettingsList(ctx, popupSettings, x + 12, y + 62 - popupScroll, POPUP_W - 24, mouseX, mouseY);
-        ctx.disableScissor();
+        if (footer) renderBindButton(ctx, x, y, mouseX, mouseY);
+    }
+
+    private void renderBindButton(DrawContext ctx, int x, int y, int mouseX, int mouseY) {
+        int by = y + POPUP_H - 18, bw = POPUP_W - 24;
+        boolean hov = within(mouseX, mouseY, x + 12, by, bw, 14);
+        int bg = awaitingBind ? GlacierTheme.ACCENT_BG : (hov ? GlacierTheme.BG_ITEM_HOVER : GlacierTheme.BG_ITEM);
+        RenderUtil.drawRoundedRect(ctx, x + 12, by, bw, 14, 6, bg);
+        String label = "Keybind: " + (awaitingBind ? "press a key (Esc to clear)" : keyName(popupBindTarget.getKeybind()));
+        ctx.drawTextWithShadow(textRenderer, label, x + 18, by + 3, awaitingBind ? GlacierTheme.ACCENT : GlacierTheme.TEXT_DIM);
+    }
+
+    private String keyName(int code) {
+        if (code < 0) return "None";
+        try { return InputUtil.fromKeyCode(code, 0).getLocalizedText().getString(); }
+        catch (Exception e) { return String.valueOf(code); }
     }
 
     private void drawSubTab(DrawContext ctx, String label, int x, int y, boolean sel, int mouseX, int mouseY) {
@@ -712,6 +740,11 @@ public class ClickGUIScreen extends Screen {
                 if (within(x, y, t2, py + 38, t2w, 14)) { popupTab = PopupTab.APPEARANCE; return true; }
             }
             if (popupTab == PopupTab.APPEARANCE) { handleAppearanceClick(px, py + 62, x, y); return true; }
+            // keybind footer
+            if (popupBindTarget != null && within(x, y, px + 12, py + POPUP_H - 18, POPUP_W - 24, 14)) {
+                awaitingBind = true;
+                return true;
+            }
             if (handleSettingsClick(popupSettings, px + 12, py + 62 - popupScroll, POPUP_W - 24, x, y)) return true;
             return true;
         }
@@ -778,6 +811,7 @@ public class ClickGUIScreen extends Screen {
 
     private void openModuleSettings(GlacierMod mod) {
         openSettings(mod.getName(), mod.getDescription(), mod.getSettings(), mod::toggle, mod::isEnabled, mod.getName());
+        popupBindTarget = mod;
     }
 
     private boolean clickEditors(int x, int y) {
@@ -955,6 +989,12 @@ public class ClickGUIScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // capturing a keybind takes priority over everything (incl. Esc, which clears it)
+        if (awaitingBind && popupBindTarget != null) {
+            popupBindTarget.setKeybind(keyCode == GLFW.GLFW_KEY_ESCAPE ? -1 : keyCode);
+            awaitingBind = false;
+            return true;
+        }
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
             if (colorPicker.isOpen()) { colorPicker.close(); return true; }
             if (openDropdown != null) { openDropdown = null; return true; }

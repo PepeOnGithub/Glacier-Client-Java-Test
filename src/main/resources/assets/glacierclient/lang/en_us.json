@@ -4,6 +4,7 @@
 
   "category.glacierclient": "Glacier Client",
   "key.glacierclient.open_gui": "Open Glacier GUI",
+  "key.glacierclient.zoom": "Zoom",
 
   "glacierclient.gui.title": "Glacier Client",
   "glacierclient.gui.search": "Search modules...",
