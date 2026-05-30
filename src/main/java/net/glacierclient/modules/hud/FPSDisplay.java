@@ -50,11 +50,13 @@ public class FPSDisplay extends HUDMod {
             else if (fps >= 30) color = 0xFFFAA61A;
             else color = GlacierTheme.RED;
         } else {
-            color = GlacierTheme.TEXT;
+            color = getTextColor();
         }
         StringBuilder sb = new StringBuilder("FPS: ").append(fps);
         if (showMin.getValue() && minFPS != Integer.MAX_VALUE) sb.append(" Min:").append(minFPS);
         if (showMax.getValue()) sb.append(" Max:").append(maxFPS);
-        context.drawText(mc.textRenderer, sb.toString(), getX() + 2, getY() + 4, color, false);
+        String text = sb.toString();
+        drawBackground(context, getX() + 2, getY() + 4, mc.textRenderer.getWidth(text), 9);
+        context.drawText(mc.textRenderer, text, getX() + 2, getY() + 4, color, hasShadow());
     }
 }

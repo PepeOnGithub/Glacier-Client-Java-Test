@@ -47,11 +47,16 @@ public class CoordinatesHUD extends HUDMod {
         double px = mc.player.getX();
         double py = mc.player.getY();
         double pz = mc.player.getZ();
-        context.drawText(mc.textRenderer, String.format("X: %.1f  Y: %.1f  Z: %.1f", px, py, pz), x, y, GlacierTheme.TEXT, false);
+        int dim = (getTextColor() & 0xFFFFFF) | 0xAA000000; // dimmed variant of the chosen colour
+        boolean sh = hasShadow();
+        // background sized to the visible lines
+        int lines = 1 + (showDirection.getValue() ? 1 : 0) + (showNether.getValue() ? 1 : 0) + (showBiome.getValue() ? 1 : 0);
+        drawBackground(context, x, y, 150, lines * lineH);
+        context.drawText(mc.textRenderer, String.format("X: %.1f  Y: %.1f  Z: %.1f", px, py, pz), x, y, getTextColor(), sh);
         y += lineH;
         if (showDirection.getValue()) {
             String dir = getDirection(mc.player.getYaw());
-            context.drawText(mc.textRenderer, "Facing: " + dir + String.format(" (%.1f)", mc.player.getYaw()), x, y, GlacierTheme.TEXT_DIM, false);
+            context.drawText(mc.textRenderer, "Facing: " + dir + String.format(" (%.1f)", mc.player.getYaw()), x, y, dim, sh);
             y += lineH;
         }
         if (showNether.getValue() && mc.world != null) {
@@ -59,13 +64,13 @@ public class CoordinatesHUD extends HUDMod {
             String label = isNether ? "Overworld" : "Nether";
             double nx = isNether ? px * 8 : px / 8;
             double nz = isNether ? pz * 8 : pz / 8;
-            context.drawText(mc.textRenderer, label + ": " + (int)nx + ", " + (int)nz, x, y, GlacierTheme.TEXT_DIM, false);
+            context.drawText(mc.textRenderer, label + ": " + (int)nx + ", " + (int)nz, x, y, dim, sh);
             y += lineH;
         }
         if (showBiome.getValue() && mc.world != null) {
             BlockPos bp = mc.player.getBlockPos();
             String biome = mc.world.getBiome(bp).getKey().map(k -> k.getValue().getPath()).orElse("unknown");
-            context.drawText(mc.textRenderer, "Biome: " + biome, x, y, GlacierTheme.TEXT_DIM, false);
+            context.drawText(mc.textRenderer, "Biome: " + biome, x, y, dim, sh);
         }
     }
 }
