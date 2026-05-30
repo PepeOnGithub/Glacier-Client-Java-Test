@@ -293,7 +293,7 @@ public class ClickGUIScreen extends Screen {
                 int x = contentX() + col * (cw + CARD_GAP);
                 int y = contentY() + row * (CARD_H + CARD_GAP);
                 boolean hov = within(mouseX, mouseY, x, y, cw, CARD_H);
-                RenderUtil.drawRoundedRect(ctx, x, y, cw, CARD_H, GlacierTheme.RADIUS_SM, hov ? 0xFF2A2E33 : 0xFF202327);
+                GuiTextures.rect(ctx, "modules_base_bg", x, y, cw, CARD_H, hov ? 0xFF2A2E33 : 0xFF202327);
                 int col2 = hov ? GlacierTheme.ACCENT : GlacierTheme.TEXT;
                 editorIcon(ctx, names[i], x + cw / 2, y + 36, col2);
                 ctx.drawTextWithShadow(textRenderer, names[i], x + (cw - textRenderer.getWidth(names[i])) / 2, y + CARD_H - 18, col2);
@@ -362,7 +362,7 @@ public class ClickGUIScreen extends Screen {
             int cy = y + row * (CARD_H + CARD_GAP) - gridScroll;
             if (cy + CARD_H < y || cy > areaBottom) continue;
             boolean hov = within(mouseX, mouseY, cx, cy, cw, CARD_H);
-            RenderUtil.drawRoundedRect(ctx, cx, cy, cw, CARD_H, GlacierTheme.RADIUS_SM, hov ? 0xFF2A2E33 : 0xFF202327);
+            GuiTextures.rect(ctx, "modules_base_bg", cx, cy, cw, CARD_H, hov ? 0xFF2A2E33 : 0xFF202327);
             if (cos.isEnabled()) RenderUtil.drawOutline(ctx, cx, cy, cw, CARD_H, 1, GlacierTheme.ACCENT);
             int ic = cos.isEnabled() ? GlacierTheme.ACCENT : GlacierTheme.TEXT;
             Icons.draw(ctx, textRenderer, cos.getName(), "COSMETICS", cx + cw / 2, cy + 34, 28, withAlpha(cos.getColor(), 0xFF));
@@ -380,8 +380,8 @@ public class ClickGUIScreen extends Screen {
 
     private void renderCosmeticPreview(DrawContext ctx, int px, int py, int pw, int ph,
                                        List<Cosmetic> cosmetics, int mouseX, int mouseY) {
-        RenderUtil.drawRoundedRect(ctx, px, py, pw, ph, GlacierTheme.RADIUS_SM, 0xFF17191C);
-        RenderUtil.drawOutline(ctx, px, py, pw, ph, 1, GlacierTheme.ACCENT_GLOW);
+        GuiTextures.rect(ctx, "secondary_bg", px, py, pw, ph, 0xFF17191C);
+        if (!GuiTextures.has("secondary_bg")) RenderUtil.drawOutline(ctx, px, py, pw, ph, 1, GlacierTheme.ACCENT_GLOW);
         String hdr = "Try-On";
         ctx.drawTextWithShadow(textRenderer, hdr, px + (pw - textRenderer.getWidth(hdr)) / 2, py + 6, GlacierTheme.ACCENT);
 
@@ -435,7 +435,7 @@ public class ClickGUIScreen extends Screen {
             int cx = x + col * (cw + CARD_GAP);
             int cy = y + 16 + row * (CARD_H + CARD_GAP);
             boolean hov = within(mouseX, mouseY, cx, cy, cw, CARD_H);
-            RenderUtil.drawRoundedRect(ctx, cx, cy, cw, CARD_H, GlacierTheme.RADIUS_SM, hov ? 0xFF2A2E33 : 0xFF202327);
+            GuiTextures.rect(ctx, "modules_base_bg", cx, cy, cw, CARD_H, hov ? 0xFF2A2E33 : 0xFF202327);
             Icons.draw(ctx, textRenderer, "person", "COSMETICS", cx + cw / 2, cy + 34, 28, GlacierTheme.TEXT);
             String nm = EMOTES[i];
             ctx.drawTextWithShadow(textRenderer, nm, cx + (cw - textRenderer.getWidth(nm)) / 2, cy + CARD_H - 16, GlacierTheme.TEXT);
@@ -449,9 +449,9 @@ public class ClickGUIScreen extends Screen {
     private void renderMusicTab(DrawContext ctx, int mouseX, int mouseY) {
         int x = contentX(), y = contentY();
         int w = contentW();
-        RenderUtil.drawRoundedRect(ctx, x, y, w, 120, GlacierTheme.RADIUS_SM, 0xFF202327);
+        GuiTextures.rect(ctx, "secondary_bg", x, y, w, 120, 0xFF202327);
         // album art placeholder
-        RenderUtil.drawRoundedRect(ctx, x + 16, y + 16, 88, 88, GlacierTheme.RADIUS_SM, GlacierTheme.BG_PANEL);
+        GuiTextures.rect(ctx, "modules_base_bg", x + 16, y + 16, 88, 88, GlacierTheme.BG_PANEL);
         Icons.draw(ctx, textRenderer, "music note", "COSMETICS", x + 60, y + 60, 36, GlacierTheme.ACCENT);
 
         ctx.drawTextWithShadow(textRenderer, "Nothing playing", x + 120, y + 24, GlacierTheme.TEXT);
@@ -461,7 +461,7 @@ public class ClickGUIScreen extends Screen {
         int barX = x + 120, barY = y + 60, barW = w - 140;
         RenderUtil.drawRoundedRect(ctx, barX, barY, barW, 4, 2, GlacierTheme.BG_ITEM);
         int prog = musicPlaying ? barW / 3 : 0;
-        if (prog > 0) RenderUtil.drawRoundedRect(ctx, barX, barY, prog, 4, 2, GlacierTheme.ACCENT);
+        if (prog > 0) GuiTextures.rect(ctx, "accent_bg", barX, barY, prog, 4, GlacierTheme.ACCENT);
 
         // controls
         int ctrlY = y + 84;
@@ -526,8 +526,8 @@ public class ClickGUIScreen extends Screen {
     private void renderPopup(DrawContext ctx, int mouseX, int mouseY) {
         ctx.fill(panelX, panelY, panelX + panelW, panelY + panelH, 0x66000000);
         int x = popupX(), y = popupY();
-        if (GuiTextures.has("secondary_bg")) {
-            GuiTextures.nineSlice(ctx, "secondary_bg", x, y, POPUP_W, POPUP_H);
+        if (GuiTextures.has("base_bg")) {
+            GuiTextures.nineSlice(ctx, "base_bg", x, y, POPUP_W, POPUP_H);
         } else {
             RenderUtil.drawRoundedRect(ctx, x, y, POPUP_W, POPUP_H, GlacierTheme.RADIUS_MD, GlacierTheme.BG_PANEL);
             RenderUtil.drawOutline(ctx, x, y, POPUP_W, POPUP_H, 1, GlacierTheme.ACCENT);
@@ -575,7 +575,7 @@ public class ClickGUIScreen extends Screen {
         int by = y + POPUP_H - 18, bw = POPUP_W - 24;
         boolean hov = within(mouseX, mouseY, x + 12, by, bw, 14);
         int bg = awaitingBind ? GlacierTheme.ACCENT_BG : (hov ? GlacierTheme.BG_ITEM_HOVER : GlacierTheme.BG_ITEM);
-        RenderUtil.drawRoundedRect(ctx, x + 12, by, bw, 14, 6, bg);
+        GuiTextures.rect(ctx, awaitingBind ? "accent_bg" : "underlined_secondary_bg", x + 12, by, bw, 14, bg);
         String label = "Keybind: " + (awaitingBind ? "press a key (Esc to clear)" : keyName(popupBindTarget.getKeybind()));
         ctx.drawTextWithShadow(textRenderer, label, x + 18, by + 3, awaitingBind ? GlacierTheme.ACCENT : GlacierTheme.TEXT_DIM);
     }
@@ -589,7 +589,8 @@ public class ClickGUIScreen extends Screen {
     private void drawSubTab(DrawContext ctx, String label, int x, int y, boolean sel, int mouseX, int mouseY) {
         int w = textRenderer.getWidth(label) + 12;
         boolean hov = within(mouseX, mouseY, x, y, w, 14);
-        RenderUtil.drawRoundedRect(ctx, x, y, w, 14, 6, sel ? GlacierTheme.ACCENT : (hov ? GlacierTheme.BG_ITEM_HOVER : GlacierTheme.BG_ITEM));
+        if (sel) GuiTextures.rect(ctx, "accent_bg", x, y, w, 14, GlacierTheme.ACCENT);
+        else GuiTextures.rect(ctx, "underlined_secondary_bg", x, y, w, 14, hov ? GlacierTheme.BG_ITEM_HOVER : GlacierTheme.BG_ITEM);
         ctx.drawTextWithShadow(textRenderer, label, x + 6, y + 3, sel ? GlacierTheme.TEXT : GlacierTheme.TEXT_DIM);
     }
 
@@ -672,7 +673,7 @@ public class ClickGUIScreen extends Screen {
         } else if (setting instanceof ModeSetting ms) {
             int btnX = x + w - 84;
             boolean hov = within(mouseX, mouseY, btnX, y, 84, 16);
-            RenderUtil.drawRoundedRect(ctx, btnX, y, 84, 16, GlacierTheme.RADIUS_SM, hov ? GlacierTheme.ACCENT_BG : GlacierTheme.BG_ITEM);
+            GuiTextures.rect(ctx, "underlined_secondary_bg", btnX, y, 84, 16, hov ? GlacierTheme.ACCENT_BG : GlacierTheme.BG_ITEM);
             ctx.drawTextWithShadow(textRenderer, trim(ms.getValue(), 76), btnX + 4, y + 4, GlacierTheme.ACCENT);
         } else if (setting instanceof StringSetting ss) {
             RenderUtil.drawRoundedRect(ctx, x, y + 12, w, 14, GlacierTheme.RADIUS_SM, GlacierTheme.BG_ITEM);
@@ -697,7 +698,7 @@ public class ClickGUIScreen extends Screen {
 
     private void renderTogglePill(DrawContext ctx, int x, int y, boolean on) {
         int pw = 24, ph = 12;
-        RenderUtil.drawRoundedRect(ctx, x, y, pw, ph, ph / 2, on ? GlacierTheme.ACCENT : GlacierTheme.BG_ITEM_HOVER);
+        GuiTextures.rect(ctx, on ? "accent_bg" : "secondary_bg", x, y, pw, ph, on ? GlacierTheme.ACCENT : GlacierTheme.BG_ITEM_HOVER);
         int k = ph - 4;
         int kx = on ? x + pw - k - 2 : x + 2;
         Icons.disc(ctx, kx + k / 2, y + 2 + k / 2, (k + 1) / 2, GlacierTheme.TEXT);
@@ -706,7 +707,7 @@ public class ClickGUIScreen extends Screen {
     private void renderDropdown(DrawContext ctx, ModeSetting ms, int x, int y, int mouseX, int mouseY) {
         int itemH = 16, w = 84;
         int h = ms.getModes().size() * itemH;
-        RenderUtil.drawRoundedRect(ctx, x, y, w, h, GlacierTheme.RADIUS_SM, GlacierTheme.BG);
+        GuiTextures.rect(ctx, "secondary_bg", x, y, w, h, GlacierTheme.BG);
         RenderUtil.drawOutline(ctx, x, y, w, h, 1, GlacierTheme.ACCENT);
         int iy = y;
         for (String mode : ms.getModes()) {

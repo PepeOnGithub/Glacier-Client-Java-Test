@@ -5,6 +5,7 @@ import net.glacierclient.core.theme.GlacierTheme;
 import net.glacierclient.core.util.GuiTextures;
 import net.glacierclient.core.util.Icons;
 import net.glacierclient.core.util.RenderUtil;
+import net.glacierclient.core.util.Sprites;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -23,10 +24,13 @@ public class GlacierPauseScreen extends Screen {
     private int px() { return (width - PANEL_W) / 2; }
     private int py() { return (height - PANEL_H) / 2; }
 
+    private static final String[] ROW_ICONS = {"common/mod_menu", "common/settings", "common/skins", "common/info"};
+    private static final int ICON_S = 32;
+
     private int resumeY() { return py() + 44; }
     private int iconRowY() { return py() + 80; }
     private int quitY() { return py() + PANEL_H - 32; }
-    private int iconX(int i) { return px() + 20 + i * 44; }
+    private int iconX(int i) { return px() + 38 + i * 44; } // centred 4-icon row within PANEL_W
 
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
@@ -40,16 +44,16 @@ public class GlacierPauseScreen extends Screen {
             RenderUtil.drawOutline(ctx, x, y, PANEL_W, PANEL_H, 1, GlacierTheme.ACCENT_GLOW);
         }
 
-        // header
+        // header (bear -> wordmark -> status icon, layered front-to-back already)
         Icons.bear(ctx, x + 22, y + 18, 22, GlacierTheme.ACCENT);
         ctx.drawText(textRenderer, "Glacier", x + 40, y + 13, GlacierTheme.TEXT, true);
+        Sprites.drawCentered(ctx, "common/paused", x + PANEL_W - 22, y + 18, 14);
 
         // Resume
         button(ctx, x + 16, resumeY(), PANEL_W - 32, 22, "Resume", mouseX, mouseY, false);
 
-        // icon row: Glacier menu, Options
-        iconButton(ctx, iconX(0), iconRowY(), mouseX, mouseY, 0);
-        iconButton(ctx, iconX(1), iconRowY(), mouseX, mouseY, 1);
+        // icon row
+        for (int i = 0; i < ROW_ICONS.length; i++) iconButton(ctx, iconX(i), iconRowY(), mouseX, mouseY, i);
 
         // Save & Quit
         button(ctx, x + 16, quitY(), PANEL_W - 32, 22, "Save & Quit", mouseX, mouseY, true);
@@ -72,12 +76,14 @@ public class GlacierPauseScreen extends Screen {
     }
 
     private void iconButton(DrawContext ctx, int x, int y, int mouseX, int mouseY, int which) {
-        int s = 32;
+        int s = ICON_S;
         boolean hov = within(mouseX, mouseY, x, y, s, s);
-        RenderUtil.drawRoundedRect(ctx, x, y, s, s, GlacierTheme.RADIUS_SM, hov ? GlacierTheme.BG_ITEM_HOVER : 0xFF1B1F24);
-        int c = hov ? GlacierTheme.ACCENT : GlacierTheme.TEXT;
-        if (which == 0) Icons.gear(ctx, x + s / 2, y + s / 2, 8, c);
-        else Icons.draw(ctx, textRenderer, "render", "RENDER", x + s / 2, y + s / 2, 16, c);
+        if (GuiTextures.has("modules_base_bg")) GuiTextures.nineSlice(ctx, "modules_base_bg", x, y, s, s);
+        else RenderUtil.drawRoundedRect(ctx, x, y, s, s, GlacierTheme.RADIUS_SM, hov ? GlacierTheme.BG_ITEM_HOVER : 0xFF1B1F24);
+        if (hov) RenderUtil.drawRoundedRect(ctx, x, y, s, s, GlacierTheme.RADIUS_SM, 0x18FFFFFF);
+        if (!Sprites.drawCentered(ctx, ROW_ICONS[which], x + s / 2, y + s / 2, 16)) {
+            Icons.gear(ctx, x + s / 2, y + s / 2, 8, hov ? GlacierTheme.ACCENT : GlacierTheme.TEXT);
+        }
     }
 
     @Override
@@ -86,11 +92,12 @@ public class GlacierPauseScreen extends Screen {
         int x = px();
         if (within((int) mx, (int) my, x + 16, resumeY(), PANEL_W - 32, 22)) { mc.setScreen(null); return true; }
         if (within((int) mx, (int) my, x + 16, quitY(), PANEL_W - 32, 22)) { saveAndQuit(mc); return true; }
-        if (within((int) mx, (int) my, iconX(0), iconRowY(), 32, 32)) {
-            GlacierClient.getInstance().getClickGUI().open(); return true;
-        }
-        if (within((int) mx, (int) my, iconX(1), iconRowY(), 32, 32)) {
-            mc.setScreen(new OptionsScreen(this, mc.options)); return true;
+        for (int i = 0; i < ROW_ICONS.length; i++) {
+            if (within((int) mx, (int) my, iconX(i), iconRowY(), ICON_S, ICON_S)) {
+                if (i == 1) mc.setScreen(new OptionsScreen(this, mc.options));   // settings
+                else GlacierClient.getInstance().getClickGUI().open();            // mod menu / skins / info
+                return true;
+            }
         }
         return super.mouseClicked(mx, my, button);
     }

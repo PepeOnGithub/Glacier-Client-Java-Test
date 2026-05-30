@@ -44,6 +44,13 @@ public final class IconTextures {
         ALIAS.put("biomeindicator", "safezoneviewer");
         ALIAS.put("entitycounter", "mobindicator");
         ALIAS.put("playerradar", "playerlist");
+        ALIAS.put("inventorypeekhud", "inventoryhud");
+        ALIAS.put("helditemlargedisplay", "mainhandhud");
+        ALIAS.put("weapondurabilitywarning", "lowdurability");
+        ALIAS.put("scoreboardcustomizer", "statushud");
+        ALIAS.put("lightlevelmapper", "safezoneviewer");
+        ALIAS.put("totemcounthud", "slotcounter");
+        ALIAS.put("arrowcountnotifier", "itemcounters");
     }
 
     private static final Map<String, Identifier> CACHE = new HashMap<>();

@@ -66,6 +66,12 @@ public final class GuiTextures {
         return s;
     }
 
+    /** Nine-slice the named texture if it exists, otherwise draw a rounded rect of {@code fallback}. */
+    public static void rect(DrawContext ctx, String name, int x, int y, int w, int h, int fallback) {
+        if (has(name)) nineSlice(ctx, name, x, y, w, h);
+        else RenderUtil.drawRoundedRect(ctx, x, y, w, h, 6, fallback);
+    }
+
     public static void nineSlice(DrawContext ctx, String name, int x, int y, int w, int h) {
         if (w <= 0 || h <= 0) return;
         Spec s = spec(name);
