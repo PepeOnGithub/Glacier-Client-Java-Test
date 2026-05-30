@@ -2,6 +2,7 @@ package net.glacierclient.gui.screens;
 
 import net.glacierclient.GlacierClient;
 import net.glacierclient.core.theme.GlacierTheme;
+import net.glacierclient.core.util.GuiTextures;
 import net.glacierclient.core.util.Icons;
 import net.glacierclient.core.util.RenderUtil;
 import net.minecraft.client.MinecraftClient;
@@ -58,9 +59,14 @@ public class GlacierTitleScreen extends Screen {
             int by = btnY(i);
             boolean hov = within(mouseX, mouseY, BTN_X, by, BTN_W, BTN_H);
             int accentBar = i == labels.length - 1 ? GlacierTheme.RED : GlacierTheme.ACCENT;
-            RenderUtil.drawRoundedRect(ctx, BTN_X, by, BTN_W, BTN_H, GlacierTheme.RADIUS_SM,
-                    hov ? GlacierTheme.BG_ITEM_HOVER : 0xFF1B1F24);
-            RenderUtil.drawRoundedRect(ctx, BTN_X, by + 4, 4, BTN_H - 8, 2, accentBar);
+            if (GuiTextures.has("start_buttons_left_side")) {
+                GuiTextures.nineSlice(ctx, "start_buttons_left_side", BTN_X, by, BTN_W, BTN_H);
+                if (hov) RenderUtil.drawRoundedRect(ctx, BTN_X, by, BTN_W, BTN_H, GlacierTheme.RADIUS_SM, 0x18FFFFFF);
+            } else {
+                RenderUtil.drawRoundedRect(ctx, BTN_X, by, BTN_W, BTN_H, GlacierTheme.RADIUS_SM,
+                        hov ? GlacierTheme.BG_ITEM_HOVER : 0xFF1B1F24);
+                RenderUtil.drawRoundedRect(ctx, BTN_X, by + 4, 4, BTN_H - 8, 2, accentBar);
+            }
             int tw = textRenderer.getWidth(labels[i]);
             ctx.drawText(textRenderer, labels[i], BTN_X + (BTN_W - tw) / 2, by + (BTN_H - 8) / 2, GlacierTheme.TEXT, false);
         }

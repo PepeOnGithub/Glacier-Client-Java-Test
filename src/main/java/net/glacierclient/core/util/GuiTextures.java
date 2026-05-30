@@ -1,36 +1,39 @@
 package net.glacierclient.core.util;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.resource.Resource;
 import net.minecraft.util.Identifier;
 
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
- * Optional PNG backgrounds for GUI elements, drawn as a nine-slice so corners stay crisp at any size.
- *
- * <p>Drop square textures in {@code assets/glacierclient/textures/gui/<name>.png} (default 32×32 with
- * an 8px corner). Names used by the ClickGUI: {@code panel}, {@code card}, {@code card_hover},
- * {@code card_active}, {@code button}, {@code button_hover}, {@code tab}, {@code tab_active},
- * {@code popup}. When a texture is absent the caller falls back to the drawn rounded shapes, so the
- * GUI always works — it just upgrades automatically once you add art.</p>
+ * Nine-slice GUI backgrounds loaded from {@code assets/glacierclient/textures/gui/<name>.png}, with
+ * border metadata read from a sibling {@code <name>.json} ({@code nineslice_size} + {@code base_size}
+ * = [w,h]). Corners are drawn unscaled; edges/center are stretched. Tiny flat fills (e.g. 2x2 with a
+ * 1px border, where there is no middle texel) are stretched whole. Falls back gracefully — callers
+ * use the drawn rounded shapes whenever a texture is absent.
  */
 public final class GuiTextures {
 
     private GuiTextures() {}
 
-    private static final int TEX = 32;     // assumed texture size (square)
-    private static final int CORNER = 8;   // nine-slice corner size
+    private record Spec(int corner, int texW, int texH) {}
 
     private static final Map<String, Identifier> IDS = new HashMap<>();
     private static final Map<String, Boolean> PRESENT = new HashMap<>();
+    private static final Map<String, Spec> SPECS = new HashMap<>();
 
     private static Identifier id(String name) {
         return IDS.computeIfAbsent(name, n -> new Identifier("glacierclient", "textures/gui/" + n + ".png"));
     }
 
-    /** Whether a texture exists (cached). */
     public static boolean has(String name) {
         Boolean p = PRESENT.get(name);
         if (p == null) {
@@ -40,37 +43,66 @@ public final class GuiTextures {
         return p;
     }
 
-    /** Nine-slice draw of {@code <name>.png} into the given rect (uses default 32px/8px corners). */
-    public static void nineSlice(DrawContext ctx, String name, int x, int y, int w, int h) {
-        nineSlice(ctx, name, x, y, w, h, TEX, CORNER);
+    private static Spec spec(String name) {
+        Spec s = SPECS.get(name);
+        if (s != null) return s;
+        int corner = 8, w = 32, h = 32;
+        try {
+            Identifier jid = new Identifier("glacierclient", "textures/gui/" + name + ".json");
+            Optional<Resource> r = MinecraftClient.getInstance().getResourceManager().getResource(jid);
+            if (r.isPresent()) {
+                try (InputStream in = r.get().getInputStream()) {
+                    JsonObject o = JsonParser.parseString(new String(in.readAllBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
+                    if (o.has("nineslice_size")) corner = o.get("nineslice_size").getAsInt();
+                    if (o.has("base_size")) {
+                        w = o.getAsJsonArray("base_size").get(0).getAsInt();
+                        h = o.getAsJsonArray("base_size").get(1).getAsInt();
+                    }
+                }
+            }
+        } catch (Exception ignored) {}
+        s = new Spec(corner, w, h);
+        SPECS.put(name, s);
+        return s;
     }
 
-    public static void nineSlice(DrawContext ctx, String name, int x, int y, int w, int h, int tex, int corner) {
+    public static void nineSlice(DrawContext ctx, String name, int x, int y, int w, int h) {
         if (w <= 0 || h <= 0) return;
+        Spec s = spec(name);
         Identifier t = id(name);
-        int c = Math.min(corner, Math.min(w, h) / 2);
-        int far = tex - corner;            // far edge start (texture space)
-        int midT = tex - 2 * corner;       // middle strip size (texture space)
-        int midW = w - 2 * c;              // middle strip (screen space)
-        int midH = h - 2 * c;
+        int cw = Math.min(s.corner, s.texW / 2);   // texture-space corner
+        int ch = Math.min(s.corner, s.texH / 2);
+        int midTexW = s.texW - 2 * cw;
+        int midTexH = s.texH - 2 * ch;
+
+        // flat fill (no middle texel) -> stretch whole texture
+        if (midTexW <= 0 || midTexH <= 0) {
+            blit(ctx, t, x, y, w, h, 0, 0, s.texW, s.texH, s.texW, s.texH);
+            return;
+        }
+
+        int c = Math.min(cw, Math.min(w, h) / 2);   // screen-space corner
+        int farXt = s.texW - cw, farYt = s.texH - ch;
+        int farXs = x + w - c, farYs = y + h - c;
+        int midWs = w - 2 * c, midHs = h - 2 * c;
 
         // corners
-        blit(ctx, t, x,        y,        c, c, 0,   0,   corner, corner, tex);
-        blit(ctx, t, x + w - c, y,        c, c, far, 0,   corner, corner, tex);
-        blit(ctx, t, x,        y + h - c, c, c, 0,   far, corner, corner, tex);
-        blit(ctx, t, x + w - c, y + h - c, c, c, far, far, corner, corner, tex);
+        blit(ctx, t, x,     y,     c, c, 0,     0,     cw, ch, s.texW, s.texH);
+        blit(ctx, t, farXs, y,     c, c, farXt, 0,     cw, ch, s.texW, s.texH);
+        blit(ctx, t, x,     farYs, c, c, 0,     farYt, cw, ch, s.texW, s.texH);
+        blit(ctx, t, farXs, farYs, c, c, farXt, farYt, cw, ch, s.texW, s.texH);
         // edges
-        blit(ctx, t, x + c,     y,        midW, c,   corner, 0,   midT, corner, tex); // top
-        blit(ctx, t, x + c,     y + h - c, midW, c,   corner, far, midT, corner, tex); // bottom
-        blit(ctx, t, x,        y + c,     c, midH,    0,   corner, corner, midT, tex); // left
-        blit(ctx, t, x + w - c, y + c,     c, midH,    far, corner, corner, midT, tex); // right
+        blit(ctx, t, x + c, y,     midWs, c, cw,    0,     midTexW, ch, s.texW, s.texH);
+        blit(ctx, t, x + c, farYs, midWs, c, cw,    farYt, midTexW, ch, s.texW, s.texH);
+        blit(ctx, t, x,     y + c, c, midHs, 0,     ch,    cw, midTexH, s.texW, s.texH);
+        blit(ctx, t, farXs, y + c, c, midHs, farXt, ch,    cw, midTexH, s.texW, s.texH);
         // center
-        blit(ctx, t, x + c,     y + c,     midW, midH, corner, corner, midT, midT, tex);
+        blit(ctx, t, x + c, y + c, midWs, midHs, cw, ch, midTexW, midTexH, s.texW, s.texH);
     }
 
     private static void blit(DrawContext ctx, Identifier t, int dx, int dy, int dw, int dh,
-                             int u, int v, int rw, int rh, int tex) {
+                             int u, int v, int rw, int rh, int tw, int th) {
         if (dw <= 0 || dh <= 0) return;
-        ctx.drawTexture(t, dx, dy, dw, dh, (float) u, (float) v, rw, rh, tex, tex);
+        ctx.drawTexture(t, dx, dy, dw, dh, (float) u, (float) v, rw, rh, tw, th);
     }
 }

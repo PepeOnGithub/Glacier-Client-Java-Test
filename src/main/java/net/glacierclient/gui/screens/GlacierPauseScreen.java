@@ -2,6 +2,7 @@ package net.glacierclient.gui.screens;
 
 import net.glacierclient.GlacierClient;
 import net.glacierclient.core.theme.GlacierTheme;
+import net.glacierclient.core.util.GuiTextures;
 import net.glacierclient.core.util.Icons;
 import net.glacierclient.core.util.RenderUtil;
 import net.minecraft.client.MinecraftClient;
@@ -32,8 +33,12 @@ public class GlacierPauseScreen extends Screen {
         ctx.fill(0, 0, width, height, 0x88000000);
         int x = px(), y = py();
         RenderUtil.drawShadow(ctx, x, y, PANEL_W, PANEL_H, 6, 0x50000000);
-        RenderUtil.drawRoundedRect(ctx, x, y, PANEL_W, PANEL_H, GlacierTheme.RADIUS_MD, GlacierTheme.BG_PANEL);
-        RenderUtil.drawOutline(ctx, x, y, PANEL_W, PANEL_H, 1, GlacierTheme.ACCENT_GLOW);
+        if (GuiTextures.has("base_bg")) {
+            GuiTextures.nineSlice(ctx, "base_bg", x, y, PANEL_W, PANEL_H);
+        } else {
+            RenderUtil.drawRoundedRect(ctx, x, y, PANEL_W, PANEL_H, GlacierTheme.RADIUS_MD, GlacierTheme.BG_PANEL);
+            RenderUtil.drawOutline(ctx, x, y, PANEL_W, PANEL_H, 1, GlacierTheme.ACCENT_GLOW);
+        }
 
         // header
         Icons.bear(ctx, x + 22, y + 18, 22, GlacierTheme.ACCENT);
@@ -54,8 +59,13 @@ public class GlacierPauseScreen extends Screen {
 
     private void button(DrawContext ctx, int x, int y, int w, int h, String label, int mouseX, int mouseY, boolean danger) {
         boolean hov = within(mouseX, mouseY, x, y, w, h);
-        RenderUtil.drawRoundedRect(ctx, x, y, w, h, GlacierTheme.RADIUS_SM,
-                hov ? GlacierTheme.BG_ITEM_HOVER : 0xFF1B1F24);
+        if (GuiTextures.has("underlined_base_bg")) {
+            GuiTextures.nineSlice(ctx, "underlined_base_bg", x, y, w, h);
+            if (hov) RenderUtil.drawRoundedRect(ctx, x, y, w, h, GlacierTheme.RADIUS_SM, 0x18FFFFFF);
+        } else {
+            RenderUtil.drawRoundedRect(ctx, x, y, w, h, GlacierTheme.RADIUS_SM,
+                    hov ? GlacierTheme.BG_ITEM_HOVER : 0xFF1B1F24);
+        }
         int tw = textRenderer.getWidth(label);
         ctx.drawText(textRenderer, label, x + (w - tw) / 2, y + (h - 8) / 2,
                 danger ? GlacierTheme.RED : GlacierTheme.TEXT, false);

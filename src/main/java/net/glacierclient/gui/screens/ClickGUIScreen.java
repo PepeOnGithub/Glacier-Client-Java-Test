@@ -118,8 +118,8 @@ public class ClickGUIScreen extends Screen {
         ctx.fill(0, 0, width, height, 0xB0000000);
 
         RenderUtil.drawShadow(ctx, panelX, panelY, panelW, panelH, 6, 0x50000000);
-        if (GuiTextures.has("panel")) {
-            GuiTextures.nineSlice(ctx, "panel", panelX, panelY, panelW, panelH);
+        if (GuiTextures.has("base_bg")) {
+            GuiTextures.nineSlice(ctx, "base_bg", panelX, panelY, panelW, panelH);
         } else {
             RenderUtil.drawRoundedRect(ctx, panelX, panelY, panelW, panelH, GlacierTheme.RADIUS_MD, GlacierTheme.BG);
             RenderUtil.drawOutline(ctx, panelX, panelY, panelW, panelH, 1, GlacierTheme.ACCENT_GLOW);
@@ -175,8 +175,8 @@ public class ClickGUIScreen extends Screen {
             boolean sel = activeTab == tabs[i];
             boolean hov = within(mouseX, mouseY, x, y, w, TAB_H - 14);
             int bg = sel ? GlacierTheme.ACCENT : (hov ? GlacierTheme.BG_ITEM_HOVER : GlacierTheme.BG_PANEL);
-            String tabTex = sel && GuiTextures.has("tab_active") ? "tab_active" : (GuiTextures.has("tab") ? "tab" : null);
-            if (tabTex != null) GuiTextures.nineSlice(ctx, tabTex, x, y, w, TAB_H - 14);
+            String tabTex = sel ? "accent_bg" : "underlined_base_bg";
+            if (GuiTextures.has(tabTex)) GuiTextures.nineSlice(ctx, tabTex, x, y, w, TAB_H - 14);
             else RenderUtil.drawRoundedRect(ctx, x, y, w, TAB_H - 14, GlacierTheme.RADIUS_SM, bg);
             int fg = sel ? GlacierTheme.TEXT : GlacierTheme.TEXT_DIM;
             int icx = x + 12, icy = y + (TAB_H - 14) / 2;
@@ -526,8 +526,8 @@ public class ClickGUIScreen extends Screen {
     private void renderPopup(DrawContext ctx, int mouseX, int mouseY) {
         ctx.fill(panelX, panelY, panelX + panelW, panelY + panelH, 0x66000000);
         int x = popupX(), y = popupY();
-        if (GuiTextures.has("popup")) {
-            GuiTextures.nineSlice(ctx, "popup", x, y, POPUP_W, POPUP_H);
+        if (GuiTextures.has("secondary_bg")) {
+            GuiTextures.nineSlice(ctx, "secondary_bg", x, y, POPUP_W, POPUP_H);
         } else {
             RenderUtil.drawRoundedRect(ctx, x, y, POPUP_W, POPUP_H, GlacierTheme.RADIUS_MD, GlacierTheme.BG_PANEL);
             RenderUtil.drawOutline(ctx, x, y, POPUP_W, POPUP_H, 1, GlacierTheme.ACCENT);
@@ -1085,12 +1085,10 @@ public class ClickGUIScreen extends Screen {
     private void drawStyledCard(DrawContext ctx, CardStyle st, int x, int y, int w, int h,
                                 boolean hovered, boolean enabled, boolean floating) {
         // PNG nine-slice card background takes priority over the drawn style when present.
-        String cardTex = enabled && GuiTextures.has("card_active") ? "card_active"
-                : hovered && GuiTextures.has("card_hover") ? "card_hover"
-                : GuiTextures.has("card") ? "card" : null;
-        if (cardTex != null) {
-            GuiTextures.nineSlice(ctx, cardTex, x, y, w, h);
-            if (enabled && !GuiTextures.has("card_active")) RenderUtil.drawOutline(ctx, x, y, w, h, 1, st.accentColor);
+        if (GuiTextures.has("modules_base_bg")) {
+            GuiTextures.nineSlice(ctx, "modules_base_bg", x, y, w, h);
+            if (enabled && GuiTextures.has("accent_bg")) GuiTextures.nineSlice(ctx, "accent_bg", x, y, w, 2);
+            else if (enabled) RenderUtil.drawOutline(ctx, x, y, w, h, 1, st.accentColor);
             return;
         }
         int bg = hovered ? lighten(st.bgColor, 12) : st.bgColor;
