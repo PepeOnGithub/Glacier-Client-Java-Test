@@ -11,6 +11,7 @@ import net.glacierclient.core.module.ModuleManager;
 import net.glacierclient.core.settings.*;
 import net.glacierclient.core.theme.GlacierTheme;
 import net.glacierclient.core.util.AnimationUtil;
+import net.glacierclient.core.util.GuiTextures;
 import net.glacierclient.core.util.Icons;
 import net.glacierclient.core.util.IconTextures;
 import net.glacierclient.core.util.RenderUtil;
@@ -116,8 +117,13 @@ public class ClickGUIScreen extends Screen {
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
         ctx.fill(0, 0, width, height, 0xB0000000);
 
-        RenderUtil.drawRoundedRect(ctx, panelX, panelY, panelW, panelH, GlacierTheme.RADIUS_MD, GlacierTheme.BG);
-        RenderUtil.drawOutline(ctx, panelX, panelY, panelW, panelH, 1, GlacierTheme.ACCENT_GLOW);
+        RenderUtil.drawShadow(ctx, panelX, panelY, panelW, panelH, 6, 0x50000000);
+        if (GuiTextures.has("panel")) {
+            GuiTextures.nineSlice(ctx, "panel", panelX, panelY, panelW, panelH);
+        } else {
+            RenderUtil.drawRoundedRect(ctx, panelX, panelY, panelW, panelH, GlacierTheme.RADIUS_MD, GlacierTheme.BG);
+            RenderUtil.drawOutline(ctx, panelX, panelY, panelW, panelH, 1, GlacierTheme.ACCENT_GLOW);
+        }
 
         renderHeader(ctx, mouseX, mouseY);
         renderTabs(ctx, mouseX, mouseY);
@@ -169,7 +175,9 @@ public class ClickGUIScreen extends Screen {
             boolean sel = activeTab == tabs[i];
             boolean hov = within(mouseX, mouseY, x, y, w, TAB_H - 14);
             int bg = sel ? GlacierTheme.ACCENT : (hov ? GlacierTheme.BG_ITEM_HOVER : GlacierTheme.BG_PANEL);
-            RenderUtil.drawRoundedRect(ctx, x, y, w, TAB_H - 14, GlacierTheme.RADIUS_SM, bg);
+            String tabTex = sel && GuiTextures.has("tab_active") ? "tab_active" : (GuiTextures.has("tab") ? "tab" : null);
+            if (tabTex != null) GuiTextures.nineSlice(ctx, tabTex, x, y, w, TAB_H - 14);
+            else RenderUtil.drawRoundedRect(ctx, x, y, w, TAB_H - 14, GlacierTheme.RADIUS_SM, bg);
             int fg = sel ? GlacierTheme.TEXT : GlacierTheme.TEXT_DIM;
             int icx = x + 12, icy = y + (TAB_H - 14) / 2;
             tabIcon(ctx, tabs[i], icx, icy, fg);
@@ -451,8 +459,9 @@ public class ClickGUIScreen extends Screen {
 
         // progress bar
         int barX = x + 120, barY = y + 60, barW = w - 140;
-        ctx.fill(barX, barY, barX + barW, barY + 3, GlacierTheme.BG_ITEM);
-        ctx.fill(barX, barY, barX + (musicPlaying ? barW / 3 : 0), barY + 3, GlacierTheme.ACCENT);
+        RenderUtil.drawRoundedRect(ctx, barX, barY, barW, 4, 2, GlacierTheme.BG_ITEM);
+        int prog = musicPlaying ? barW / 3 : 0;
+        if (prog > 0) RenderUtil.drawRoundedRect(ctx, barX, barY, prog, 4, 2, GlacierTheme.ACCENT);
 
         // controls
         int ctrlY = y + 84;
@@ -517,8 +526,12 @@ public class ClickGUIScreen extends Screen {
     private void renderPopup(DrawContext ctx, int mouseX, int mouseY) {
         ctx.fill(panelX, panelY, panelX + panelW, panelY + panelH, 0x66000000);
         int x = popupX(), y = popupY();
-        RenderUtil.drawRoundedRect(ctx, x, y, POPUP_W, POPUP_H, GlacierTheme.RADIUS_MD, GlacierTheme.BG_PANEL);
-        RenderUtil.drawOutline(ctx, x, y, POPUP_W, POPUP_H, 1, GlacierTheme.ACCENT);
+        if (GuiTextures.has("popup")) {
+            GuiTextures.nineSlice(ctx, "popup", x, y, POPUP_W, POPUP_H);
+        } else {
+            RenderUtil.drawRoundedRect(ctx, x, y, POPUP_W, POPUP_H, GlacierTheme.RADIUS_MD, GlacierTheme.BG_PANEL);
+            RenderUtil.drawOutline(ctx, x, y, POPUP_W, POPUP_H, 1, GlacierTheme.ACCENT);
+        }
 
         ctx.drawTextWithShadow(textRenderer, popupTitle, x + 12, y + 12, GlacierTheme.ACCENT);
         ctx.drawTextWithShadow(textRenderer, trim(popupDesc, POPUP_W - 24), x + 12, y + 24, GlacierTheme.TEXT_DIM);
@@ -672,11 +685,11 @@ public class ClickGUIScreen extends Screen {
     }
 
     private void renderSlider(DrawContext ctx, NumberSetting ns, int x, int y, int w, int mouseX, int mouseY) {
-        ctx.fill(x, y, x + w, y + 4, GlacierTheme.BG_ITEM);
+        RenderUtil.drawRoundedRect(ctx, x, y, w, 4, 2, GlacierTheme.BG_ITEM);
         int fillW = (int) (w * ns.getPercent());
-        ctx.fill(x, y, x + fillW, y + 4, GlacierTheme.ACCENT);
-        int knobX = x + fillW - 3;
-        ctx.fill(knobX, y - 2, knobX + 6, y + 6, GlacierTheme.ACCENT_HOVER);
+        if (fillW > 0) RenderUtil.drawRoundedRect(ctx, x, y, fillW, 4, 2, GlacierTheme.ACCENT);
+        int knobX = x + fillW;
+        Icons.disc(ctx, knobX, y + 2, 4, GlacierTheme.ACCENT_HOVER);
         String val = fmt(ns.getValue());
         ctx.drawTextWithShadow(textRenderer, val, x + w - textRenderer.getWidth(val), y - 12, GlacierTheme.TEXT);
         if (draggingSlider == ns) { sliderBarX = x; sliderBarW = w; }
@@ -687,7 +700,7 @@ public class ClickGUIScreen extends Screen {
         RenderUtil.drawRoundedRect(ctx, x, y, pw, ph, ph / 2, on ? GlacierTheme.ACCENT : GlacierTheme.BG_ITEM_HOVER);
         int k = ph - 4;
         int kx = on ? x + pw - k - 2 : x + 2;
-        ctx.fill(kx, y + 2, kx + k, y + 2 + k, GlacierTheme.TEXT);
+        Icons.disc(ctx, kx + k / 2, y + 2 + k / 2, (k + 1) / 2, GlacierTheme.TEXT);
     }
 
     private void renderDropdown(DrawContext ctx, ModeSetting ms, int x, int y, int mouseX, int mouseY) {
@@ -1071,6 +1084,15 @@ public class ClickGUIScreen extends Screen {
     /** Draws a card background according to its {@link CardStyle}. */
     private void drawStyledCard(DrawContext ctx, CardStyle st, int x, int y, int w, int h,
                                 boolean hovered, boolean enabled, boolean floating) {
+        // PNG nine-slice card background takes priority over the drawn style when present.
+        String cardTex = enabled && GuiTextures.has("card_active") ? "card_active"
+                : hovered && GuiTextures.has("card_hover") ? "card_hover"
+                : GuiTextures.has("card") ? "card" : null;
+        if (cardTex != null) {
+            GuiTextures.nineSlice(ctx, cardTex, x, y, w, h);
+            if (enabled && !GuiTextures.has("card_active")) RenderUtil.drawOutline(ctx, x, y, w, h, 1, st.accentColor);
+            return;
+        }
         int bg = hovered ? lighten(st.bgColor, 12) : st.bgColor;
         int bg2 = hovered ? lighten(st.bgColor2, 12) : st.bgColor2;
         if (floating) { bg = withAlpha(bg, 0xE0); bg2 = withAlpha(bg2, 0xE0); }

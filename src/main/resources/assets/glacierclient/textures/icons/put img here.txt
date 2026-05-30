@@ -1,0 +1,17 @@
+Module card icons go here.
+
+Drop a PNG named after the module's "slug" and it will be used automatically on
+that module's card (otherwise the built-in vector icon is drawn instead).
+
+Slug = the module name, lower-cased, with every run of non-letter/number
+characters replaced by a single underscore. Examples:
+  "Performance Mode"  -> performance_mode.png
+  "Custom Crosshair"  -> custom_crosshair.png
+  "FPS"               -> fps.png
+  "Coordinates HUD"   -> coordinates_hud.png
+
+Recommended: square PNG with transparency, 64x64 or 128x128.
+Path: assets/glacierclient/textures/icons/<slug>.png
+
+(Handled by net.glacierclient.core.util.IconTextures — presence is cached at
+first use, so add files then restart the game.)

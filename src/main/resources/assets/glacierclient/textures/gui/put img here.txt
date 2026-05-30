@@ -1,0 +1,24 @@
+ClickGUI background textures go here (nine-slice).
+
+Drop any of these PNGs and that element's background switches from the drawn
+rounded shape to your texture. Any you DON'T add keep the drawn fallback, so
+the GUI always works.
+
+Recognized names (assets/glacierclient/textures/gui/<name>.png):
+  panel.png         - main GUI window background
+  popup.png         - settings popup background
+  card.png          - module card (idle)
+  card_hover.png    - module card (hovered)
+  card_active.png   - module card (enabled)
+  button.png        - generic button (idle)
+  button_hover.png  - generic button (hovered)
+  tab.png           - top tab (idle)
+  tab_active.png    - top tab (selected)
+
+Format: square PNG, 32x32, with an 8px corner border (nine-slice). The 4
+corners (8x8) are drawn unscaled; the edges and center are stretched to fit, so
+make the corners the rounded part and keep the center simple.
+Custom sizes are supported in code via GuiTextures.nineSlice(...,tex,corner).
+
+(Handled by net.glacierclient.core.util.GuiTextures — presence is cached at
+first use, so add files then restart the game.)
