@@ -2,7 +2,6 @@ package net.glacierclient.modules.hud;
 
 import net.glacierclient.core.hud.HUDMod;
 import net.glacierclient.core.settings.BooleanSetting;
-import net.glacierclient.core.settings.NumberSetting;
 import net.glacierclient.core.theme.GlacierTheme;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -15,11 +14,10 @@ public class CoordinatesHUD extends HUDMod {
     private final BooleanSetting showBiome = new BooleanSetting("Show Biome", "Show current biome", true);
     private final BooleanSetting showDirection = new BooleanSetting("Show Direction", "Show facing direction", true);
     private final BooleanSetting showNether = new BooleanSetting("Show Nether", "Show nether coordinates", true);
-    private final NumberSetting textSize = new NumberSetting("Text Size", "Size of the text", 8, 16, 10);
 
     public CoordinatesHUD() {
         super("Coordinates", "Shows X/Y/Z coordinates and more", 160, 50);
-        addSettings(showBiome, showDirection, showNether, textSize);
+        addSettings(showBiome, showDirection, showNether);
     }
 
     @Override

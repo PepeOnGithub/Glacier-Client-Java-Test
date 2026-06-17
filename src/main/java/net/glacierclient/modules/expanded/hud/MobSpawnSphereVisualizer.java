@@ -26,10 +26,19 @@ public class MobSpawnSphereVisualizer extends HUDMod {
 
         context.fill(x, y, x + getWidth(), y + getHeight(), 0xCC1E1E2E);
 
+        int blockLight = 0;
+        if (mc.player != null && mc.world != null)
+            blockLight = mc.world.getLightLevel(net.minecraft.world.LightType.BLOCK, mc.player.getBlockPos());
+
         StringBuilder sb = new StringBuilder("Spawn: ");
         if (show24Block.getValue()) sb.append("24 ");
         if (show128Block.getValue()) sb.append("128 ");
+        if (showBlockLight.getValue()) sb.append("L").append(blockLight).append(' ');
 
-        context.drawTextWithShadow(mc.textRenderer, sb.toString().trim(), x + 4, y + 5, GlacierTheme.TEXT);
+        // colorByLight: green when mobs can't spawn (light > 0), red when they can (dark).
+        int col = colorByLight.getValue()
+            ? (blockLight > 0 ? 0xFF55FF55 : 0xFFFF5555)
+            : GlacierTheme.TEXT;
+        context.drawTextWithShadow(mc.textRenderer, sb.toString().trim(), x + 4, y + 5, col);
     }
 }

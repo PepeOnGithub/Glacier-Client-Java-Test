@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 public class PackDisplay extends HUDMod {
 
     private final NumberSetting maxLength = new NumberSetting("Max Length", "Max characters to display", 10, 50, 30);
-    private final BooleanSetting showVersion = new BooleanSetting("Show Version", "Show pack version", false);
+    private final BooleanSetting showVersion = new BooleanSetting("Show Pack Count", "Append how many resource packs are enabled", false);
 
     public PackDisplay() {
         super("Pack Display", "Shows active resource pack name", 160, 20);
@@ -40,6 +40,14 @@ public class PackDisplay extends HUDMod {
             .findFirst().orElse("Default");
         int maxLen = (int)(double) maxLength.getValue();
         if (packName.length() > maxLen) packName = packName.substring(0, maxLen - 3) + "...";
-        context.drawText(mc.textRenderer, "Pack: " + packName, getX() + 2, getY() + 4, GlacierTheme.TEXT, false);
+        String text = "Pack: " + packName;
+        if (showVersion.getValue()) {
+            long count = rpm.getEnabledProfiles().stream()
+                .map(p -> p.getDisplayName().getString())
+                .filter(n -> !n.equals("Default")).count();
+            text += " (" + count + ")";
+        }
+        drawBackground(context, getX() + 2, getY() + 4, mc.textRenderer.getWidth(text), 9);
+        context.drawText(mc.textRenderer, text, getX() + 2, getY() + 4, getTextColor(), hasShadow());
     }
 }

@@ -37,10 +37,30 @@ public class CrashReportSaver extends GlacierMod {
         File dir = new File("crash-reports/glacier");
         dir.mkdirs();
         String name = "crash-" + new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(new Date()) + ".txt";
+        StringBuilder body = new StringBuilder(content);
+        // Include Logs: append the tail of latest.log for context.
+        if (includeLogs.getValue()) {
+            File log = new File("logs/latest.log");
+            if (log.exists()) {
+                try {
+                    java.util.List<String> lines = java.nio.file.Files.readAllLines(log.toPath());
+                    int from = Math.max(0, lines.size() - 200);
+                    body.append("\n\n===== latest.log (tail) =====\n");
+                    for (int i = from; i < lines.size(); i++) body.append(lines.get(i)).append('\n');
+                } catch (Exception ignored) {}
+            }
+        }
         try (FileWriter fw = new FileWriter(new File(dir, name))) {
-            fw.write(content);
+            fw.write(body.toString());
         } catch (IOException ignored) {}
         pruneOldReports(dir);
+        // Open On Crash: reveal the saved-reports folder in the OS file browser.
+        if (openOnCrash.getValue()) {
+            try {
+                if (java.awt.Desktop.isDesktopSupported())
+                    java.awt.Desktop.getDesktop().open(dir);
+            } catch (Throwable ignored) {}
+        }
     }
 
     private void pruneOldReports(File dir) {

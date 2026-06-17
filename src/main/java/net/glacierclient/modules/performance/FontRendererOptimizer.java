@@ -12,16 +12,27 @@ public class FontRendererOptimizer extends GlacierMod {
     private final BooleanSetting antiAlias = new BooleanSetting("Anti-Alias", "Enable font anti-aliasing", true);
     private final BooleanSetting smoothRendering = new BooleanSetting("Smooth Rendering", "Smooth font rendering", true);
 
+    private boolean savedUnicode = false;
+
     public FontRendererOptimizer() {
-        super("Font Renderer Optimizer", "Optimize text rendering for better performance", Category.PERFORMANCE);
+        super("Font Renderer Optimizer", "Disables the heavy unicode font for faster text rendering", Category.PERFORMANCE);
         addSettings(useCache, cacheSize, antiAlias, smoothRendering);
     }
 
     @Override
-    public void onEnable() {}
+    public void onEnable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) {
+            savedUnicode = mc.options.getForceUnicodeFont().getValue();
+            if (smoothRendering.getValue()) mc.options.getForceUnicodeFont().setValue(false);
+        }
+    }
 
     @Override
-    public void onDisable() {}
+    public void onDisable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) mc.options.getForceUnicodeFont().setValue(savedUnicode);
+    }
 
     @Override
     public void onTick() {}

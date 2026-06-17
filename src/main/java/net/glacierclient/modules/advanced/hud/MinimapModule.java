@@ -53,6 +53,9 @@ public class MinimapModule extends HUDMod {
         if (mc.player == null || mc.world == null) return;
         BlockPos playerPos = mc.player.getBlockPos();
         int z2 = (int)(double) zoom.getValue();
+        // Rotation: "Player" turns the map so the player's heading points up; "Fixed"/"North" stay north-up.
+        double ang = rotation.getValue().equals("Player") ? -Math.toRadians(mc.player.getYaw()) : 0.0;
+        double rcos = Math.cos(ang), rsin = Math.sin(ang);
         // Draw grid lines
         int centerX = x + w / 2, centerZ = y + h / 2;
         for (int cx = centerX; cx < x + w; cx += 16 * z2) context.fill(cx, y, cx + 1, y + h, 0x22FFFFFF);
@@ -64,8 +67,10 @@ public class MinimapModule extends HUDMod {
         if (showPlayers.getValue()) {
             for (PlayerEntity p : mc.world.getPlayers()) {
                 if (p == mc.player) continue;
-                int dx = (int) ((p.getX() - mc.player.getX()) * z2);
-                int dz = (int) ((p.getZ() - mc.player.getZ()) * z2);
+                double ox = (p.getX() - mc.player.getX()) * z2;
+                double oz = (p.getZ() - mc.player.getZ()) * z2;
+                int dx = (int) (ox * rcos - oz * rsin);
+                int dz = (int) (ox * rsin + oz * rcos);
                 int px = centerX + dx, pz2 = centerZ + dz;
                 if (px >= x && px < x + w && pz2 >= y && pz2 < y + h) {
                     context.fill(px - 2, pz2 - 2, px + 2, pz2 + 2, 0xFFFF5555);
@@ -75,8 +80,10 @@ public class MinimapModule extends HUDMod {
         // Waypoints
         if (showWaypoints.getValue()) {
             for (Waypoint wp : waypoints) {
-                int dx = (int) ((wp.x - playerPos.getX()) * z2);
-                int dz = (int) ((wp.z - playerPos.getZ()) * z2);
+                double ox = (wp.x - playerPos.getX()) * z2;
+                double oz = (wp.z - playerPos.getZ()) * z2;
+                int dx = (int) (ox * rcos - oz * rsin);
+                int dz = (int) (ox * rsin + oz * rcos);
                 int wx = centerX + dx, wz = centerZ + dz;
                 if (wx >= x && wx < x + w && wz >= y && wz < y + h) {
                     context.fill(wx - 3, wz - 3, wx + 3, wz + 3, wp.color);

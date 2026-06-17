@@ -32,8 +32,14 @@ public class ResourcePackQuickSwitch extends GlacierMod {
     public void onTick() {}
 
     public void addRecent(String packName) {
-        recentPacks.remove(packName);
-        recentPacks.addFirst(packName);
+        // Remember Per Server: namespace the entry by current server so packs are tracked per-server.
+        String key = packName;
+        if (rememberPerServer.getValue()) {
+            var entry = MinecraftClient.getInstance().getCurrentServerEntry();
+            if (entry != null) key = entry.address + "/" + packName;
+        }
+        recentPacks.remove(key);
+        recentPacks.addFirst(key);
         while (recentPacks.size() > (int)(double) maxRecent.getValue()) recentPacks.removeLast();
     }
 

@@ -8,4 +8,6 @@ public final class PhaseWalkMod extends GlacierMod {
         super("PhaseWalk", "Allows moving through certain materials", Category.ADVANCED, -1);
         addSettings(water, web);
     }
+    public boolean isWeb() { return web.get(); }
+    public boolean isWater() { return water.get(); }
 }

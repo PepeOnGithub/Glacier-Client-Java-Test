@@ -4,7 +4,6 @@ import net.glacierclient.GlacierClient;
 import net.glacierclient.core.module.GlacierMod;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class HUDEditor {
 
@@ -13,6 +12,7 @@ public class HUDEditor {
     private boolean undoBufferDirty = false;
     private final java.util.Deque<HUDProfile> undoStack = new java.util.ArrayDeque<>();
     private final java.util.Deque<HUDProfile> redoStack = new java.util.ArrayDeque<>();
+    private final List<HUDMod> activeHudMods = new java.util.ArrayList<>();
 
     public HUDEditor() {
         profiles = new java.util.ArrayList<>();
@@ -21,11 +21,11 @@ public class HUDEditor {
     }
 
     public List<HUDMod> getActiveHUDMods() {
-        return GlacierClient.getInstance().getModuleManager().getModules()
-                .stream()
-                .filter(m -> m instanceof HUDMod && m.isEnabled())
-                .map(m -> (HUDMod) m)
-                .collect(Collectors.toList());
+        activeHudMods.clear();
+        for (GlacierMod mod : GlacierClient.getInstance().getModuleManager().getModules()) {
+            if (mod instanceof HUDMod hud && hud.isEnabled()) activeHudMods.add(hud);
+        }
+        return activeHudMods;
     }
 
     public void saveSnapshot() {

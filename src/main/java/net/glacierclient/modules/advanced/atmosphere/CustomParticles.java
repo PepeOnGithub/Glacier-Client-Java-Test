@@ -36,11 +36,22 @@ public class CustomParticles extends GlacierMod {
         ClientWorld world = mc.world;
         if (world == null) return;
         int n = (int)(double) count.getValue();
+        // Style selects the base particle; "Custom" (and the colour swatch) uses a tinted dust particle.
+        String s = style.getValue();
+        int rgb = color.getValue();
+        org.joml.Vector3f tint = new org.joml.Vector3f(
+            ((rgb >> 16) & 0xFF) / 255f, ((rgb >> 8) & 0xFF) / 255f, (rgb & 0xFF) / 255f);
+        net.minecraft.particle.ParticleEffect effect = switch (s) {
+            case "Star" -> ParticleTypes.END_ROD;
+            case "Spark" -> ParticleTypes.CRIT;
+            case "Custom" -> new net.minecraft.particle.DustParticleEffect(tint, 1.2f);
+            default -> ParticleTypes.SNOWFLAKE; // Ice
+        };
         for (int i = 0; i < n; i++) {
             double vx = (Math.random() - 0.5) * 0.5;
             double vy = Math.random() * 0.5;
             double vz = (Math.random() - 0.5) * 0.5;
-            world.addParticle(ParticleTypes.SNOWFLAKE, pos.x, pos.y + 0.5, pos.z, vx, vy, vz);
+            world.addParticle(effect, pos.x, pos.y + 0.5, pos.z, vx, vy, vz);
         }
     }
 }

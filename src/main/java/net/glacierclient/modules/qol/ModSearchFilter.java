@@ -32,12 +32,16 @@ public class ModSearchFilter extends GlacierMod {
     public List<GlacierMod> filter(List<GlacierMod> mods, String query) {
         if (query == null || query.isEmpty()) return mods;
         String q = query.toLowerCase();
-        return mods.stream()
+        var stream = mods.stream()
             .filter(m -> {
                 boolean nameMatch = fuzzySearch.getValue() ? fuzzyMatch(m.getName().toLowerCase(), q) : m.getName().toLowerCase().contains(q);
                 boolean descMatch = searchDescription.getValue() && m.getDescription().toLowerCase().contains(q);
                 return nameMatch || descMatch;
-            })
+            });
+        // Recent First: surface currently-enabled (most recently engaged) modules at the top.
+        if (recentFirst.getValue())
+            stream = stream.sorted(java.util.Comparator.comparing(GlacierMod::isEnabled).reversed());
+        return stream
             .limit((int)(double) maxResults.getValue())
             .collect(Collectors.toList());
     }

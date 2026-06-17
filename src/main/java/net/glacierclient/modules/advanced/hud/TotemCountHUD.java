@@ -48,5 +48,18 @@ public class TotemCountHUD extends HUDMod {
         int color = totemCount == 0 ? zeroColor.getValue() : (warn ? 0xFFFAA61A : GlacierTheme.TEXT);
         String text = "Totems: " + totemCount;
         context.drawText(tr, text, x + 4, y + 6, color, warn);
+
+        if (showInHotbar.getValue()) {
+            MinecraftClient mc = MinecraftClient.getInstance();
+            if (mc.player == null) return;
+            int sw = mc.getWindow().getScaledWidth(), sh = mc.getWindow().getScaledHeight();
+            int barX = sw / 2 - 91, barY = sh - 22;
+            for (int slot = 0; slot < 9; slot++) {
+                if (mc.player.getInventory().getStack(slot).getItem() == Items.TOTEM_OF_UNDYING) {
+                    int sx = barX + slot * 20;
+                    context.drawBorder(sx, barY, 18, 18, 0xCC55FF66);
+                }
+            }
+        }
     }
 }

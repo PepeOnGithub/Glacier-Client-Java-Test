@@ -40,13 +40,24 @@ public class UpdateChecker extends GlacierMod {
         }
     }
 
+    private static final String CURRENT_VERSION = "1.0.0";
+
     public void checkForUpdates() {
-        // HTTP check via thread to avoid blocking main thread
+        // HTTP check via thread to avoid blocking the main thread.
         new Thread(() -> {
             try {
-                // Fetch latest version from API
                 lastCheck = System.currentTimeMillis();
-                // Notify player if update found
+                // Resolve the latest published version (placeholder until a real endpoint is wired).
+                latestVersion = CURRENT_VERSION;
+                if (CURRENT_VERSION.equals(latestVersion)) return; // up to date
+                MinecraftClient mc = MinecraftClient.getInstance();
+                if (showNotification.getValue() && mc.player != null) {
+                    mc.execute(() -> mc.player.sendMessage(
+                        Text.literal("[Glacier] Update available: " + latestVersion), false));
+                }
+                if (autoDownload.getValue()) {
+                    // Reserved: trigger the downloader once an update channel is available.
+                }
             } catch (Exception ignored) {}
         }, "GlacierUpdateChecker").start();
     }

@@ -11,16 +11,27 @@ public class GeometryBufferOptimizer extends GlacierMod {
     private final NumberSetting bufferSize = new NumberSetting("Buffer Size", "Geometry buffer size (KB)", 256, 8192, 2048);
     private final BooleanSetting reuseBuffers = new BooleanSetting("Reuse Buffers", "Reuse allocated geometry buffers", true);
 
+    private net.minecraft.client.option.GraphicsMode savedMode = net.minecraft.client.option.GraphicsMode.FANCY;
+
     public GeometryBufferOptimizer() {
-        super("Geometry Buffer Optimizer", "Optimize geometry buffers for rendering", Category.PERFORMANCE);
+        super("Geometry Buffer Optimizer", "Switches to Fast graphics to lighten the geometry pipeline", Category.PERFORMANCE);
         addSettings(mergeBuffers, bufferSize, reuseBuffers);
     }
 
     @Override
-    public void onEnable() {}
+    public void onEnable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) {
+            savedMode = mc.options.getGraphicsMode().getValue();
+            if (mergeBuffers.getValue()) mc.options.getGraphicsMode().setValue(net.minecraft.client.option.GraphicsMode.FAST);
+        }
+    }
 
     @Override
-    public void onDisable() {}
+    public void onDisable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) mc.options.getGraphicsMode().setValue(savedMode);
+    }
 
     @Override
     public void onTick() {}

@@ -47,7 +47,21 @@ public class DiscordRichPresence extends GlacierMod {
             if (showServer.getValue() && mc.getCurrentServerEntry() != null) {
                 state.append(" on ").append(mc.getCurrentServerEntry().address);
             }
+            if (showWorld.getValue() && mc.world != null) {
+                state.append(" [").append(mc.world.getRegistryKey().getValue().getPath()).append("]");
+            }
+            if (showParty.getValue() && mc.world != null) {
+                state.append(" (").append(mc.world.getPlayers().size()).append(" players)");
+            }
         }
-        // Discord IPC update handled via native library
+        if (showTime.getValue()) {
+            long secs = (System.currentTimeMillis() - startTime) / 1000L;
+            state.append(" — ").append(secs / 60).append("m");
+        }
+        presenceState = state.toString();
+        // Discord IPC update handled via native library (publishes presenceState)
     }
+
+    private String presenceState = "";
+    public String getPresenceState() { return presenceState; }
 }

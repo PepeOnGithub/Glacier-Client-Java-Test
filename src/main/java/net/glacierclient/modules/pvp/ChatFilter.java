@@ -8,6 +8,7 @@ import net.glacierclient.core.settings.StringSetting;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 public class ChatFilter extends GlacierMod {
 
@@ -18,7 +19,10 @@ public class ChatFilter extends GlacierMod {
     private final StringSetting replacement = new StringSetting("Replacement", "Replace blocked words with", "[filtered]");
 
     private static final Set<String> PROFANITY = new HashSet<>(Arrays.asList(
-        "badword1", "badword2" // placeholder - real list would be populated
+        "idiot", "stupid", "trash", "toxic", "kys"
+    ));
+    private static final Set<String> PROMOTION = new HashSet<>(Arrays.asList(
+        "discord.gg/", ".store", "buy now", "free rank", "use code", "http://", "https://"
     ));
 
     public ChatFilter() {
@@ -41,7 +45,15 @@ public class ChatFilter extends GlacierMod {
             for (String word : PROFANITY) {
                 if (lower.contains(word)) {
                     if (hideFiltered.getValue()) return null;
-                    msg = msg.replaceAll("(?i)" + word, replacement.getValue());
+                    msg = msg.replaceAll("(?i)" + Pattern.quote(word), replacement.getValue());
+                }
+            }
+        }
+        if (filterPromotion.getValue()) {
+            for (String word : PROMOTION) {
+                if (lower.contains(word)) {
+                    if (hideFiltered.getValue()) return null;
+                    msg = msg.replaceAll("(?i)" + Pattern.quote(word), replacement.getValue());
                 }
             }
         }
@@ -51,7 +63,7 @@ public class ChatFilter extends GlacierMod {
                 kw = kw.trim();
                 if (!kw.isEmpty() && lower.contains(kw.toLowerCase())) {
                     if (hideFiltered.getValue()) return null;
-                    msg = msg.replaceAll("(?i)" + kw, replacement.getValue());
+                    msg = msg.replaceAll("(?i)" + Pattern.quote(kw), replacement.getValue());
                 }
             }
         }

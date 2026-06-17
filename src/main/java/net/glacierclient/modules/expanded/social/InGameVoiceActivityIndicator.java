@@ -41,5 +41,13 @@ public class InGameVoiceActivityIndicator extends HUDMod {
         context.fill(cx - halfW, cy - halfH, cx + halfW, cy + halfH / 2, col);
         context.fill(cx - halfW * 2, cy, cx + halfW * 2, cy + 2, col);
         context.fill(cx - 1, cy + halfH / 2, cx + 1, cy + halfH, col);
+
+        // Show Nearby: count other players within voice range.
+        if (showNearby.getValue() && mc.player != null && mc.world != null) {
+            int nearby = 0;
+            for (var p : mc.world.getPlayers())
+                if (p != mc.player && p.distanceTo(mc.player) <= 48) nearby++;
+            context.drawTextWithShadow(mc.textRenderer, "+" + nearby, x + 26, y + 2, GlacierTheme.TEXT_DIM);
+        }
     }
 }

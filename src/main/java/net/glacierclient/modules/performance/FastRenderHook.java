@@ -13,16 +13,27 @@ public class FastRenderHook extends GlacierMod {
     private final BooleanSetting fastCloud = new BooleanSetting("Fast Cloud", "Optimize cloud rendering", true);
     private final NumberSetting renderBatchSize = new NumberSetting("Render Batch Size", "Entities per render batch", 1, 64, 8);
 
+    private net.minecraft.client.option.CloudRenderMode savedClouds = net.minecraft.client.option.CloudRenderMode.FANCY;
+
     public FastRenderHook() {
-        super("Fast Render Hook", "Optimize rendering pipeline for better FPS", Category.PERFORMANCE);
+        super("Fast Render Hook", "Lightens the render pipeline (fast clouds) for better FPS", Category.PERFORMANCE);
         addSettings(fastEntity, fastBlock, fastParticle, fastCloud, renderBatchSize);
     }
 
     @Override
-    public void onEnable() {}
+    public void onEnable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) {
+            savedClouds = mc.options.getCloudRenderMode().getValue();
+            if (fastCloud.getValue()) mc.options.getCloudRenderMode().setValue(net.minecraft.client.option.CloudRenderMode.OFF);
+        }
+    }
 
     @Override
-    public void onDisable() {}
+    public void onDisable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) mc.options.getCloudRenderMode().setValue(savedClouds);
+    }
 
     @Override
     public void onTick() {}

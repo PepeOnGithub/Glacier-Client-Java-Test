@@ -37,23 +37,37 @@ public class DirectionHUD extends HUDMod {
         float yaw = (mc.player.getYaw() % 360 + 360) % 360;
         int x = getX(), y = getY();
         int cw = (int)(double) compassWidth.getValue();
-        // Draw background bar
-        context.fill(x, y, x + cw, y + 16, GlacierTheme.BG_PANEL);
-        // Draw cardinal markers
-        for (int i = 0; i < 8; i++) {
-            float markerYaw = i * 45f;
-            float diff = ((markerYaw - yaw + 360 + 180) % 360) - 180;
-            int markerX = x + cw / 2 + (int)(diff / 180f * cw / 2);
-            if (markerX > x && markerX < x + cw) {
-                int col = (i % 2 == 0) ? GlacierTheme.TEXT : GlacierTheme.TEXT_DIM;
-                context.drawText(mc.textRenderer, DIRS[i], markerX - mc.textRenderer.getWidth(DIRS[i]) / 2, y + 4, col, false);
+        String mode = style.getValue();
+        boolean compass = mode.equals("Compass") || mode.equals("Both");
+        boolean letters = mode.equals("Letters") || mode.equals("Both");
+        if (compass) {
+            // Draw background bar
+            context.fill(x, y, x + cw, y + 16, GlacierTheme.BG_PANEL);
+            // Draw cardinal markers
+            for (int i = 0; i < 8; i++) {
+                float markerYaw = i * 45f;
+                float diff = ((markerYaw - yaw + 360 + 180) % 360) - 180;
+                int markerX = x + cw / 2 + (int)(diff / 180f * cw / 2);
+                if (markerX > x && markerX < x + cw) {
+                    int col = (i % 2 == 0) ? getTextColor() : GlacierTheme.TEXT_DIM;
+                    context.drawText(mc.textRenderer, DIRS[i], markerX - mc.textRenderer.getWidth(DIRS[i]) / 2, y + 4, col, hasShadow());
+                }
             }
+            // Center indicator
+            context.fill(x + cw / 2, y, x + cw / 2 + 1, y + 16, GlacierTheme.ACCENT);
         }
-        // Center indicator
-        context.fill(x + cw / 2, y, x + cw / 2 + 1, y + 16, GlacierTheme.ACCENT);
+        if (letters) {
+            // Large facing label centred (or left when no compass tape is drawn)
+            int idx = Math.round(yaw / 45f) % 8;
+            String facing = DIRS[(idx + 8) % 8];
+            int lx = compass ? x + cw / 2 - mc.textRenderer.getWidth(facing) / 2 : x;
+            int ly = compass ? y + 18 : y + 4;
+            context.drawText(mc.textRenderer, facing, lx, ly, getTextColor(), hasShadow());
+        }
         if (showDegrees.getValue()) {
             String deg = String.format("%.0f", yaw) + "°";
-            context.drawText(mc.textRenderer, deg, x + cw + 4, y + 4, GlacierTheme.TEXT_DIM, false);
+            int dx = compass ? x + cw + 4 : x + mc.textRenderer.getWidth("WNW") + 6;
+            context.drawText(mc.textRenderer, deg, dx, y + 4, GlacierTheme.TEXT_DIM, hasShadow());
         }
     }
 }

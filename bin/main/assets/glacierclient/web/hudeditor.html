@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Glacier — HUD Editor</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    body {
+      background: #0c0f16;
+    }
+
+    .grid-bg {
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(255, 255, 255, .05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, .05) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .cross::before,
+    .cross::after {
+      content: "";
+      position: fixed;
+      background: rgba(255, 255, 255, .12);
+    }
+
+    .cross::before {
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+    }
+
+    .cross::after {
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+    }
+
+    .toolbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 16px;
+      background: var(--panel);
+      border-bottom: 1px solid rgba(255, 255, 255, .06);
+      z-index: 10;
+      backdrop-filter: blur(6px);
+    }
+
+    .toolbar .logo {
+      font-size: 22px;
+    }
+
+    .toolbar h2 {
+      font-size: 18px;
+      flex: 1;
+    }
+
+    .tbtn {
+      padding: 8px 16px;
+      border-radius: 10px;
+      background: var(--btn);
+      cursor: pointer;
+      font-size: 14px;
+      transition: all .16s var(--ease);
+    }
+
+    .tbtn:hover {
+      background: var(--btn-hover);
+    }
+
+    .tbtn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .hud-el {
+      position: absolute;
+      padding: 6px 10px;
+      border-radius: 8px;
+      background: rgba(11, 18, 32, .85);
+      border: 1px solid rgba(255, 255, 255, .08);
+      cursor: grab;
+      font-size: 13px;
+      color: var(--text);
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: box-shadow .15s var(--ease), border-color .15s var(--ease);
+    }
+
+    .hud-el .fa {
+      font-size: 12px;
+      color: var(--accent-soft);
+    }
+
+    .hud-el:hover {
+      border-color: var(--accent);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .4);
+    }
+
+    .hud-el.drag {
+      cursor: grabbing;
+      box-shadow: 0 0 0 1.5px var(--accent), 0 10px 24px rgba(0, 0, 0, .5);
+      z-index: 5;
+    }
+
+    .hint {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--text-dim);
+      font-size: 13px;
+      background: rgba(0, 0, 0, .4);
+      padding: 7px 16px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="grid-bg"></div>
+  <div class="cross"></div>
+
+  <div class="toolbar">
+    <span class="logo"><img class="logo-img" src="logo.png" alt=""></span>
+    <h2>HUD Editor</h2>
+    <div class="tbtn active" id="gridbtn" data-act="grid">Grid: On</div>
+    <div class="tbtn" data-act="reset">Reset</div>
+    <div class="tbtn" data-nav="pause.html">Done</div>
+  </div>
+
+  <div id="canvas"></div>
+  <div class="hint">Drag elements to reposition · snaps to grid</div>
+
+  <script src="bridge.js"></script>
+  <script>
+    const FALLBACK = [["fps", "", "FPS"], ["cps", "", "CPS"], ["coordinates", "", "XYZ: 0 64 0"],
+    ["armorstatus", "", "Armor"], ["keystrokes", "", "WASD"], ["clock", "", "12:00"],
+    ["potionsstatus", "", "Effects"], ["directionhud", "", "N"]];
+    const canvas = document.getElementById('canvas');
+    let snap = true;
+
+    function place(slug, icon, label, x, y) {
+      const e = document.createElement('div'); e.className = 'hud-el';
+      e.innerHTML = `<i class="fa">${icon}</i>${label}`;
+      e.style.left = x + 'px'; e.style.top = y + 'px';
+      let dx, dy, drag = false;
+      e.addEventListener('mousedown', ev => {
+        drag = true; e.classList.add('drag');
+        dx = ev.clientX - e.offsetLeft; dy = ev.clientY - e.offsetTop; ev.preventDefault();
+      });
+      window.addEventListener('mousemove', ev => {
+        if (!drag) return;
+        let nx = ev.clientX - dx, ny = ev.clientY - dy;
+        if (snap) { nx = Math.round(nx / 20) * 20; ny = Math.round(ny / 20) * 20; }
+        nx = Math.max(0, nx); ny = Math.max(52, ny);
+        e.style.left = nx + 'px'; e.style.top = ny + 'px';
+      });
+      window.addEventListener('mouseup', () => {
+        if (!drag) return; drag = false; e.classList.remove('drag');
+        glacier.send('hudpos:' + slug + ':' + parseInt(e.style.left) + ':' + parseInt(e.style.top));
+      });
+      canvas.appendChild(e);
+    }
+
+    function load(list) {
+      canvas.innerHTML = ''; let i = 0;
+      list.forEach(([slug, icon, label]) => { place(slug, icon, label, 16, 60 + (i++) * 40); });
+    }
+
+    document.getElementById('gridbtn').addEventListener('click', function () {
+      snap = !snap; this.classList.toggle('active'); this.textContent = 'Grid: ' + (snap ? 'On' : 'Off');
+    });
+    document.querySelector('[data-act="reset"]').addEventListener('click', () => { render(); glacier.send('hudreset'); });
+
+    let cache = FALLBACK;
+    function render() { load(cache); }
+    fetch('data/modules.json').then(r => r.json()).then(d => {
+      const hud = d.filter(m => m.folder === 'hud').slice(0, 12).map(m => [m.slug, m.icon || '', m.name]);
+      if (hud.length) cache = hud; render();
+    }).catch(() => render());
+  </script>
+</body>
+
+</html>

@@ -60,6 +60,8 @@ public class SessionTimer extends HUDMod {
         String time;
         if ("MM:SS".equals(format.getValue())) time = String.format("%02d:%02d", m + h * 60, s);
         else time = String.format("%02d:%02d:%02d", h, m, s);
-        context.drawText(mc.textRenderer, "Time: " + time, getX() + 2, getY() + 4, GlacierTheme.TEXT, false);
+        String text = "Time: " + time;
+        drawBackground(context, getX() + 2, getY() + 4, mc.textRenderer.getWidth(text), 9);
+        context.drawText(mc.textRenderer, text, getX() + 2, getY() + 4, getTextColor(), hasShadow());
     }
 }

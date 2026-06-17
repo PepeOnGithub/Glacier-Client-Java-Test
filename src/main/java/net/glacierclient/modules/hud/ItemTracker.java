@@ -56,13 +56,15 @@ public class ItemTracker extends HUDMod {
         int x = getX() + 2, y = getY() + 2;
         int shown = 0;
         int maxD = (int)(double) maxDisplay.getValue();
+        int lines = Math.max(1, Math.min(counts.size(), maxD));
+        drawBackground(context, x, y, getWidth() - 4, lines * 10);
         for (Map.Entry<String, Integer> entry : counts.entrySet()) {
             if (shown >= maxD) break;
-            context.drawText(mc.textRenderer, entry.getKey() + ": " + entry.getValue(), x, y + shown * 10, GlacierTheme.TEXT, false);
+            context.drawText(mc.textRenderer, entry.getKey() + ": " + entry.getValue(), x, y + shown * 10, getTextColor(), hasShadow());
             shown++;
         }
         if (shown == 0) {
-            context.drawText(mc.textRenderer, trackedItem.getValue() + ": 0", x, y, GlacierTheme.TEXT_DIM, false);
+            context.drawText(mc.textRenderer, trackedItem.getValue() + ": 0", x, y, GlacierTheme.TEXT_DIM, hasShadow());
         }
     }
 }

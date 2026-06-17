@@ -36,6 +36,11 @@ public class BountyNotifier extends HUDMod {
             lastBountyAmount = amount;
             lastBountyTime = System.currentTimeMillis();
             active = true;
+            if (soundAlert.getValue()) {
+                MinecraftClient mc = MinecraftClient.getInstance();
+                if (mc.player != null)
+                    mc.player.playSound(net.minecraft.sound.SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.3f);
+            }
         }
     }
 

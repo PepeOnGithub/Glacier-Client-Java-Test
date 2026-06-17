@@ -47,17 +47,27 @@ public class WeightSpeedHUD extends HUDMod {
         int x = getX(), y = getY(), w = getWidth(), h = getHeight();
         var tr = MinecraftClient.getInstance().textRenderer;
         context.fill(x, y, x + w, y + h, 0xAA1A1A2E);
+        boolean bars = style.getValue().equals("Bars");
         int lineY = y + 4;
         if (showSpeed.getValue()) {
-            context.drawText(tr, "Speed: " + String.format("%.2f", speed) + " b/s", x + 4, lineY, GlacierTheme.TEXT, false);
-            lineY += 10;
+            drawStat(context, tr, x, lineY, w, "Speed", String.format("%.2f b/s", speed), Math.min(1f, speed / 10f), GlacierTheme.ACCENT, bars);
+            lineY += bars ? 13 : 10;
         }
         if (showWeight.getValue()) {
-            context.drawText(tr, "Items: " + weight, x + 4, lineY, GlacierTheme.TEXT_DIM, false);
-            lineY += 10;
+            drawStat(context, tr, x, lineY, w, "Items", String.valueOf(weight), Math.min(1f, weight / 360f), 0xFF7A8CA3, bars);
+            lineY += bars ? 13 : 10;
         }
         if (showJump.getValue()) {
-            context.drawText(tr, "Jump: " + String.format("%.1f", jumpStrength), x + 4, lineY, GlacierTheme.TEXT_DIM, false);
+            drawStat(context, tr, x, lineY, w, "Jump", String.format("%.1f", jumpStrength), Math.min(1f, jumpStrength / 2f), 0xFF7A8CA3, bars);
+        }
+    }
+
+    private void drawStat(DrawContext ctx, net.minecraft.client.font.TextRenderer tr, int x, int yy, int w, String label, String value, float pct, int col, boolean bars) {
+        ctx.drawText(tr, label + ": " + value, x + 4, yy, GlacierTheme.TEXT, false);
+        if (bars) {
+            int by = yy + 9, bw = w - 8;
+            ctx.fill(x + 4, by, x + 4 + bw, by + 2, 0x44FFFFFF);
+            ctx.fill(x + 4, by, x + 4 + (int)(bw * pct), by + 2, col);
         }
     }
 }

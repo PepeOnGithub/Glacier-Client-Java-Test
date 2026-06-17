@@ -1,11 +1,11 @@
 package net.glacierclient.modules.engine;
 
 import net.glacierclient.core.hud.HUDMod;
-import net.glacierclient.core.module.Category;
 import net.glacierclient.core.settings.BooleanSetting;
 import net.glacierclient.core.settings.ModeSetting;
 import net.glacierclient.core.settings.NumberSetting;
 import net.glacierclient.core.theme.GlacierTheme;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 
 public class SpotifyMediaBridge extends HUDMod {
@@ -27,38 +27,31 @@ public class SpotifyMediaBridge extends HUDMod {
         int y = getY();
         int w = getWidth();
         int h = getHeight();
+        MinecraftClient mc = MinecraftClient.getInstance();
+        int textX = x + 6;
 
-        // Background panel
-        context.fill(x, y, x + w, y + h, 0xCC1E1E2E);
+        drawBackground(context, x, y, w, h);
+        if (showAlbumArt.getValue()) {
+            int art = Math.min(h - 12, 40);
+            context.fill(x + 6, y + 6, x + 6 + art, y + 6 + art, 0x663C8DFF);
+            textX = x + art + 14;
+        }
 
-        // Track title placeholder
-        context.drawTextWithShadow(
-            net.minecraft.client.MinecraftClient.getInstance().textRenderer,
-            "♫ Now Playing",
-            x + 6, y + 6,
-            GlacierTheme.ACCENT
-        );
+        context.drawTextWithShadow(mc.textRenderer, source.getValue() + " Media", textX, y + 6, GlacierTheme.ACCENT);
+        context.drawTextWithShadow(mc.textRenderer, "Bridge idle", textX, y + 18, GlacierTheme.TEXT);
 
-        context.drawTextWithShadow(
-            net.minecraft.client.MinecraftClient.getInstance().textRenderer,
-            "Track Name - Artist",
-            x + 6, y + 18,
-            GlacierTheme.TEXT
-        );
-
-        // Progress bar
         if (showProgress.getValue()) {
             int barY = y + h - 10;
             context.fill(x + 4, barY, x + w - 4, barY + 4, 0x44FFFFFF);
-            context.fill(x + 4, barY, x + 4 + (int)((w - 8) * 0.4f), barY + 4, GlacierTheme.ACCENT);
+            context.fill(x + 4, barY, x + 4, barY + 4, GlacierTheme.ACCENT);
         }
 
-        // Source label
-        context.drawTextWithShadow(
-            net.minecraft.client.MinecraftClient.getInstance().textRenderer,
-            source.getValue(),
-            x + 6, y + 30,
-            GlacierTheme.TEXT_DIM
-        );
+        if (showControls.getValue()) {
+            int size = controlSize.getValueAsInt();
+            int cy = y + h - size / 2 - 6;
+            context.drawCenteredTextWithShadow(mc.textRenderer, "<<", x + w - size * 3, cy - 4, GlacierTheme.TEXT_DIM);
+            context.drawCenteredTextWithShadow(mc.textRenderer, ">", x + w - size * 2, cy - 4, GlacierTheme.TEXT_DIM);
+            context.drawCenteredTextWithShadow(mc.textRenderer, ">>", x + w - size, cy - 4, GlacierTheme.TEXT_DIM);
+        }
     }
 }

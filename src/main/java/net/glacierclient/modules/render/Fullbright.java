@@ -4,42 +4,23 @@ import net.glacierclient.core.module.GlacierMod;
 import net.glacierclient.core.module.Category;
 import net.glacierclient.core.settings.NumberSetting;
 import net.glacierclient.core.settings.ModeSetting;
-import net.minecraft.client.MinecraftClient;
 
 public class Fullbright extends GlacierMod {
 
-    private final NumberSetting gamma = new NumberSetting("Gamma", "Gamma brightness level", 1, 15, 15);
+    // Brightness is fed straight into the lightmap by MixinLightmapTextureManager (which bypasses the
+    // vanilla 0..1 gamma clamp). We must NOT write this into the real options.gamma — that value only
+    // accepts 0..1, so writing 100 spams "Illegal option value 100.0" and corrupts options.txt.
+    private final NumberSetting gamma = new NumberSetting("Brightness", "Fullbright intensity (higher = brighter)", 1, 16, 10);
     private final ModeSetting mode = new ModeSetting("Mode", "Fullbright implementation", "Gamma", "Gamma", "Night Vision");
 
-    private double savedGamma = 1.0;
-
     public Fullbright() {
-        super("Fullbright", "Sets gamma to maximum for full visibility", Category.RENDER);
+        super("Fullbright", "Forces full map brightness so caves and night are fully lit", Category.RENDER);
         addSettings(gamma, mode);
     }
 
-    @Override
-    public void onEnable() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if ("Gamma".equals(mode.getValue()) && mc.options != null) {
-            savedGamma = mc.options.getGamma().getValue();
-            mc.options.getGamma().setValue(gamma.getValue());
-        }
-    }
+    /** True when the gamma-based fullbright path is active (read by MixinLightmapTextureManager). */
+    public boolean isGammaMode() { return "Gamma".equals(mode.getValue()); }
 
-    @Override
-    public void onDisable() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if ("Gamma".equals(mode.getValue()) && mc.options != null) {
-            mc.options.getGamma().setValue(savedGamma);
-        }
-    }
-
-    @Override
-    public void onTick() {
-        MinecraftClient mc = MinecraftClient.getInstance();
-        if ("Gamma".equals(mode.getValue()) && mc.options != null) {
-            mc.options.getGamma().setValue(gamma.getValue());
-        }
-    }
+    /** The brightness multiplier fed into the lightmap (bypasses the vanilla 0..1 gamma clamp). */
+    public double getBrightness() { return gamma.getValue(); }
 }

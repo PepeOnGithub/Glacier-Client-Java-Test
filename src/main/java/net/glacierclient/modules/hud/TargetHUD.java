@@ -38,8 +38,9 @@ public class TargetHUD extends HUDMod {
         if (mc.textRenderer == null || mc.targetedEntity == null) return;
         if (!(mc.targetedEntity instanceof LivingEntity target)) return;
         int x = getX() + 2, y = getY() + 2;
+        drawBackground(context, x, y, getWidth() - 4, getHeight() - 4);
         String name = target.getName().getString();
-        context.drawText(mc.textRenderer, name, x, y, GlacierTheme.TEXT, false);
+        context.drawText(mc.textRenderer, name, x, y, getTextColor(), hasShadow());
         y += 10;
         if (showHealth.getValue()) {
             float hp = target.getHealth();
@@ -49,13 +50,13 @@ public class TargetHUD extends HUDMod {
             context.fill(x, y, x + barW, y + 6, GlacierTheme.BG_PANEL);
             context.fill(x, y, x + filled, y + 6, healthColor.getValue());
             if ("Full".equals(style.getValue())) {
-                context.drawText(mc.textRenderer, String.format("%.1f / %.1f", hp, maxHp), x, y + 8, GlacierTheme.TEXT_DIM, false);
+                context.drawText(mc.textRenderer, String.format("%.1f / %.1f", hp, maxHp), x, y + 8, GlacierTheme.TEXT_DIM, hasShadow());
             }
             y += 18;
         }
         if (showArmor.getValue() && target instanceof PlayerEntity player) {
             int armor = player.getArmor();
-            context.drawText(mc.textRenderer, "Armor: " + armor, x, y, GlacierTheme.TEXT_DIM, false);
+            context.drawText(mc.textRenderer, "Armor: " + armor, x, y, GlacierTheme.TEXT_DIM, hasShadow());
         }
     }
 }

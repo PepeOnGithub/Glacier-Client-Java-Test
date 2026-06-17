@@ -48,6 +48,8 @@ public class Speedometer extends HUDMod {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("%.2f ", displaySpeed)).append(unitStr);
         if (showVertical.getValue()) sb.append(String.format(" V:%.2f", vSpeed));
-        context.drawText(mc.textRenderer, sb.toString(), getX() + 2, getY() + 4, GlacierTheme.TEXT, false);
+        String text = sb.toString();
+        drawBackground(context, getX() + 2, getY() + 4, mc.textRenderer.getWidth(text), 9);
+        context.drawText(mc.textRenderer, text, getX() + 2, getY() + 4, getTextColor(), hasShadow());
     }
 }

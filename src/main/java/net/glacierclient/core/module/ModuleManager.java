@@ -23,6 +23,9 @@ import java.util.stream.Collectors;
 
 public class ModuleManager {
 
+    private static final Comparator<GlacierMod> MODULE_ORDER =
+            Comparator.comparing(GlacierMod::getName, String.CASE_INSENSITIVE_ORDER);
+
     private final List<GlacierMod> modules = new ArrayList<>();
     private final EventBus eventBus;
 
@@ -33,44 +36,41 @@ public class ModuleManager {
 
     private void registerModules() {
         // HUD
-        register(new CPSDisplay(), new FPSDisplay(), new PingDisplay(), new Keystrokes(), new ArmorStatusHUD(), new CoordinatesHUD(), new Speedometer(), new PotionsStatusHUD(), new DirectionHUD(), new ReachDisplay(), new ComboCounter(), new ServerIPDisplay(), new MemoryUsageHUD(), new ClockMod(), new GameTimeHUD(), new SessionTimer(), new PackDisplay(), new ItemTracker(), new TargetHUD(), new ScoreboardCustomizer());
+        register(new CPS(), new FPS(), new Ping(), new Keystrokes(), new ArmorStatusHUD(), new CoordinatesHUD(), new Speedometer(), new PotionsStatusHUD(), new DirectionHUD(), new ReachDisplay(), new ComboCounter(), new ServerIPDisplay(), new MemoryUsageHUD(), new ClockMod(), new GameTimeHUD(), new SessionTimer(), new PackDisplay(), new ItemTracker(), new TargetHUD(), new ScoreboardCustomizer());
 
         // Render
-        register(new Zoom(), new Fullbright(), new MotionBlur(), new ChunkAnimator(), new ItemPhysics(), new ClearWater(), new NoRender(), new CustomCrosshair(), new DynamicFOVModifier(), new HurtCamIntensitySlider(), new EnchantGlintColorizer(), new WeatherController(), new TimeChanger(), new SmoothScrollingMenus(), new NameProtect(), new ChatCustomizer(), new BossbarCustomizer(), new TitleOverlayCustomizer(), new BlockOverlay(), new DamageTiltFix(), new LowShieldRender());
+        register(new Zoom(), new Fullbright(), new MotionBlur(), new ChunkAnimator(), new ItemPhysics(), new ClearWater(), new NoRender(), new CustomCrosshair(), new FOVModule(), new HurtCamIntensitySlider(), new EnchantGlintColorizer(), new WeatherController(), new TimeChanger(), new SmoothScrollingMenus(), new NameProtect(), new ChatCustomizer(), new BossbarCustomizer(), new TitleOverlayCustomizer(), new BlockOverlay(), new DamageTiltFix(), new LowShieldRender());
 
         // PvP
-        register(new ToggleSprint(), new ToggleSneak(), new PerspectiveMod(), new AutoGG(), new AutoLeave(), new AutoRejoin(), new QuickPlay(), new ChatFilter(), new CompactChat(), new HitmarkerSoundMod(), new CustomBlockBreakParticles(), new FireIntensitySlider(), new GlintScaleModifier(), new ParticlesMultiplier(), new WeaponTrails(), new EatingAnimationFix(), new FOVSwitcher(), new SoundLocker(), new ScreenshotUploader(), new NickHider());
+        register(new ToggleSprint(), new ToggleSneak(), new PerspectiveMod(), new AutoGG(), new AutoLeave(), new AutoRejoin(), new QuickPlay(), new ChatFilter(), new CompactChat(), new HitmarkerSoundMod(), new CustomBlockBreakParticles(), new FireIntensitySlider(), new GlintScaleModifier(), new ParticlesMultiplier(), new WeaponTrails(), new EatingAnimationFix(), new SoundLocker(), new NickHider());
 
         // Performance
-        register(new PerformanceMode());
-        register(new FastRenderHook(), new EntityCulling(), new TileEntityCulling(), new MemoryLeakFix(), new TextureMIPMapOptimizer(), new LightEngineTweaker(), new ParticleThrottler(), new SmoothFPSStabilizer(), new LazyChunkLoading(), new FastChestOpenFix(), new ReducedF3Mod(), new FontRendererOptimizer(), new DynamicTextureUnloader(), new ModelRenderingCache(), new GeometryBufferOptimizer(), new HideFarPlayers(), new CPUThreadingAllocator(), new SoundStreamingFix(), new RAMCapLimiter(), new RefreshRateSelector());
+        register(new FPSBoost(), new FastRenderHook(), new SmartCulling(), new MemoryManager(), new TextureMIPMapOptimizer(), new LightEngineTweaker(), new ParticleThrottler(), new SmoothFPSStabilizer(), new LazyChunkLoading(), new FastChestOpenFix(), new ReducedF3Mod(), new FontRendererOptimizer(), new ModelRenderingCache(), new GeometryBufferOptimizer(), new CPUThreadingAllocator(), new SoundStreamingFix(), new RefreshRateSelector());
 
         // QoL
         register(new ProfileManagerMod(), new ConfigCloudSync(), new CustomMainMenu(), new ModSearchFilter(), new KeybindConfigurationMatrix(), new ColorPaletteSelector(), new BorderlessWindowedToggle(), new ScreenshotFolderShortcut(), new ResourcePackQuickSwitch(), new LanguageOverride(), new UpdateChecker(), new CrashReportSaver(), new DiscordRichPresence(), new StreamingMode(), new AccountSwitcher(), new MouseSensitivityFixer(), new ScrollSpeedMultiplier(), new ControllerSupportHook(), new AudioDeviceOutputSelector(), new NotificationToastSystem());
 
         // Advanced HUD
-        register(new TPSGraphOverlay(), new PingGraphOverlay(), new CPSGraph(), new FPSGraph(), new StatTracker(), new FactionMapOverlay(), new EncounterHistory(), new PlayerRadar(), new CombatLogTimer(), new EntityCounter(), new EconomyTracker(), new BountyNotifier(), new MinimapModule(), new NetherCordsConverter(), new BiomeIndicator(), new LightLevelMapper(), new ChunkLoadViewer(), new InventoryPeekHUD(), new ActiveEffectsDurationBar(), new WeaponDurabilityWarning(), new ArrowCountNotifier(), new TotemCountHUD(), new WeightSpeedHUD(), new HeldItemLargeDisplay(), new PacketLossIndicator());
+        register(new TPSGraphOverlay(), new StatTracker(), new FactionMapOverlay(), new EncounterHistory(), new PlayerRadar(), new CombatLogTimer(), new EntityCounter(), new BountyNotifier(), new MinimapModule(), new NetherCordsConverter(), new BiomeIndicator(), new LightLevelMapper(), new ChunkLoadViewer(), new InventoryPeekHUD(), new ActiveEffectsDurationBar(), new WeaponDurabilityWarning(), new ArrowCountNotifier(), new TotemCountHUD(), new WeightSpeedHUD(), new HeldItemLargeDisplay(), new PacketLossIndicator());
 
         // Advanced Atmosphere
-        register(new GlacierSkybox(), new CustomStarsDensity(), new ScreenGlow(), new CustomParticles(), new CameraClipTweak(), new HandProgressModifier(), new CapePhysicsEditor(), new CinematicCameraTweak(), new ArmorColorizer(), new CustomFogDensity(), new VignetteTweak(), new ScoreboardPositioner(), new ItemScaleModifier(), new SaturationChanger(), new CustomHitSounds(), new ScreenShakeMultiplier(), new DarkModeMenus(), new CustomDeathAnimations(), new RainbowGUIMode(), new MenuBackgroundVideoShader(), new SoundPan3D(), new PortalNauseaRemover(), new ExplosionFlashMuter(), new FOVChanger(), new CrosshairDynamicGap());
-
-        // Advanced Social
-        // register removed (all referenced classes missing)
-
-        // Advanced Mechanics
-        // register removed (all referenced classes missing)
+        register(new GlacierSkybox(), new CustomStarsDensity(), new ScreenGlow(), new CustomParticles(), new CameraClipTweak(), new HandProgressModifier(), new CapePhysicsEditor(), new CinematicCameraTweak(), new ArmorColorizer(), new CustomFogDensity(), new VignetteTweak(), new ItemScaleModifier(), new SaturationChanger(), new CustomHitSounds(), new ScreenShakeMultiplier(), new DarkModeMenus(), new CustomDeathAnimations(), new RainbowGUIMode(), new MenuBackgroundVideoShader(), new SoundPan3D(), new PortalNauseaRemover(), new ExplosionFlashMuter());
 
         // Engine
         register(new FluidFrustumCulling(), new FastChestRender(), new ImmediateGlintPipeline(), new GlacierBrowser(), new SpotifyMediaBridge(), new LegitSchematicOutline(), new MaterialRequiredList(), new ProximityVoiceVisualization());
 
         // Expanded HUD
-        register(new FPSFrameTimeGraph(), new MobSpawnSphereVisualizer(), new FishingTimerLure(), new BlockBreakEfficiencyOverlay(), new ItemDurabilityHeatmap(), new NearestPlayerArrow(), new WorldSeedCrackerIndicator(), new ElytraFlightPathProjector(), new HorseStatsPanel(), new ChunkRenderQueue());
+        register(new MobSpawnSphereVisualizer(), new FishingTimerLure(), new BlockBreakEfficiencyOverlay(), new ItemDurabilityHeatmap(), new NearestPlayerArrow(), new WorldSeedCrackerIndicator(), new ElytraFlightPathProjector(), new HorseStatsPanel(), new ChunkRenderQueue());
 
         // Expanded Visual
-        register(new DepthOfFieldGUI(), new DynamicLightingOverhaul(), new WaterRefractionCaustics(), new AnimatedItemTextures(), new RainSnowParticleRenderer(), new CaveFogRemover(), new TemporalAntiAliasing(), new ScreenSpaceReflections(), new WorldCurvatureOption(), new GlacierAuroraOverlay());
+        register(new DepthOfFieldGUI(), new DynamicLightingOverhaul(), new WaterRefractionCaustics(), new AnimatedItemTextures(), new RainSnowParticleRenderer(), new TemporalAntiAliasing(), new ScreenSpaceReflections(), new WorldCurvatureOption(), new GlacierAuroraOverlay());
 
         // Expanded QoL
-        register(new RecipeBookQuickCrafter(), new ShulkerBoxPreview(), new MassItemMover(), new EnchantedBookCombiner(), new AutoRefillFromBundle(), new ChatWaypointMarkers(), new InGameNotepad(), new QuickSchematicHelper(), new SessionStatsDashboard(), new SharedConfigClipboard());
+        register(new RecipeBookQuickCrafter(), new ShulkerBoxPreview(), new MassItemMover(), new EnchantedBookCombiner(), new AutoRefillFromBundle(), new ChatWaypointMarkers(), new InGameNotepad(), new SessionStatsDashboard(), new SharedConfigClipboard());
+        // Schematic Helper is context-aware: only register it when Litematica is actually present.
+        if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("litematica")) {
+            register(new QuickSchematicHelper());
+        }
 
         // Expanded PvP
         register(new HitSelectorVisualisation(), new KnockbackCalculator(), new ComboRetainerOverlay(), new TotemPopTracker(), new PearlTrailPrediction(), new BowDrawProgressBar(), new ArmorBreakWarning(), new SwordBlockingVisual(), new HitCooldownRing(), new PotionEffectTicker());
@@ -80,25 +80,29 @@ public class ModuleManager {
 
         // Expanded Social
         register(new StreamerSafeInventory(), new PartyHealthBarOverlay(), new InGameVoiceActivityIndicator(), new ReportBotAssist(), new AntiStreamSnipingBlocker());
+
+        // Advanced Mechanics (movement / PvP mechanics — event-driven via PlayerMoveEvent / TickEvent)
+        register(new SpeedMod(), new HighJumpMod(), new LongJumpMod(), new AirStrafeExtendedMod(), new SafeWalkMod(), new StepMod(), new NoSlowMod(), new AntiKnockbackMod(), new ElytraFlightMod(), new AntiVoidMod(), new AntiAfkMod(), new InventoryWalkMod(), new FastPlaceMod(), new PhaseWalkMod(), new TimerMod());
+
+        // Advanced Social (chat) — BetterChat is the combined timestamp/filter/highlight/anti-spam/sounds module
+        register(new BetterChatMod(), new AutoReplyMod(), new ChatAnimationsMod(), new ChatLoggerMod(), new ChatMacrosMod(), new CopyMod(), new EmotesMod(), new FriendTrackerMod(), new IgnoreListMod(), new PlayerChatHeadMod());
+
+        modules.sort(MODULE_ORDER);
     }
 
     private void register(GlacierMod... mods) {
         modules.addAll(Arrays.asList(mods));
+        modules.sort(MODULE_ORDER);
     }
 
     public List<GlacierMod> getModules() { return Collections.unmodifiableList(modules); }
 
-    /** Reorders the module list so {@code from} is placed at the index currently held by {@code target}. */
     public void moveModule(GlacierMod from, GlacierMod target) {
-        int fromIdx = modules.indexOf(from);
-        int toIdx = modules.indexOf(target);
-        if (fromIdx < 0 || toIdx < 0 || fromIdx == toIdx) return;
-        modules.remove(fromIdx);
-        modules.add(toIdx, from);
+        modules.sort(MODULE_ORDER);
     }
 
     public List<GlacierMod> getModulesByCategory(Category category) {
-        return modules.stream().filter(m -> m.getCategory() == category).collect(Collectors.toList());
+        return modules.stream().filter(m -> m.getCategory() == category).sorted(MODULE_ORDER).collect(Collectors.toList());
     }
 
     public GlacierMod getModule(String name) {

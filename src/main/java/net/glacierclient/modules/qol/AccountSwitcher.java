@@ -39,8 +39,18 @@ public class AccountSwitcher extends GlacierMod {
         }
     }
 
+    private boolean pendingConfirm = false;
+
     public void switchTo(String uuid) {
+        // Require Confirmation: the first call arms confirmation, the second performs the switch.
+        if (requireConfirmation.getValue() && !pendingConfirm) { pendingConfirm = true; return; }
+        pendingConfirm = false;
         // Account switching via auth API
+    }
+
+    /** Avatar URL for an account, or null when avatars are disabled. */
+    public String getAvatarUrl(String uuid) {
+        return showAvatar.getValue() ? "https://crafatar.com/avatars/" + uuid : null;
     }
 
     private void saveAccounts() {

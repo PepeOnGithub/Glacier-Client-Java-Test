@@ -46,6 +46,14 @@ public class WeaponDurabilityWarning extends HUDMod {
         }
         int remaining = held.getMaxDamage() - held.getDamage();
         boolean warn = remaining <= (int)(double) threshold.getValue();
+        if (warn) {
+            if (soundAlert.getValue() && !soundPlayed) {
+                mc.player.playSound(net.minecraft.sound.SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 1.0f, 0.7f);
+                soundPlayed = true;
+            }
+        } else {
+            soundPlayed = false;
+        }
         int color = warn ? warningColor.getValue() : GlacierTheme.TEXT;
         float pct = remaining / (float) held.getMaxDamage();
         String label = held.getName().getString() + " " + remaining + "/" + held.getMaxDamage();

@@ -12,12 +12,18 @@ public class SoundStreamingFix extends GlacierMod {
     private final BooleanSetting reduceLatency = new BooleanSetting("Reduce Latency", "Reduce sound streaming latency", true);
 
     public SoundStreamingFix() {
-        super("Sound Streaming Fix", "Fix sound streaming and reduce audio latency", Category.PERFORMANCE);
+        super("Sound Streaming Fix", "Reloads the sound engine to clear stuck/leaked audio streams", Category.PERFORMANCE);
         addSettings(fixStreamingBugs, bufferSize, reduceLatency);
     }
 
     @Override
-    public void onEnable() {}
+    public void onEnable() {
+        // Reloading the sound system flushes stuck/leaked streaming sources — the real "streaming fix".
+        if (fixStreamingBugs.getValue()) {
+            net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+            if (mc.getSoundManager() != null) mc.getSoundManager().reloadSounds();
+        }
+    }
 
     @Override
     public void onDisable() {}

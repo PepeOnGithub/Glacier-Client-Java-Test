@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glacier — Mod Menu</title>
+<link rel="stylesheet" href="style.css?v=27">
+<link rel="stylesheet" href="modmenu.css?v=27">
+<style>
+  /* transparent in-game so the frozen world shows through; the .dim overlay keeps the UI readable */
+  body { background: transparent; }
+</style>
+</head>
+<body>
+  <div class="dim"></div>
+  <div class="wrap">
+    <div class="panel-mm panel">
+      <div class="mm-head">
+        <span class="logo"><img class="logo-img" src="logo.png" alt=""></span>
+        <h2>Glacier</h2>
+        <div class="scale"><span data-act="scale-down">&#8722;</span><b id="scaleval">100%</b><span data-act="scale-up">+</span></div>
+        <div class="icon-btn x" data-act="close"><i class="fa">&#xf00d;</i></div>
+      </div>
+      <div class="tabs" id="tabs"></div>
+      <div class="subtabs" id="subtabs"></div>
+      <div class="searchbar" id="searchbar">
+        <i class="fa">&#xf002;</i>
+        <input id="search" placeholder="Search modules…">
+      </div>
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+  <script src="bridge.js?v=27"></script>
+  <script src="modmenu.js?v=27"></script>
+</body>
+</html>

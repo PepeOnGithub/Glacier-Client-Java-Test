@@ -57,9 +57,10 @@ public class ComboCounter extends HUDMod {
         alpha = Math.max(0f, Math.min(1f, alpha));
         int alphaInt = (int)(alpha * 255) << 24;
         int color = (comboColor.getValue() & 0x00FFFFFF) | alphaInt;
-        context.drawText(mc.textRenderer, "Combo: " + combo, getX() + 2, getY() + 4, color, false);
+        drawBackground(context, getX() + 2, getY() + 4, 80, showRecord.getValue() ? 22 : 9);
+        context.drawText(mc.textRenderer, "Combo: " + combo, getX() + 2, getY() + 4, color, hasShadow());
         if (showRecord.getValue()) {
-            context.drawText(mc.textRenderer, "Best: " + record, getX() + 2, getY() + 16, GlacierTheme.TEXT_DIM, false);
+            context.drawText(mc.textRenderer, "Best: " + record, getX() + 2, getY() + 16, GlacierTheme.TEXT_DIM, hasShadow());
         }
     }
 }

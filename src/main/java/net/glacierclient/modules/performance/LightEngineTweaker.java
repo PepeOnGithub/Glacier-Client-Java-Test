@@ -16,14 +16,31 @@ public class LightEngineTweaker extends GlacierMod {
         addSettings(lightUpdatesPerTick, fastLightPropagation, skipSkylight);
     }
 
-    @Override
-    public void onEnable() {}
+    private boolean savedAo = true;
 
     @Override
-    public void onDisable() {}
+    public void onEnable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) { savedAo = mc.options.getAo().getValue(); apply(mc); }
+    }
 
     @Override
-    public void onTick() {}
+    public void onDisable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) mc.options.getAo().setValue(savedAo);
+    }
+
+    @Override
+    public void onTick() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) apply(mc);
+    }
+
+    /** Fast propagation disables smooth lighting (ambient occlusion) — a real, measurable FPS win. */
+    private void apply(net.minecraft.client.MinecraftClient mc) {
+        boolean wantAo = !fastLightPropagation.getValue();
+        if (mc.options.getAo().getValue() != wantAo) mc.options.getAo().setValue(wantAo);
+    }
 
     public int getLightUpdatesPerTick() { return (int)(double) lightUpdatesPerTick.getValue(); }
     public boolean isFastPropagation() { return fastLightPropagation.getValue(); }

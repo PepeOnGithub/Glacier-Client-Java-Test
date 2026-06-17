@@ -36,7 +36,13 @@ public class ProfileManagerMod extends GlacierMod {
     public void onTick() {}
 
     public void saveCurrentProfile() {
-        // Profile save logic handled by config system
+        // Profile save logic handled by config system.
+        if (cloudSync.getValue()) {
+            // Cloud Sync: mirror the saved profile through ConfigCloudSync when it's active.
+            var sync = net.glacierclient.GlacierClient.getInstance().getModuleManager()
+                    .getModule(net.glacierclient.modules.qol.ConfigCloudSync.class);
+            if (sync != null && sync.isEnabled()) sync.sync();
+        }
     }
 
     public void loadProfile(String name) {

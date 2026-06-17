@@ -17,6 +17,7 @@ public final class ElytraFlightMod extends GlacierMod {
         float yaw = (float) Math.toRadians(mc.player.getYaw());
         float pitch = (float) Math.toRadians(mc.player.getPitch());
         double s = speed.get() * 0.05;
+        if (boost.get() && mc.player.isSneaking()) s *= 2.0; // sneak boost
         mc.player.addVelocity(-Math.sin(yaw) * Math.cos(pitch) * s, -Math.sin(pitch) * s, Math.cos(yaw) * Math.cos(pitch) * s);
     }
 }

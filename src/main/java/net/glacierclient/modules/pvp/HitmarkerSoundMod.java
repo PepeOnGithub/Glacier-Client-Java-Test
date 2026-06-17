@@ -1,5 +1,7 @@
 package net.glacierclient.modules.pvp;
 
+import net.glacierclient.core.event.EventListen;
+import net.glacierclient.core.event.events.AttackEntityEvent;
 import net.glacierclient.core.module.GlacierMod;
 import net.glacierclient.core.module.Category;
 import net.glacierclient.core.settings.BooleanSetting;
@@ -29,12 +31,24 @@ public class HitmarkerSoundMod extends GlacierMod {
     @Override
     public void onTick() {}
 
+    /** Plays the configured hitmarker sound whenever the local player lands a melee attack. */
+    @EventListen
+    public void onAttack(AttackEntityEvent event) {
+        playHitSound(true);
+    }
+
     public void playHitSound(boolean didDamage) {
         if (onlyOnDamage.getValue() && !didDamage) return;
-        if ("Silent".equals(sound.getValue())) return;
+        String mode = sound.getValue();
+        if ("Silent".equals(mode)) return;
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.getSoundManager() == null) return;
         float vol = (float)(double) volume.getValue();
-        mc.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f + (float)Math.random() * 0.1f, vol));
+        float pitch = switch (mode) {
+            case "Modern" -> 1.4f;
+            case "Subtle" -> 1.9f;
+            default        -> 1.0f + (float) Math.random() * 0.1f;
+        };
+        mc.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, pitch, vol));
     }
 }

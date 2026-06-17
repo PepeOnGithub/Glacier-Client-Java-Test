@@ -8,4 +8,9 @@ public final class ChatAnimationsMod extends GlacierMod {
         super("ChatAnimations", "Animates chat messages as they appear", Category.QOL, -1);
         addSettings(style, speed);
     }
+
+    /** "Slide" | "Fade" | "Pop". */
+    public String getStyle() { return style.getValue(); }
+    /** Animation duration in milliseconds. */
+    public double getDurationMs() { return speed.getValue(); }
 }

@@ -7,4 +7,6 @@ public final class TimerMod extends GlacierMod {
         super("Timer", "Modifies the game timer speed", Category.ADVANCED, -1);
         addSettings(speed);
     }
+    /** Game-speed multiplier (1.0 = normal). */
+    public float getSpeed() { return (float) speed.get(); }
 }

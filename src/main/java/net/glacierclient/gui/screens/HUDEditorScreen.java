@@ -5,7 +5,9 @@ import net.glacierclient.core.hud.HUDEditor;
 import net.glacierclient.core.hud.HUDMod;
 import net.glacierclient.core.hud.HUDProfile;
 import net.glacierclient.core.theme.GlacierTheme;
+import net.glacierclient.core.util.GuiTextures;
 import net.glacierclient.core.util.RenderUtil;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
@@ -46,6 +48,7 @@ public class HUDEditorScreen extends Screen {
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
         // Dark transparent overlay
+        if (GuiTextures.has("BG")) GuiTextures.fullscreen(ctx, "BG", width, height);
         ctx.fill(0, 0, width, height, 0xCC101214);
 
         if (showGrid) renderGrid(ctx);
@@ -84,7 +87,7 @@ public class HUDEditorScreen extends Screen {
 
             // Draw element box
             int bg = sel ? GlacierTheme.ACCENT_BG : (hov ? GlacierTheme.BG_ITEM_HOVER : GlacierTheme.BG_ITEM);
-            RenderUtil.drawRoundedRect(ctx, ex, ey, ew, eh, GlacierTheme.RADIUS_SM, bg);
+            GuiTextures.rect(ctx, "secondary_bg", ex, ey, ew, eh, bg);
 
             // Outline
             int borderColor = sel ? GlacierTheme.ACCENT : (hov ? GlacierTheme.ACCENT_GLOW : 0x33FFFFFF);
@@ -98,7 +101,7 @@ public class HUDEditorScreen extends Screen {
             if (hov || sel) {
                 int hx = ex + ew - HANDLE_SIZE;
                 int hy = ey + eh - HANDLE_SIZE;
-                ctx.fill(hx, hy, hx + HANDLE_SIZE, hy + HANDLE_SIZE, GlacierTheme.ACCENT);
+                GuiTextures.rect(ctx, "accent_bg", hx, hy, HANDLE_SIZE, HANDLE_SIZE, GlacierTheme.ACCENT);
                 RenderUtil.drawOutline(ctx, hx, hy, HANDLE_SIZE, HANDLE_SIZE, 1, GlacierTheme.ACCENT_HOVER);
             }
 
@@ -116,16 +119,28 @@ public class HUDEditorScreen extends Screen {
                 }
             }
 
-            // Render the actual HUD element (optional - may depend on HUD impl)
+            // Render the actual HUD element, applying the element's Scale exactly as the in-game HUD
+            // does (scale about its top-left corner) so the editor preview matches the real size.
             try {
-                hud.render(ctx, 0f);
+                float s = hud.getScale();
+                if (s != 1f) {
+                    var ms = ctx.getMatrices();
+                    ms.push();
+                    ms.translate(ex, ey, 0);
+                    ms.scale(s, s, 1f);
+                    ms.translate(-ex, -ey, 0);
+                    hud.render(ctx, 0f);
+                    ms.pop();
+                } else {
+                    hud.render(ctx, 0f);
+                }
             } catch (Exception ignored) {}
         }
     }
 
     private void renderToolbar(DrawContext ctx, int mouseX, int mouseY) {
         // Toolbar background
-        ctx.fill(0, 0, width, TOOLBAR_H, GlacierTheme.BG_PANEL);
+        GuiTextures.rect(ctx, "base_bg", 0, 0, width, TOOLBAR_H, GlacierTheme.BG_PANEL);
         ctx.fill(0, TOOLBAR_H - 1, width, TOOLBAR_H, GlacierTheme.ACCENT_GLOW);
 
         // Title
@@ -137,6 +152,9 @@ public class HUDEditorScreen extends Screen {
 
         // Grid toggle
         renderToolbarBtn(ctx, width / 2 + 60, 5, 60, 20, showGrid ? "Grid ON" : "Grid OFF", mouseX, mouseY);
+
+        // Mod Menu button — the HUD Editor is the primary view; module config opens from here.
+        renderToolbarBtn(ctx, width - 150, 5, 75, 20, "Mod Menu", mouseX, mouseY);
 
         // Done button
         renderToolbarBtn(ctx, width - 70, 5, 60, 20, "Done", mouseX, mouseY);
@@ -151,7 +169,7 @@ public class HUDEditorScreen extends Screen {
     private void renderToolbarBtn(DrawContext ctx, int x, int y, int w, int h, String label, int mouseX, int mouseY) {
         boolean hov = mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h;
         int bg = hov ? GlacierTheme.ACCENT_BG : GlacierTheme.BG_ITEM;
-        RenderUtil.drawRoundedRect(ctx, x, y, w, h, GlacierTheme.RADIUS_SM, bg);
+        GuiTextures.rect(ctx, hov ? "accent_bg" : "secondary_bg", x, y, w, h, bg);
         if (hov) RenderUtil.drawOutline(ctx, x, y, w, h, 1, GlacierTheme.ACCENT_GLOW);
         ctx.drawTextWithShadow(textRenderer, label, x + (w - textRenderer.getWidth(label)) / 2, y + (h - 8) / 2,
                 hov ? GlacierTheme.TEXT : GlacierTheme.TEXT_DIM);
@@ -181,6 +199,11 @@ public class HUDEditorScreen extends Screen {
             // Grid toggle
             if (mx >= width / 2 + 60 && mx <= width / 2 + 120 && my >= 5 && my <= 25) {
                 showGrid = !showGrid;
+                return true;
+            }
+            // Mod Menu
+            if (mx >= width - 150 && mx <= width - 75 && my >= 5 && my <= 25) {
+                MinecraftClient.getInstance().setScreen(new ClickGUIScreen());
                 return true;
             }
             // Done
@@ -249,8 +272,7 @@ public class HUDEditorScreen extends Screen {
             if (Math.abs(cx - width / 2) < SNAP_DIST) newX = width / 2 - dragging.getScaledWidth() / 2;
             if (Math.abs(cy - height / 2) < SNAP_DIST) newY = height / 2 - dragging.getScaledHeight() / 2;
 
-            dragging.setX((float) newX / width);
-            dragging.setY((float) newY / height);
+            dragging.setPositionPixels(newX, newY, width, height);
             return true;
         }
 
@@ -259,6 +281,7 @@ public class HUDEditorScreen extends Screen {
             int dy = my - scaleStartY;
             float delta2 = (dx + dy) / 100.0f;
             scaling.setScale(scaleStartScale + delta2);
+            scaling.setPositionPixels(scaling.getX(width), scaling.getY(height), width, height);
             return true;
         }
 
@@ -291,10 +314,10 @@ public class HUDEditorScreen extends Screen {
         // Arrow key nudge
         if (selectedMod != null) {
             float nudge = (modifiers & GLFW.GLFW_MOD_SHIFT) != 0 ? 10f : 1f;
-            if (keyCode == GLFW.GLFW_KEY_LEFT)  { selectedMod.setX(selectedMod.getXPercent() - nudge / width); return true; }
-            if (keyCode == GLFW.GLFW_KEY_RIGHT) { selectedMod.setX(selectedMod.getXPercent() + nudge / width); return true; }
-            if (keyCode == GLFW.GLFW_KEY_UP)    { selectedMod.setY(selectedMod.getYPercent() - nudge / height); return true; }
-            if (keyCode == GLFW.GLFW_KEY_DOWN)  { selectedMod.setY(selectedMod.getYPercent() + nudge / height); return true; }
+            if (keyCode == GLFW.GLFW_KEY_LEFT)  { selectedMod.setPositionPixels(selectedMod.getX(width) - (int) nudge, selectedMod.getY(height), width, height); return true; }
+            if (keyCode == GLFW.GLFW_KEY_RIGHT) { selectedMod.setPositionPixels(selectedMod.getX(width) + (int) nudge, selectedMod.getY(height), width, height); return true; }
+            if (keyCode == GLFW.GLFW_KEY_UP)    { selectedMod.setPositionPixels(selectedMod.getX(width), selectedMod.getY(height) - (int) nudge, width, height); return true; }
+            if (keyCode == GLFW.GLFW_KEY_DOWN)  { selectedMod.setPositionPixels(selectedMod.getX(width), selectedMod.getY(height) + (int) nudge, width, height); return true; }
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
     }
@@ -305,6 +328,13 @@ public class HUDEditorScreen extends Screen {
 
     private int snapToGrid(int value) {
         return Math.round((float) value / GRID_SIZE) * GRID_SIZE;
+    }
+
+    @Override
+    public void close() {
+        // Persist HUD element positions/scale so the layout survives restarts.
+        GlacierClient.getInstance().getConfigManager().save();
+        super.close();
     }
 
     @Override

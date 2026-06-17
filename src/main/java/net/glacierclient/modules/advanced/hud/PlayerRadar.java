@@ -40,6 +40,7 @@ public class PlayerRadar extends HUDMod {
         players.sort(Comparator.comparingDouble(p -> p.squaredDistanceTo(mc.player)));
         for (PlayerEntity p : players) {
             if (p == mc.player) continue;
+            if (hideTeam.getValue() && mc.player.isTeammate(p)) continue;
             double dist = p.distanceTo(mc.player);
             if (dist <= rad) {
                 nearbyPlayers.add(p.getName().getString());
@@ -54,13 +55,20 @@ public class PlayerRadar extends HUDMod {
         var tr = MinecraftClient.getInstance().textRenderer;
         context.fill(x, y, x + w, y + h, 0xAA1A1A2E);
         context.drawText(tr, "Players: " + nearbyPlayers.size(), x + 4, y + 4, GlacierTheme.ACCENT, true);
+        java.util.Set<String> friends = java.util.Collections.emptySet();
+        if (showFriends.getValue()) {
+            var ft = net.glacierclient.GlacierClient.getInstance().getModuleManager()
+                    .getModule(net.glacierclient.modules.advanced.social.FriendTrackerMod.class);
+            if (ft != null) friends = ft.getFriendNames();
+        }
         int lineY = y + 16;
         for (int i = 0; i < nearbyPlayers.size() && lineY + 10 <= y + h; i++) {
             String name = nearbyPlayers.get(i);
+            boolean friend = friends.contains(name.toLowerCase(java.util.Locale.ROOT));
             String text = showDistance.getValue()
                 ? name + " " + String.format("%.0fm", playerDistances.get(i))
                 : name;
-            context.drawText(tr, text, x + 4, lineY, GlacierTheme.TEXT, false);
+            context.drawText(tr, text, x + 4, lineY, friend ? 0xFF55FF66 : GlacierTheme.TEXT, false);
             lineY += 10;
         }
     }

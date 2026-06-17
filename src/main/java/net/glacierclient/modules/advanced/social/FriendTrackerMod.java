@@ -23,4 +23,14 @@ public final class FriendTrackerMod extends GlacierMod {
     }
     @EventListen
     public void onPlayerLeave(EventPlayerLeave event) { online.remove(event.getPlayerName()); }
+
+    /** Lower-cased set of configured friend names, shared with other modules (e.g. Player Radar). */
+    public Set<String> getFriendNames() {
+        Set<String> set = new HashSet<>();
+        for (String s : friends.get().split(",")) {
+            s = s.trim().toLowerCase(Locale.ROOT);
+            if (!s.isEmpty()) set.add(s);
+        }
+        return set;
+    }
 }

@@ -32,9 +32,18 @@ public class ElytraFlightPathProjector extends HUDMod {
         if (!show.getValue()) return;
 
         context.fill(x, y, x + w, y + h, 0xCC1E1E2E);
-        context.drawTextWithShadow(mc.textRenderer,
-            "ETA: " + (int)(double) lookAhead.getValue() + "s",
-            x + 4, y + 5,
-            lineColor.getValue());
+
+        // Sample trajectory line, rendered at the configured width.
+        int lw = Math.max(1, (int) Math.round((double) lineWidth.getValue()));
+        int ly = y + h - 4;
+        context.fill(x + 4, ly - lw / 2, x + w - 4, ly + (lw + 1) / 2, lineColor.getValue());
+
+        String t = "ETA: " + (int)(double) lookAhead.getValue() + "s";
+        if (groundIndicator.getValue() && mc.player != null) {
+            double hs = Math.hypot(mc.player.getVelocity().x, mc.player.getVelocity().z);
+            int dist = (int) (hs * 20 * (double) lookAhead.getValue());
+            t += "  Land ~" + dist + "m";
+        }
+        context.drawTextWithShadow(mc.textRenderer, t, x + 4, y + 5, lineColor.getValue());
     }
 }

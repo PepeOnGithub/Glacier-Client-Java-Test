@@ -2,6 +2,7 @@ package net.glacierclient.mixin;
 
 import net.glacierclient.gui.screens.GlacierPauseScreen;
 import net.glacierclient.gui.screens.GlacierTitleScreen;
+import net.glacierclient.web.GlacierWebScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.GameMenuScreen;
 import net.minecraft.client.gui.screen.Screen;
@@ -24,10 +25,12 @@ public class MixinMinecraftClient {
         MinecraftClient mc = (MinecraftClient) (Object) this;
         if (screen.getClass() == TitleScreen.class) {
             ci.cancel();
-            mc.setScreen(new GlacierTitleScreen());
+            // Web UI first (shows a brief loading state while natives unpack on first launch); the
+            // native Glacier screen is the fallback if the engine can't start on this machine.
+            mc.setScreen(GlacierWebScreen.forPage("title.html", new GlacierTitleScreen()));
         } else if (screen.getClass() == GameMenuScreen.class) {
             ci.cancel();
-            mc.setScreen(new GlacierPauseScreen());
+            mc.setScreen(GlacierWebScreen.forPage("pause.html", new GlacierPauseScreen()));
         }
     }
 }

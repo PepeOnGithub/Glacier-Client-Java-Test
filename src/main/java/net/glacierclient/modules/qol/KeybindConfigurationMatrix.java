@@ -38,5 +38,8 @@ public class KeybindConfigurationMatrix extends GlacierMod {
         keyMap.put(keyCode, modName);
     }
 
-    public Map<Integer, String> getKeyMap() { return keyMap; }
+    /** When "Show In GUI" is off, keybinds are hidden from the module GUI (empty map exposed). */
+    public Map<Integer, String> getKeyMap() {
+        return showInGUI.getValue() ? keyMap : java.util.Collections.emptyMap();
+    }
 }

@@ -43,6 +43,8 @@ public class ServerIPDisplay extends HUDMod {
         } else {
             display = ip;
         }
-        context.drawText(mc.textRenderer, "IP: " + display, getX() + 2, getY() + 4, GlacierTheme.TEXT, false);
+        String text = "IP: " + display;
+        drawBackground(context, getX() + 2, getY() + 4, mc.textRenderer.getWidth(text), 9);
+        context.drawText(mc.textRenderer, text, getX() + 2, getY() + 4, getTextColor(), hasShadow());
     }
 }

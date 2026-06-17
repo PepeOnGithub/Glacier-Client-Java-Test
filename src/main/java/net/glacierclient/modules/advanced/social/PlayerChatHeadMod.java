@@ -8,4 +8,7 @@ public final class PlayerChatHeadMod extends GlacierMod {
         super("PlayerChatHead", "Shows player skin head icon next to chat messages", Category.QOL, -1);
         addSettings(size, animate);
     }
+
+    public int getSize() { return (int)(double) size.getValue(); }
+    public boolean isAnimate() { return animate.getValue(); }
 }

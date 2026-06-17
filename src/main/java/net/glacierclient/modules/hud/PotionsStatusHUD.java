@@ -36,20 +36,32 @@ public class PotionsStatusHUD extends HUDMod {
         if (mc.textRenderer == null || mc.player == null) return;
         Collection<StatusEffectInstance> effects = mc.player.getStatusEffects();
         int x = getX() + 2, y = getY() + 2;
+        if (!effects.isEmpty()) drawBackground(context, x, y, getWidth() - 4, Math.min(effects.size(), getHeight() / 10) * 10);
+        String mode = style.getValue();
+        boolean showIcon = mode.equals("Icons") || mode.equals("Both");
+        boolean showText = mode.equals("Text") || mode.equals("Both");
         for (StatusEffectInstance effect : effects) {
-            StringBuilder sb = new StringBuilder();
-            String name = effect.getEffectType().getName().getString();
-            sb.append(name);
-            if (showAmplifier.getValue() && effect.getAmplifier() > 0)
-                sb.append(" ").append(effect.getAmplifier() + 1);
-            if (showDuration.getValue()) {
-                int ticks = effect.getDuration();
-                if (ticks < 32767) {
-                    int secs = ticks / 20;
-                    sb.append(String.format(" %d:%02d", secs / 60, secs % 60));
-                }
+            int tx = x;
+            if (showIcon) {
+                int c = 0xFF000000 | (effect.getEffectType().getColor() & 0xFFFFFF);
+                context.fill(x, y, x + 8, y + 8, c);
+                context.drawBorder(x, y, 8, 8, 0x40FFFFFF);
+                tx = x + 11;
             }
-            context.drawText(mc.textRenderer, sb.toString(), x, y, GlacierTheme.TEXT, false);
+            if (showText) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(effect.getEffectType().getName().getString());
+                if (showAmplifier.getValue() && effect.getAmplifier() > 0)
+                    sb.append(" ").append(effect.getAmplifier() + 1);
+                if (showDuration.getValue()) {
+                    int ticks = effect.getDuration();
+                    if (ticks < 32767) {
+                        int secs = ticks / 20;
+                        sb.append(String.format(" %d:%02d", secs / 60, secs % 60));
+                    }
+                }
+                context.drawText(mc.textRenderer, sb.toString(), tx, y, getTextColor(), hasShadow());
+            }
             y += 10;
             if (y > getY() + getHeight() - 2) break;
         }

@@ -19,39 +19,10 @@ public final class IconTextures {
     private IconTextures() {}
 
     /** Module display name (alnum slug) -> icon file name (without extension). */
+    // Every module now ships a dedicated <slug>.png (one unique icon per module), so resolution is
+    // simply slug -> same-named file. This alias map stays empty unless a module needs to point at a
+    // differently-named shared icon.
     private static final Map<String, String> ALIAS = new HashMap<>();
-    static {
-        ALIAS.put("armorstatushud", "armorhud");
-        ALIAS.put("fpsdisplay", "fpscounter");
-        ALIAS.put("coordinateshud", "coordinates");
-        ALIAS.put("coordinates", "coordinates");
-        ALIAS.put("directionhud", "directionhud");
-        ALIAS.put("speedometer", "speedometer");
-        ALIAS.put("targethud", "targethud");
-        ALIAS.put("clockmod", "clockcompass");
-        ALIAS.put("serveripdisplay", "serverdisplay");
-        ALIAS.put("potionsstatushud", "shinypotions");
-        ALIAS.put("itemtracker", "itemcounters");
-        ALIAS.put("sessiontimer", "timerhud");
-        ALIAS.put("gametimehud", "daysplayed");
-        ALIAS.put("memoryusagehud", "debughud");
-        ALIAS.put("packdisplay", "store");
-        ALIAS.put("reachdisplay", "walkdistance");
-        ALIAS.put("combocounter", "slotcounter");
-        ALIAS.put("bowindicator", "bowindicator");
-        ALIAS.put("chatcustomizer", "chat");
-        ALIAS.put("minimapmodule", "chunkmap");
-        ALIAS.put("biomeindicator", "safezoneviewer");
-        ALIAS.put("entitycounter", "mobindicator");
-        ALIAS.put("playerradar", "playerlist");
-        ALIAS.put("inventorypeekhud", "inventoryhud");
-        ALIAS.put("helditemlargedisplay", "mainhandhud");
-        ALIAS.put("weapondurabilitywarning", "lowdurability");
-        ALIAS.put("scoreboardcustomizer", "statushud");
-        ALIAS.put("lightlevelmapper", "safezoneviewer");
-        ALIAS.put("totemcounthud", "slotcounter");
-        ALIAS.put("arrowcountnotifier", "itemcounters");
-    }
 
     private static final Map<String, Identifier> CACHE = new HashMap<>();
     private static final Map<String, Boolean> PRESENT = new HashMap<>();

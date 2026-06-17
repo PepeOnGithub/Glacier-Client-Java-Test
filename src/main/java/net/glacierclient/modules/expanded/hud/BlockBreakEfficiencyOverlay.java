@@ -33,12 +33,20 @@ public class BlockBreakEfficiencyOverlay extends HUDMod {
 
         context.fill(x, y, x + w, y + h, 0xCC1E1E2E);
 
-        StringBuilder sb = new StringBuilder();
-        if (showBPS.getValue()) sb.append("BPS: 3.2 ");
-        if (showEfficiency.getValue()) sb.append("Eff: 85% ");
-        if (showEnchantBonus.getValue()) sb.append("+Eff5");
+        int effLvl = 0;
+        if (mc.player != null) {
+            effLvl = net.minecraft.enchantment.EnchantmentHelper.getLevel(
+                net.minecraft.enchantment.Enchantments.EFFICIENCY, mc.player.getMainHandStack());
+        }
+        boolean good = effLvl >= 3;
+        float bps = 1.0f + effLvl * 0.65f; // proxy: each Efficiency level speeds mining
 
-        int col = showEfficiency.getValue() ? goodColor.getValue() : GlacierTheme.TEXT;
+        StringBuilder sb = new StringBuilder();
+        if (showBPS.getValue()) sb.append(String.format("BPS: %.1f ", bps));
+        if (showEfficiency.getValue()) sb.append(good ? "Eff: High " : "Eff: Low ");
+        if (showEnchantBonus.getValue()) sb.append("+Eff").append(effLvl);
+
+        int col = showEfficiency.getValue() ? (good ? goodColor.getValue() : badColor.getValue()) : GlacierTheme.TEXT;
         context.drawTextWithShadow(mc.textRenderer, sb.toString().trim(), x + 4, y + 10, col);
     }
 }

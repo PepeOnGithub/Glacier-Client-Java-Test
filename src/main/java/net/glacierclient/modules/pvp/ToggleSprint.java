@@ -12,6 +12,7 @@ public class ToggleSprint extends GlacierMod {
     private final BooleanSetting sprintWhileBlocking = new BooleanSetting("Sprint While Blocking", "Sprint while holding a shield", false);
 
     private boolean toggled = false;
+    private boolean prevSprintPressed = false;
 
     public ToggleSprint() {
         super("Toggle Sprint", "Hold sprint key to always sprint", Category.PVP);
@@ -32,6 +33,15 @@ public class ToggleSprint extends GlacierMod {
     public void onTick() {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
+        if (toggleMode.getValue()) {
+            // Press-to-toggle: each fresh press of the sprint key flips persistent sprint.
+            boolean pressed = mc.options.sprintKey.isPressed();
+            if (pressed && !prevSprintPressed) toggled = !toggled;
+            prevSprintPressed = pressed;
+            if (!toggled) return;
+        } else {
+            toggled = false;
+        }
         boolean shouldSprint = true;
         if (!sprintInWater.getValue() && mc.player.isTouchingWater()) shouldSprint = false;
         if (!sprintWhileBlocking.getValue() && mc.player.isBlocking()) shouldSprint = false;

@@ -11,16 +11,27 @@ public class ModelRenderingCache extends GlacierMod {
     private final BooleanSetting cacheMobModels = new BooleanSetting("Cache Mob Models", "Cache mob model renders", true);
     private final NumberSetting cacheLifetime = new NumberSetting("Cache Lifetime", "Cache entry lifetime (seconds)", 1, 300, 30);
 
+    private boolean savedShadows = true;
+
     public ModelRenderingCache() {
-        super("Model Rendering Cache", "Cache entity model renders for performance", Category.PERFORMANCE);
+        super("Model Rendering Cache", "Drops per-entity blob shadows to cut model render cost", Category.PERFORMANCE);
         addSettings(cachePlayerModels, cacheMobModels, cacheLifetime);
     }
 
     @Override
-    public void onEnable() {}
+    public void onEnable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) {
+            savedShadows = mc.options.getEntityShadows().getValue();
+            mc.options.getEntityShadows().setValue(false);
+        }
+    }
 
     @Override
-    public void onDisable() {}
+    public void onDisable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) mc.options.getEntityShadows().setValue(savedShadows);
+    }
 
     @Override
     public void onTick() {}

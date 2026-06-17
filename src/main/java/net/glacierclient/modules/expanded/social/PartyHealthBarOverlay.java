@@ -37,6 +37,7 @@ public class PartyHealthBarOverlay extends HUDMod {
 
         for (int i = 0; i < members && lineY + 10 <= y + h; i++) {
             float hp = 1.0f - (i * 0.15f);
+            int armor = Math.max(0, 20 - i * 4);
             context.drawTextWithShadow(mc.textRenderer, "P" + (i + 1), x + 4, lineY, GlacierTheme.TEXT);
 
             if (showHealth.getValue() && ("Bars".equals(style.getValue()) || "Both".equals(style.getValue()))) {
@@ -47,6 +48,9 @@ public class PartyHealthBarOverlay extends HUDMod {
                 context.drawTextWithShadow(mc.textRenderer,
                     String.format("%.0f%%", hp * 100),
                     x + w - 30, lineY, GlacierTheme.TEXT);
+            }
+            if (showArmor.getValue()) {
+                context.drawTextWithShadow(mc.textRenderer, "[" + armor + "]", x + w - 58, lineY, 0xFF9DB2CE);
             }
             lineY += 10;
         }

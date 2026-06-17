@@ -27,6 +27,8 @@ public final class GuiCustomization {
 
     private final Map<String, CardStyle> styles = new HashMap<>();
     public int globalAccent = 0xFF7289DA;
+    /** Mod-menu scale multiplier (1.0 = default). Clamped to a sane range on use. */
+    public float guiScale = 1.0f;
 
     private GuiCustomization() { load(); }
 
@@ -46,6 +48,7 @@ public final class GuiCustomization {
         try {
             JsonObject root = JsonParser.parseString(Files.readString(FILE)).getAsJsonObject();
             if (root.has("globalAccent")) globalAccent = root.get("globalAccent").getAsInt();
+            if (root.has("guiScale")) guiScale = root.get("guiScale").getAsFloat();
             if (root.has("cards")) {
                 JsonObject cards = root.getAsJsonObject("cards");
                 for (String key : cards.keySet()) {
@@ -70,6 +73,7 @@ public final class GuiCustomization {
             Files.createDirectories(FILE.getParent());
             JsonObject root = new JsonObject();
             root.addProperty("globalAccent", globalAccent);
+            root.addProperty("guiScale", guiScale);
             JsonObject cards = new JsonObject();
             for (Map.Entry<String, CardStyle> e : styles.entrySet()) {
                 CardStyle s = e.getValue();

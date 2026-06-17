@@ -38,10 +38,12 @@ public class ClockMod extends HUDMod {
         String timeFmt = is12h ? (showSeconds.getValue() ? "hh:mm:ss a" : "hh:mm a") : (showSeconds.getValue() ? "HH:mm:ss" : "HH:mm");
         String timeStr = new SimpleDateFormat(timeFmt).format(new Date());
         int y = getY() + 4;
-        context.drawText(mc.textRenderer, timeStr, getX() + 2, y, GlacierTheme.TEXT, false);
+        int w = Math.max(mc.textRenderer.getWidth(timeStr), showDate.getValue() ? 60 : 0);
+        drawBackground(context, getX() + 2, y, w, showDate.getValue() ? 19 : 9);
+        context.drawText(mc.textRenderer, timeStr, getX() + 2, y, getTextColor(), hasShadow());
         if (showDate.getValue()) {
             String dateStr = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
-            context.drawText(mc.textRenderer, dateStr, getX() + 2, y + 10, GlacierTheme.TEXT_DIM, false);
+            context.drawText(mc.textRenderer, dateStr, getX() + 2, y + 10, GlacierTheme.TEXT_DIM, hasShadow());
         }
     }
 }

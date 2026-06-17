@@ -38,9 +38,10 @@ public class MemoryUsageHUD extends HUDMod {
         int x = getX() + 2, y = getY() + 2;
         boolean showText = "Text".equals(style.getValue()) || "Both".equals(style.getValue());
         boolean showBar = "Bar".equals(style.getValue()) || "Both".equals(style.getValue());
+        drawBackground(context, x, y, getWidth() - 4, (showText ? 10 : 0) + (showBar ? 6 : 0));
         if (showText) {
             String text = used + "MB" + (showMax.getValue() ? " / " + max + "MB" : "");
-            context.drawText(mc.textRenderer, text, x, y, GlacierTheme.TEXT, false);
+            context.drawText(mc.textRenderer, text, x, y, getTextColor(), hasShadow());
             y += 10;
         }
         if (showBar) {

@@ -2,6 +2,7 @@ package net.glacierclient.core.config;
 
 import com.google.gson.*;
 import net.glacierclient.GlacierClient;
+import net.glacierclient.core.hud.HUDMod;
 import net.glacierclient.core.module.GlacierMod;
 import net.glacierclient.core.settings.*;
 
@@ -22,6 +23,11 @@ public class ConfigManager {
                 JsonObject modObj = new JsonObject();
                 modObj.addProperty("enabled", mod.isEnabled());
                 modObj.addProperty("keybind", mod.getKeybind());
+                if (mod instanceof HUDMod hud) {
+                    modObj.addProperty("hudX", hud.getXPercent());
+                    modObj.addProperty("hudY", hud.getYPercent());
+                    modObj.addProperty("hudVisible", hud.isVisible());
+                }
                 JsonObject settingsObj = new JsonObject();
                 for (Setting<?> setting : mod.getSettings()) {
                     settingsObj.addProperty(setting.getName(), String.valueOf(setting.getValue()));
@@ -45,6 +51,11 @@ public class ConfigManager {
                 JsonObject modObj = root.getAsJsonObject(mod.getName());
                 if (modObj.has("enabled")) mod.setEnabled(modObj.get("enabled").getAsBoolean());
                 if (modObj.has("keybind")) mod.setKeybind(modObj.get("keybind").getAsInt());
+                if (mod instanceof HUDMod hud) {
+                    if (modObj.has("hudX")) hud.setX(modObj.get("hudX").getAsFloat());
+                    if (modObj.has("hudY")) hud.setY(modObj.get("hudY").getAsFloat());
+                    if (modObj.has("hudVisible")) hud.setVisible(modObj.get("hudVisible").getAsBoolean());
+                }
                 if (modObj.has("settings")) {
                     JsonObject settingsObj = modObj.getAsJsonObject("settings");
                     for (Setting<?> setting : mod.getSettings()) {

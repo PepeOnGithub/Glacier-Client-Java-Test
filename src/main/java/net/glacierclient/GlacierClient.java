@@ -9,6 +9,7 @@ import net.glacierclient.core.event.EventBus;
 import net.glacierclient.core.module.GlacierMod;
 import net.glacierclient.core.module.ModuleManager;
 import net.glacierclient.gui.ClickGUI;
+import net.glacierclient.gui.screens.HUDEditorScreen;
 import net.glacierclient.gui.notification.NotificationSystem;
 import net.glacierclient.modules.render.Zoom;
 import net.minecraft.client.MinecraftClient;
@@ -40,6 +41,7 @@ public class GlacierClient implements ClientModInitializer {
     // zoom state
     private boolean zooming;
     private int savedFov;
+    private double zoomFov;   // eased FOV while zooming (for smooth in/out)
     // module keybind edge-detection
     private final Set<GlacierMod> keyDown = new HashSet<>();
 
@@ -54,16 +56,35 @@ public class GlacierClient implements ClientModInitializer {
         clickGUI = new ClickGUI();
         configManager.load();
 
+        // Unpack the bundled Ultralight natives immediately (background) so the web UI is ready by the
+        // time the first title screen appears — no second launch needed.
+        net.glacierclient.web.UltralightManager.get().prefetch();
+
         openGuiKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.glacierclient.open_gui", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_RIGHT_SHIFT, "category.glacierclient"));
         zoomKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.glacierclient.zoom", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_C, "category.glacierclient"));
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            while (openGuiKey.wasPressed()) clickGUI.open();
+            repairGamma(client); // one-shot: heal options.txt corrupted by the old Fullbright
+            while (openGuiKey.wasPressed()) client.setScreen(new HUDEditorScreen());
             handleModuleKeybinds(client);
             handleZoom(client);
         });
+    }
+
+    private boolean gammaRepaired = false;
+    /** Older builds wrote gamma=100 into the vanilla option (valid range 0..1), spamming the log and
+     *  corrupting options.txt. Clamp it back to a sane value once at startup. */
+    private void repairGamma(MinecraftClient client) {
+        if (gammaRepaired || client.options == null) return;
+        try {
+            if (client.options.getGamma().getValue() > 1.0) {
+                client.options.getGamma().setValue(1.0);
+                client.options.write();
+            }
+        } catch (Throwable ignored) {}
+        gammaRepaired = true;
     }
 
     /** Toggle modules whose user-assigned key was just pressed (ignored while a screen is open). */
@@ -86,14 +107,23 @@ public class GlacierClient implements ClientModInitializer {
         Zoom zoom = moduleManager.getModule(Zoom.class);
         boolean held = zoom != null && zoom.isEnabled() && zoomKey.isPressed() && client.currentScreen == null;
         if (held) {
-            if (!zooming) { savedFov = client.options.getFov().getValue(); zooming = true; }
-            int target = Math.max(1, (int) Math.round(savedFov / zoom.getDivisor()));
-            client.options.getFov().setValue(target);
+            if (!zooming) { savedFov = client.options.getFov().getValue(); zooming = true; zoomFov = savedFov; zoom.resetDynamic(); }
+            double target = Math.max(1.0, savedFov / zoom.getDivisor());
+            zoomFov = zoom.isSmooth() ? zoomFov + (target - zoomFov) * 0.5 : target;
+            client.options.getFov().setValue((int) Math.round(zoomFov));
         } else if (zooming) {
-            client.options.getFov().setValue(savedFov);
-            zooming = false;
+            // smoothly restore, then release ownership of the FOV option
+            if (zoom != null && zoom.isSmooth() && Math.abs(zoomFov - savedFov) > 0.75) {
+                zoomFov += (savedFov - zoomFov) * 0.5;
+                client.options.getFov().setValue((int) Math.round(zoomFov));
+            } else {
+                client.options.getFov().setValue(savedFov);
+                zooming = false;
+            }
         }
     }
+
+    public boolean isZooming() { return zooming; }
 
     public static GlacierClient getInstance() { return instance; }
     public EventBus getEventBus() { return eventBus; }

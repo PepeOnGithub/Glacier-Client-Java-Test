@@ -41,6 +41,8 @@ public class GameTimeHUD extends HUDMod {
         if ("Ticks".equals(fmt)) sb.append(dayTick).append("t");
         else if ("Time".equals(fmt)) sb.append(String.format("%02d:%02d", h, m));
         else sb.append(dayTick).append("t ").append(String.format("%02d:%02d", h, m));
-        context.drawText(mc.textRenderer, sb.toString(), getX() + 2, getY() + 4, GlacierTheme.TEXT, false);
+        String text = sb.toString();
+        drawBackground(context, getX() + 2, getY() + 4, mc.textRenderer.getWidth(text), 9);
+        context.drawText(mc.textRenderer, text, getX() + 2, getY() + 4, getTextColor(), hasShadow());
     }
 }

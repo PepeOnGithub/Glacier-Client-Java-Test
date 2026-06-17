@@ -43,6 +43,7 @@ public class ReachDisplay extends HUDMod {
         int dp = (int)(double) decimalPlaces.getValue();
         String fmt = "Reach: %." + dp + "f blocks";
         String text = String.format(fmt, lastReach);
-        context.drawText(mc.textRenderer, text, getX() + 2, getY() + 4, GlacierTheme.TEXT, false);
+        drawBackground(context, getX() + 2, getY() + 4, mc.textRenderer.getWidth(text), 9);
+        context.drawText(mc.textRenderer, text, getX() + 2, getY() + 4, getTextColor(), hasShadow());
     }
 }

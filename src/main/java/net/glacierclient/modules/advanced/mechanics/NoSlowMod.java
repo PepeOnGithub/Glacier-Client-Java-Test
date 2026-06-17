@@ -16,5 +16,11 @@ public final class NoSlowMod extends GlacierMod {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null) return;
         if (eatingDrinking.get() && mc.player.isUsingItem()) event.setMultiplier(1.0f);
+        if (inWater.get() && (mc.player.isTouchingWater() || mc.player.isSubmergedInWater())) event.setMultiplier(1.0f);
+        if (soulsand.get() && mc.world != null) {
+            var below = mc.world.getBlockState(mc.player.getBlockPos().down()).getBlock();
+            if (below == net.minecraft.block.Blocks.SOUL_SAND || below == net.minecraft.block.Blocks.HONEY_BLOCK)
+                event.setMultiplier(1.0f);
+        }
     }
 }

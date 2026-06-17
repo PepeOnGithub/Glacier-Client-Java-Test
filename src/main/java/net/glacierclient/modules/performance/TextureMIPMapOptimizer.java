@@ -16,18 +16,27 @@ public class TextureMIPMapOptimizer extends GlacierMod {
         addSettings(mipMapLevel, anisotropicFiltering, anisoLevel);
     }
 
-    @Override
-    public void onEnable() { applySettings(); }
+    private int savedMip = 4;
 
     @Override
-    public void onDisable() {}
+    public void onEnable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) savedMip = mc.options.getMipmapLevels().getValue();
+        applySettings();
+    }
 
     @Override
-    public void onTick() {}
+    public void onDisable() {
+        net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
+        if (mc.options != null) mc.options.getMipmapLevels().setValue(savedMip);
+    }
+
+    @Override
+    public void onTick() { applySettings(); }
 
     private void applySettings() {
         net.minecraft.client.MinecraftClient mc = net.minecraft.client.MinecraftClient.getInstance();
-        if (mc.options != null) {
+        if (mc.options != null && mc.options.getMipmapLevels().getValue() != (int)(double) mipMapLevel.getValue()) {
             mc.options.getMipmapLevels().setValue((int)(double) mipMapLevel.getValue());
         }
     }

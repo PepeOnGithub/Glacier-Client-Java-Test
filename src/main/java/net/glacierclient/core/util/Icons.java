@@ -249,8 +249,25 @@ public final class Icons {
         ctx.drawTextWithShadow(tr, letter, cx - tr.getWidth(letter) / 2, cy - 4, color);
     }
 
-    /** Settings gear used on cards. */
+    private static final net.minecraft.util.Identifier SETTINGS =
+        new net.minecraft.util.Identifier("glacierclient", "textures/common/settings.png");
+    private static Boolean settingsPresent = null;
+
+    /**
+     * Settings gear used on cards. Draws the {@code common/settings.png} texture centred on
+     * (cx, cy) sized to the gear radius, falling back to the vector gear if the asset is missing.
+     */
     public static void gear(DrawContext ctx, int cx, int cy, int r, int color) {
+        if (settingsPresent == null) {
+            settingsPresent = net.minecraft.client.MinecraftClient.getInstance()
+                .getResourceManager().getResource(SETTINGS).isPresent();
+        }
+        if (settingsPresent) {
+            int size = (r + 2) * 2; // match the vector gear's outer extent (ring + teeth)
+            com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+            ctx.drawTexture(SETTINGS, cx - size / 2, cy - size / 2, 0f, 0f, size, size, size, size);
+            return;
+        }
         ring(ctx, cx, cy, r, 2, color);
         disc(ctx, cx, cy, Math.max(1, r / 3), color);
         // teeth
@@ -258,6 +275,29 @@ public final class Icons {
         rect(ctx, cx - 1, cy + r - 2, 2, 4, color);
         rect(ctx, cx - r - 2, cy - 1, 4, 2, color);
         rect(ctx, cx + r - 2, cy - 1, 4, 2, color);
+    }
+
+    private static final net.minecraft.util.Identifier LOGO =
+        new net.minecraft.util.Identifier("glacierclient", "textures/logo.png");
+    private static Boolean logoPresent = null;
+
+    /**
+     * Draws the Glacier bear logo PNG centred on (cx, cy) at {@code size} px, falling back to the
+     * vector {@link #bear} mark if the texture asset is unavailable.
+     */
+    public static void bearLogo(DrawContext ctx, int cx, int cy, int size, int color) {
+        if (logoPresent == null) {
+            logoPresent = net.minecraft.client.MinecraftClient.getInstance()
+                .getResourceManager().getResource(LOGO).isPresent();
+        }
+        if (logoPresent) {
+            com.mojang.blaze3d.systems.RenderSystem.enableBlend();
+            int x = cx - size / 2;
+            int y = cy - size / 2;
+            ctx.drawTexture(LOGO, x, y, 0f, 0f, size, size, size, size);
+        } else {
+            bear(ctx, cx, cy, size, color);
+        }
     }
 
     /** Bear-head logo mark for the header. */

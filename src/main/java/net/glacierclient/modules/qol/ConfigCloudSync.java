@@ -37,6 +37,14 @@ public class ConfigCloudSync extends GlacierMod {
     }
 
     public void sync() {
-        // Cloud sync logic - requires valid API key
+        // Cloud sync logic - requires valid API key.
+        String payload = "config";
+        if (encryptData.getValue()) payload = encrypt(payload);
+        // POST payload to the cloud endpoint using apiKey (reserved for backend).
+    }
+
+    private String encrypt(String s) {
+        // Reversible obfuscation placeholder until a real cipher/backend is wired.
+        return java.util.Base64.getEncoder().encodeToString(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 }

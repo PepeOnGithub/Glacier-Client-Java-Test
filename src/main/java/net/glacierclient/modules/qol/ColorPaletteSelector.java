@@ -37,6 +37,8 @@ public class ColorPaletteSelector extends GlacierMod {
     }
 
     public int getAccentColor() {
+        // Sync With Theme: defer to the live theme accent instead of the selected palette.
+        if (syncWithTheme.getValue()) return net.glacierclient.core.theme.GlacierTheme.ACCENT;
         if ("Custom".equals(palette.getValue())) return customAccent.getValue();
         return PALETTES[Math.max(0, java.util.Arrays.asList("Glacier","Neon","Pastel").indexOf(palette.getValue()))][0];
     }

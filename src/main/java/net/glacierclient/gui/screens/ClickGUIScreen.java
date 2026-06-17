@@ -5,17 +5,17 @@ import net.glacierclient.core.cosmetic.Cosmetic;
 import net.glacierclient.core.cosmetic.CosmeticCategory;
 import net.glacierclient.core.customization.CardStyle;
 import net.glacierclient.core.customization.GuiCustomization;
-import net.glacierclient.core.module.Category;
 import net.glacierclient.core.module.GlacierMod;
 import net.glacierclient.core.module.ModuleManager;
 import net.glacierclient.core.settings.*;
 import net.glacierclient.core.theme.GlacierTheme;
 import net.glacierclient.core.util.AnimationUtil;
 import net.glacierclient.core.util.GuiTextures;
+import net.glacierclient.core.util.FontAwesome;
 import net.glacierclient.core.util.Icons;
-import net.glacierclient.core.util.IconTextures;
 import net.glacierclient.core.util.RenderUtil;
 import net.glacierclient.gui.widget.ColorPicker;
+import net.glacierclient.modules.engine.SpotifyMediaBridge;
 import net.glacierclient.modules.render.BossbarCustomizer;
 import net.glacierclient.modules.render.CustomCrosshair;
 import net.minecraft.client.MinecraftClient;
@@ -24,19 +24,22 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
+import com.mojang.blaze3d.systems.RenderSystem;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.BooleanSupplier;
 
 /**
- * Glacier ClickGUI — card-grid layout with top tabs (Modules / Elements / Editors / Music Player),
- * draggable module cards, a floating per-module settings popup, and dedicated editors.
+ * Glacier ClickGUI — card-grid layout with top tabs (Modules / Editors / Spotify) and a tab-row
+ * search bar, draggable module cards, a floating per-module settings popup, and dedicated editors.
  */
 public class ClickGUIScreen extends Screen {
 
-    private enum Tab { MODULES, ELEMENTS, EDITORS, MUSIC }
+    private enum Tab { MODULES, EDITORS, SPOTIFY }
 
     // Layout
     private static final int PAD       = 12;
@@ -49,13 +52,27 @@ public class ClickGUIScreen extends Screen {
 
     private int panelX, panelY, panelW, panelH;
     private Tab activeTab = Tab.MODULES;
+    private long openTime;   // for the open ease-in animation
+
+    // Category (folder) sub-tabs for the Modules view. "all" = no folder filter.
+    private static final int SUBTAB_H = 26;
+    private static final String[] CAT_KEYS   = {"all","hud","render","pvp","performance","qol","advanced","engine","expanded"};
+    private static final String[] CAT_LABELS = {"All","HUD","Render","PvP","Perf","QoL","Advanced","Engine","Expanded"};
+    private String folderFilter = "all";
+    private final java.util.Map<int[], String> catTabHit = new java.util.LinkedHashMap<>(); // hitbox -> key (rebuilt each render)
 
     // search
     private String searchQuery = "";
     private boolean searchFocused = false;
+    private final List<GlacierMod> filteredModules = new ArrayList<>();
+    private String lastFilterQuery = null;
+    private int lastFilterSourceSize = -1;
 
     // grid scroll (pixels) per tab
     private int gridScroll = 0;
+
+    // search bar geometry (lives in the tab row, computed each render)
+    private int searchX, searchY, searchW, searchH;
 
     // drag-to-reorder (Modules tab)
     private GlacierMod pressedCard;
@@ -87,24 +104,30 @@ public class ClickGUIScreen extends Screen {
     private int sliderBarX, sliderBarW;
     private ModeSetting openDropdown;
     private int dropdownX, dropdownY;
-
-    // music player (visual placeholder state)
-    private boolean musicPlaying = false;
+    private StringSetting editingString;   // string setting currently being typed into (null = none)
 
     private static final String[] EMOTES = {"Dab", "Wave", "Spin", "Flex", "Bow"};
 
-    public ClickGUIScreen() {
+    /** Screen to return to when this one closes (e.g. the Glacier title screen). Null = resume game. */
+    private final Screen parent;
+
+    public ClickGUIScreen() { this(null); }
+
+    public ClickGUIScreen(Screen parent) {
         super(Text.literal("Glacier Client"));
+        this.parent = parent;
     }
 
     @Override
     protected void init() {
-        panelW = Math.min(width - 80, 480);
+        panelW = Math.min(width - 80, 400);
         panelH = Math.min(height - 80, 300);
         panelX = (width - panelW) / 2;
         panelY = (height - panelH) / 2;
-        POPUP_W = Math.min(panelW - 16, 270);
-        POPUP_H = Math.min(panelH - 16, 250);
+        // The settings page fills the panel body beneath the header.
+        POPUP_W = panelW - 12;
+        POPUP_H = panelH - HEADER_H - 8;
+        openTime = System.currentTimeMillis();
     }
 
     private ModuleManager modules() { return GlacierClient.getInstance().getModuleManager(); }
@@ -113,9 +136,36 @@ public class ClickGUIScreen extends Screen {
     // RENDER
     // =======================================================================
 
+    /**
+     * Background layer. In-game we draw nothing so the live world shows through (un-dimmed); on the
+     * title/menu (no world) we paint the Glacier bg so the panel doesn't float over the vanilla dirt.
+     */
+    @Override
+    public void renderBackground(DrawContext ctx, int mouseX, int mouseY, float delta) {
+        if (MinecraftClient.getInstance().world == null) {
+            if (GuiTextures.has("bg")) GuiTextures.fullscreen(ctx, "bg", width, height);
+            else ctx.fillGradient(0, 0, width, height, 0xFF14181D, 0xFF0A0C0F);
+        }
+    }
+
     @Override
     public void render(DrawContext ctx, int mouseX, int mouseY, float delta) {
-        ctx.fill(0, 0, width, height, 0xB0000000);
+        renderBackground(ctx, mouseX, mouseY, delta);
+
+        // subtle ease-out scale when the menu opens, multiplied by the user's GUI scale setting.
+        float t = Math.min(1f, (System.currentTimeMillis() - openTime) / 160f);
+        float anim = 1f - (1f - t) * (1f - t); // ease-out quad
+        float scale = guiScale() * (0.96f + 0.04f * anim);
+
+        float cx = panelX + panelW / 2f, cy = panelY + panelH / 2f;
+        ctx.getMatrices().push();
+        ctx.getMatrices().translate(cx, cy, 0);
+        ctx.getMatrices().scale(scale, scale, 1f);
+        ctx.getMatrices().translate(-cx, -cy, 0);
+
+        // Transform the mouse into panel-local space so hover hit-testing matches the scaled render.
+        mouseX = (int) localX(mouseX);
+        mouseY = (int) localY(mouseY);
 
         RenderUtil.drawShadow(ctx, panelX, panelY, panelW, panelH, 6, 0x50000000);
         if (GuiTextures.has("base_bg")) {
@@ -124,75 +174,193 @@ public class ClickGUIScreen extends Screen {
             RenderUtil.drawRoundedRect(ctx, panelX, panelY, panelW, panelH, GlacierTheme.RADIUS_MD, GlacierTheme.BG);
             RenderUtil.drawOutline(ctx, panelX, panelY, panelW, panelH, 1, GlacierTheme.ACCENT_GLOW);
         }
+        // Black edge vignette (Bedrock-style darkened panel edges).
+        RenderUtil.drawEdgeVignette(ctx, panelX, panelY, panelW, panelH, 14, 0x66000000);
 
         renderHeader(ctx, mouseX, mouseY);
-        renderTabs(ctx, mouseX, mouseY);
 
-        switch (activeTab) {
-            case MODULES  -> renderModulesTab(ctx, mouseX, mouseY);
-            case ELEMENTS -> renderElementsTab(ctx, mouseX, mouseY);
-            case EDITORS  -> renderEditorsTab(ctx, mouseX, mouseY);
-            case MUSIC    -> renderMusicTab(ctx, mouseX, mouseY);
+        // A module's settings take over the whole panel as a dedicated page (the grid/tabs are
+        // hidden), with a Back button — instead of floating as a modal over the list.
+        if (popupOpen) {
+            renderSettingsPage(ctx, mouseX, mouseY);
+        } else {
+            renderTabs(ctx, mouseX, mouseY);
+            switch (activeTab) {
+                case MODULES  -> renderModulesTab(ctx, mouseX, mouseY);
+                case EDITORS  -> renderEditorsTab(ctx, mouseX, mouseY);
+                case SPOTIFY  -> renderSpotifyTab(ctx, mouseX, mouseY);
+            }
+            // dragged card floats on top
+            if (draggingCard != null) {
+                int cw = cardWidth();
+                renderCard(ctx, draggingCard, dragMouseX - cw / 2, dragMouseY - CARD_H / 2, cw, mouseX, mouseY, true);
+            }
         }
 
-        // dragged card floats on top
-        if (draggingCard != null) {
-            int cw = cardWidth();
-            renderCard(ctx, draggingCard, dragMouseX - cw / 2, dragMouseY - CARD_H / 2, cw, mouseX, mouseY, true);
-        }
-
-        if (popupOpen) renderPopup(ctx, mouseX, mouseY);
         if (openDropdown != null) renderDropdown(ctx, openDropdown, dropdownX, dropdownY, mouseX, mouseY);
         if (colorPicker.isOpen()) colorPicker.render(ctx, textRenderer, mouseX, mouseY);
 
-        super.render(ctx, mouseX, mouseY, delta);
+        ctx.getMatrices().pop();
     }
 
+    private static final net.minecraft.util.Identifier INTER_FONT = new net.minecraft.util.Identifier("glacierclient", "inter_medium");
+    // Cache the wrapped Text per string — inter() is called for every label every frame, so building a
+    // fresh Text+Style each call was pure per-frame garbage. Bounded to avoid unbounded growth.
+    private static final java.util.Map<String, net.minecraft.text.Text> INTER_CACHE =
+            new java.util.LinkedHashMap<>(256, 0.75f, true) {
+                @Override protected boolean removeEldestEntry(java.util.Map.Entry<String, net.minecraft.text.Text> e) {
+                    return size() > 512;
+                }
+            };
+    /** Wraps text in the Inter Medium font for a consistent look across the mod menu (cached). */
+    private static net.minecraft.text.Text inter(String s) {
+        return INTER_CACHE.computeIfAbsent(s,
+                k -> net.minecraft.text.Text.literal(k).setStyle(net.minecraft.text.Style.EMPTY.withFont(INTER_FONT)));
+    }
+
+    /** Clamped mod-menu scale (its own factor, independent of the vanilla GUI scale). */
+    private float guiScale() { return Math.max(0.5f, Math.min(2.0f, GuiCustomization.get().guiScale)); }
+    /** Map a screen-space X into panel-local space (inverse of the render scale about panel centre). */
+    private double localX(double mx) { float cx = panelX + panelW / 2f; return cx + (mx - cx) / guiScale(); }
+    private double localY(double my) { float cy = panelY + panelH / 2f; return cy + (my - cy) / guiScale(); }
+
     private void renderHeader(DrawContext ctx, int mouseX, int mouseY) {
-        ctx.fill(panelX, panelY, panelX + panelW, panelY + HEADER_H, GlacierTheme.BG_PANEL);
+        GuiTextures.rect(ctx, "underlined_base_bg", panelX, panelY, panelW, HEADER_H, GlacierTheme.BG_PANEL);
 
         // bear logo
-        Icons.bear(ctx, panelX + 26, panelY + HEADER_H / 2, 22, GlacierTheme.ACCENT);
+        Icons.bearLogo(ctx, panelX + 26, panelY + HEADER_H / 2, 22, GlacierTheme.ACCENT);
 
         // centered title
         String title = "Glacier";
-        ctx.drawTextWithShadow(textRenderer, Text.literal(title),
+        ctx.drawTextWithShadow(textRenderer, inter(title),
                 panelX + (panelW - textRenderer.getWidth(title)) / 2, panelY + HEADER_H / 2 - 4, GlacierTheme.TEXT);
 
-        // close X
+        // close X (PNG icon, vector fallback)
         int xc = panelX + panelW - 24, yc = panelY + HEADER_H / 2;
         boolean xHov = within(mouseX, mouseY, xc - 10, yc - 10, 20, 20);
-        drawX(ctx, xc, yc, 6, xHov ? GlacierTheme.RED : GlacierTheme.TEXT_DIM);
+        int xCol = xHov ? GlacierTheme.RED : GlacierTheme.TEXT_DIM;
+        if (!uiIcon(ctx, "close", xc, yc, 13, xCol)) drawX(ctx, xc, yc, 6, xCol);
+
+        // GUI scale control:  −  xx%  +   (left of the close X)
+        int ty = yc - 4;
+        String pct = Math.round(guiScale() * 100) + "%";
+        int plusX = panelX + panelW - 44;
+        int labelX = plusX - 6 - textRenderer.getWidth(pct);
+        int minusX = labelX - 12;
+        boolean minusHov = within(mouseX, mouseY, minusX - 2, ty - 3, 10, 13);
+        boolean plusHov = within(mouseX, mouseY, plusX - 2, ty - 3, 10, 13);
+        ctx.drawTextWithShadow(textRenderer, "-", minusX, ty, minusHov ? GlacierTheme.ACCENT : GlacierTheme.TEXT_DIM);
+        ctx.drawTextWithShadow(textRenderer, pct, labelX, ty, GlacierTheme.TEXT_DIM);
+        ctx.drawTextWithShadow(textRenderer, "+", plusX, ty, plusHov ? GlacierTheme.ACCENT : GlacierTheme.TEXT_DIM);
     }
+
+    /** Hit-test + apply a click on the header GUI-scale −/+ controls. Returns true if handled. */
+    private boolean handleScaleClick(int x, int y) {
+        int yc = panelY + HEADER_H / 2, ty = yc - 4;
+        String pct = Math.round(guiScale() * 100) + "%";
+        int plusX = panelX + panelW - 44;
+        int labelX = plusX - 6 - textRenderer.getWidth(pct);
+        int minusX = labelX - 12;
+        if (within(x, y, minusX - 2, ty - 3, 10, 13)) { setGuiScale(guiScale() - 0.1f); return true; }
+        if (within(x, y, plusX - 2, ty - 3, 10, 13)) { setGuiScale(guiScale() + 0.1f); return true; }
+        return false;
+    }
+
+    private void setGuiScale(float s) {
+        GuiCustomization.get().guiScale = Math.max(0.5f, Math.min(2.0f, Math.round(s * 10f) / 10f));
+        GuiCustomization.get().save();
+    }
+
+    private static final String[] TAB_LABELS = {"Modules", "Editors", "Spotify"};
 
     private void renderTabs(DrawContext ctx, int mouseX, int mouseY) {
         int y = panelY + HEADER_H + 6;
+        int h = TAB_H - 14;
         int x = panelX + PAD;
         Tab[] tabs = Tab.values();
-        String[] labels = {"Modules", "Elements", "Editors", "Music Player"};
         for (int i = 0; i < tabs.length; i++) {
-            int w = textRenderer.getWidth(labels[i]) + 30;
+            int w = textRenderer.getWidth(TAB_LABELS[i]) + 30;
             boolean sel = activeTab == tabs[i];
-            boolean hov = within(mouseX, mouseY, x, y, w, TAB_H - 14);
+            boolean hov = within(mouseX, mouseY, x, y, w, h);
             int bg = sel ? GlacierTheme.ACCENT : (hov ? GlacierTheme.BG_ITEM_HOVER : GlacierTheme.BG_PANEL);
             String tabTex = sel ? "accent_bg" : "underlined_base_bg";
-            if (GuiTextures.has(tabTex)) GuiTextures.nineSlice(ctx, tabTex, x, y, w, TAB_H - 14);
-            else RenderUtil.drawRoundedRect(ctx, x, y, w, TAB_H - 14, GlacierTheme.RADIUS_SM, bg);
+            if (GuiTextures.has(tabTex)) GuiTextures.nineSlice(ctx, tabTex, x, y, w, h);
+            else RenderUtil.drawRoundedRect(ctx, x, y, w, h, GlacierTheme.RADIUS_SM, bg);
             int fg = sel ? GlacierTheme.TEXT : GlacierTheme.TEXT_DIM;
-            int icx = x + 12, icy = y + (TAB_H - 14) / 2;
+            int icx = x + 12, icy = y + h / 2;
             tabIcon(ctx, tabs[i], icx, icy, fg);
-            ctx.drawTextWithShadow(textRenderer, labels[i], x + 22, y + (TAB_H - 14) / 2 - 4, fg);
+            ctx.drawTextWithShadow(textRenderer, inter(TAB_LABELS[i]), x + 22, y + h / 2 - 4, fg);
             x += w + 6;
+        }
+
+        int sx = x + 4;
+        int sw = panelX + panelW - PAD - sx;
+        if (sw >= 50) {
+            searchX = sx; searchY = y; searchW = sw; searchH = h;
+            renderTabSearch(ctx, mouseX, mouseY);
+        } else {
+            searchX = searchY = searchW = searchH = 0;
+        }
+    }
+
+    private void renderTabSearch(DrawContext ctx, int mouseX, int mouseY) {
+        int x = searchX, y = searchY, w = searchW, h = searchH;
+        GuiTextures.rect(ctx, "secondary_bg", x, y, w, h, GlacierTheme.BG_ITEM);
+        RenderUtil.drawOutline(ctx, x, y, w, h, 1,
+                searchFocused ? GlacierTheme.ACCENT
+                        : (within(mouseX, mouseY, x, y, w, h) ? GlacierTheme.ACCENT_GLOW : GlacierTheme.BG_ITEM_HOVER));
+        int lx = x + 9, ly = y + h / 2 - 1;
+        Icons.ring(ctx, lx, ly, 4, 1, GlacierTheme.TEXT_DIM);
+        ctx.fill(lx + 3, ly + 3, lx + 6, ly + 5, GlacierTheme.TEXT_DIM);
+
+        int textX = x + 20, textY = y + (h - 8) / 2;
+        if (searchQuery.isEmpty() && !searchFocused) {
+            ctx.drawTextWithShadow(textRenderer, "Search modules…", textX, textY, GlacierTheme.TEXT_DIM);
+        } else {
+            String shown = trim(searchQuery, w - 40);
+            ctx.drawTextWithShadow(textRenderer, shown, textX, textY, GlacierTheme.TEXT);
+            if (searchFocused && (System.currentTimeMillis() / 500) % 2 == 0) {
+                int cx = textX + textRenderer.getWidth(shown);
+                ctx.fill(cx + 1, y + 3, cx + 2, y + h - 3, GlacierTheme.ACCENT);
+            }
+        }
+        if (!searchQuery.isEmpty()) {
+            int xc = x + w - 10, yc = y + h / 2;
+            boolean xh = within(mouseX, mouseY, xc - 7, yc - 7, 14, 14);
+            drawX(ctx, xc, yc, 4, xh ? GlacierTheme.RED : GlacierTheme.TEXT_DIM);
         }
     }
 
     private void tabIcon(DrawContext ctx, Tab t, int cx, int cy, int color) {
-        switch (t) {
-            case MODULES  -> Icons.draw(ctx, textRenderer, "chunk map", "HUD", cx, cy, 12, color);
-            case ELEMENTS -> Icons.draw(ctx, textRenderer, "fps graph", "HUD", cx, cy, 12, color);
-            case EDITORS  -> Icons.gear(ctx, cx, cy, 5, color);
-            case MUSIC    -> Icons.draw(ctx, textRenderer, "music note", "COSMETICS", cx, cy, 12, color);
+        String tex = switch (t) {
+            case MODULES -> "tab_modules";
+            case EDITORS -> "tab_editors";
+            case SPOTIFY -> "tab_spotify";
+        };
+        if (!uiIcon(ctx, tex, cx, cy, 13, color)) {
+            // vector fallback
+            switch (t) {
+                case MODULES  -> Icons.draw(ctx, textRenderer, "chunk map", "HUD", cx, cy, 12, color);
+                case EDITORS  -> Icons.gear(ctx, cx, cy, 5, color);
+                case SPOTIFY  -> Icons.draw(ctx, textRenderer, "music", "ENGINE", cx, cy, 12, color);
+            }
         }
+    }
+
+    // ---- UI icon: now a Font Awesome glyph (no PNGs). Colour's alpha defaults to opaque. ----
+    private boolean uiIcon(DrawContext ctx, String name, int cx, int cy, int size, int argb) {
+        if (((argb >>> 24) & 0xFF) == 0) argb |= 0xFF000000;
+        return FontAwesome.draw(ctx, textRenderer, name, cx, cy, size, argb);
+    }
+
+    /** Top-level module folder (advanced/expanded/engine/hud/render/pvp/performance/qol). */
+    private static String folderOf(GlacierMod m) {
+        String p = m.getClass().getPackageName();
+        int i = p.indexOf(".modules.");
+        if (i < 0) return "other";
+        String rest = p.substring(i + ".modules.".length());
+        int dot = rest.indexOf('.');
+        return dot < 0 ? rest : rest.substring(0, dot);
     }
 
     // ---- content area helpers ----
@@ -206,24 +374,83 @@ public class ClickGUIScreen extends Screen {
     // MODULES TAB (card grid, draggable)
     // =======================================================================
 
+    private int modulesGridY() { return contentY() + SUBTAB_H; }
+
     private void renderModulesTab(DrawContext ctx, int mouseX, int mouseY) {
-        renderCardGrid(ctx, getFilteredModules(), mouseX, mouseY, true);
+        // Category (folder) sub-tabs sit above the grid; cards are toggle/config only here.
+        renderCategoryTabs(ctx, mouseX, mouseY);
+        renderCardGridAt(ctx, getFilteredModules(), contentX(), modulesGridY(), mouseX, mouseY, false);
     }
 
-    private void renderElementsTab(DrawContext ctx, int mouseX, int mouseY) {
-        // "Open HUD Editor" button at top of content
-        int bx = contentX(), by = contentY(), bw = 150, bh = 24;
-        boolean hov = within(mouseX, mouseY, bx, by, bw, bh);
-        RenderUtil.drawRoundedRect(ctx, bx, by, bw, bh, GlacierTheme.RADIUS_SM, hov ? GlacierTheme.ACCENT : GlacierTheme.ACCENT_BG);
-        ctx.drawTextWithShadow(textRenderer, "Open HUD Editor", bx + 12, by + 8, hov ? GlacierTheme.TEXT : GlacierTheme.ACCENT);
-
-        List<GlacierMod> hud = modules().getModulesByCategory(Category.HUD);
-        renderCardGridAt(ctx, hud, contentX(), by + bh + 10, mouseX, mouseY, false);
+    /** Row of folder sub-tabs (All + one per top-level module folder), each with its own icon. */
+    private void renderCategoryTabs(DrawContext ctx, int mouseX, int mouseY) {
+        catTabHit.clear();
+        int x = contentX();
+        int y = contentY() + 1;
+        int h = SUBTAB_H - 7;
+        for (int i = 0; i < CAT_KEYS.length; i++) {
+            String key = CAT_KEYS[i];
+            boolean sel = folderFilter.equals(key);
+            int iconW = 12;
+            int labelW = sel ? (4 + textRenderer.getWidth(CAT_LABELS[i])) : 0;
+            int w = 9 + iconW + labelW + 7;
+            boolean hov = within(mouseX, mouseY, x, y, w, h);
+            if (sel) {
+                if (GuiTextures.has("accent_bg")) GuiTextures.nineSlice(ctx, "accent_bg", x, y, w, h);
+                else RenderUtil.drawRoundedRect(ctx, x, y, w, h, 7, GlacierTheme.ACCENT);
+            } else {
+                RenderUtil.drawRoundedRect(ctx, x, y, w, h, 7, hov ? GlacierTheme.BG_ITEM_HOVER : GlacierTheme.BG_ITEM);
+            }
+            int col = sel ? GlacierTheme.TEXT : (hov ? GlacierTheme.TEXT : GlacierTheme.TEXT_DIM);
+            int icx = x + 9 + iconW / 2, icy = y + h / 2;
+            if (!uiIcon(ctx, "cat_" + key, icx, icy, iconW, col))
+                Icons.draw(ctx, textRenderer, key, "HUD", icx, icy, iconW, col);
+            if (sel)
+                ctx.drawTextWithShadow(textRenderer, inter(CAT_LABELS[i]), icx + iconW / 2 + 4, y + h / 2 - 4, col);
+            catTabHit.put(new int[]{x, y, w, h}, key);
+            x += w + 4;
+        }
     }
 
-    private void renderCardGrid(DrawContext ctx, List<GlacierMod> mods, int mouseX, int mouseY, boolean draggable) {
-        renderCardGridAt(ctx, mods, contentX(), contentY(), mouseX, mouseY, draggable);
+    private static final int SPOTIFY_CARD_H = 56;
+
+    private void renderSpotifyTab(DrawContext ctx, int mouseX, int mouseY) {
+        SpotifyMediaBridge bridge = modules().getModule(SpotifyMediaBridge.class);
+        int x = contentX(), y = contentY(), w = contentW();
+        if (bridge == null) {
+            ctx.drawTextWithShadow(textRenderer, "Spotify Media Bridge unavailable.", x, y, GlacierTheme.TEXT_DIM);
+            return;
+        }
+
+        int ch = SPOTIFY_CARD_H;
+        if (GuiTextures.has("modules_base_bg")) GuiTextures.nineSlice(ctx, "modules_base_bg", x, y, w, ch);
+        else RenderUtil.drawRoundedRect(ctx, x, y, w, ch, GlacierTheme.RADIUS_SM, GlacierTheme.BG_ITEM);
+
+        int art = ch - 16;
+        ctx.fill(x + 8, y + 8, x + 8 + art, y + 8 + art, 0x663C8DFF);
+        Icons.draw(ctx, textRenderer, "music", "ENGINE", x + 8 + art / 2, y + 8 + art / 2, art - 8, GlacierTheme.ACCENT);
+
+        int tx = x + art + 16;
+        String src = String.valueOf(bridge.<String>getSetting("Source").getValue());
+        ctx.drawTextWithShadow(textRenderer, src + " Media", tx, y + 10, GlacierTheme.ACCENT);
+        ctx.drawTextWithShadow(textRenderer, "Bridge idle — no track", tx, y + 22, GlacierTheme.TEXT_DIM);
+
+        int barY = y + ch - 14, barRight = x + w - 12;
+        ctx.fill(tx, barY, barRight, barY + 3, 0x44FFFFFF);
+        ctx.fill(tx, barY, tx + (barRight - tx) / 4, barY + 3, GlacierTheme.ACCENT);
+
+        int ey = y + ch + 8;
+        ctx.drawTextWithShadow(textRenderer, "Enabled", x, ey + 2, GlacierTheme.TEXT);
+        renderTogglePill(ctx, x + 70, ey, bridge.isEnabled());
+        ctx.fill(x, ey + 18, x + w, ey + 19, GlacierTheme.ACCENT_GLOW);
+
+        int bottom = panelY + panelH - PAD;
+        ctx.enableScissor(panelX, ey + 20, panelX + panelW - PAD, bottom);
+        renderSettingsList(ctx, bridge.getSettings(), x, ey + 24, w - 6, mouseX, mouseY);
+        ctx.disableScissor();
     }
+
+    private int spotifySettingsY() { return contentY() + SPOTIFY_CARD_H + 8 + 24; }
 
     private void renderCardGridAt(DrawContext ctx, List<GlacierMod> mods, int gx, int gy, int mouseX, int mouseY, boolean draggable) {
         int cw = cardWidth();
@@ -263,20 +490,20 @@ public class ClickGUIScreen extends Screen {
         drawStyledCard(ctx, st, x, y, w, CARD_H, hov, mod.isEnabled(), floating);
 
         int iconColor = mod.isEnabled() ? st.accentColor : GlacierTheme.TEXT;
-        if (!IconTextures.draw(ctx, mod.getName(), x + w / 2, y + 36, 30)) {
+        if (!FontAwesome.drawName(ctx, textRenderer, mod.getName(), x + w / 2, y + 34, 24, iconColor)) {
             Icons.draw(ctx, textRenderer, mod.getName(), mod.getCategory().name(), x + w / 2, y + 36, 30, iconColor);
         }
 
         // name (centered, trimmed)
         String name = trim(mod.getName(), w - 12);
-        ctx.drawTextWithShadow(textRenderer, name, x + (w - textRenderer.getWidth(name)) / 2, y + CARD_H - 18,
+        ctx.drawTextWithShadow(textRenderer, inter(name), x + (w - textRenderer.getWidth(name)) / 2, y + CARD_H - 18,
                 mod.isEnabled() ? GlacierTheme.TEXT : GlacierTheme.TEXT_DIM);
 
         // gear
         if (!mod.getSettings().isEmpty()) {
             int gx = x + w - 18, gy = y + 16;
             boolean gHov = !floating && within(mouseX, mouseY, gx - 9, gy - 9, 18, 18);
-            Icons.gear(ctx, gx, gy, 6, gHov ? GlacierTheme.ACCENT : GlacierTheme.TEXT_DIM);
+            FontAwesome.draw(ctx, textRenderer, "ui_gear", gx, gy, 10, gHov ? GlacierTheme.ACCENT : GlacierTheme.TEXT_DIM);
         }
     }
 
@@ -443,53 +670,6 @@ public class ClickGUIScreen extends Screen {
     }
 
     // =======================================================================
-    // MUSIC PLAYER TAB (visual placeholder)
-    // =======================================================================
-
-    private void renderMusicTab(DrawContext ctx, int mouseX, int mouseY) {
-        int x = contentX(), y = contentY();
-        int w = contentW();
-        GuiTextures.rect(ctx, "secondary_bg", x, y, w, 120, 0xFF202327);
-        // album art placeholder
-        GuiTextures.rect(ctx, "modules_base_bg", x + 16, y + 16, 88, 88, GlacierTheme.BG_PANEL);
-        Icons.draw(ctx, textRenderer, "music note", "COSMETICS", x + 60, y + 60, 36, GlacierTheme.ACCENT);
-
-        ctx.drawTextWithShadow(textRenderer, "Nothing playing", x + 120, y + 24, GlacierTheme.TEXT);
-        ctx.drawTextWithShadow(textRenderer, "Connect a source in QoL > Spotify Media Bridge", x + 120, y + 38, GlacierTheme.TEXT_DIM);
-
-        // progress bar
-        int barX = x + 120, barY = y + 60, barW = w - 140;
-        RenderUtil.drawRoundedRect(ctx, barX, barY, barW, 4, 2, GlacierTheme.BG_ITEM);
-        int prog = musicPlaying ? barW / 3 : 0;
-        if (prog > 0) GuiTextures.rect(ctx, "accent_bg", barX, barY, prog, 4, GlacierTheme.ACCENT);
-
-        // controls
-        int ctrlY = y + 84;
-        drawPrevNext(ctx, barX + 10, ctrlY, false, mouseX, mouseY);
-        // play/pause circle
-        int pcx = barX + 44, pcy = ctrlY;
-        boolean pHov = within(mouseX, mouseY, pcx - 12, pcy - 12, 24, 24);
-        Icons.disc(ctx, pcx, pcy, 12, pHov ? GlacierTheme.ACCENT_HOVER : GlacierTheme.ACCENT);
-        if (musicPlaying) {
-            ctx.fill(pcx - 4, pcy - 5, pcx - 1, pcy + 5, GlacierTheme.BG);
-            ctx.fill(pcx + 1, pcy - 5, pcx + 4, pcy + 5, GlacierTheme.BG);
-        } else {
-            for (int i = 0; i < 10; i++) ctx.fill(pcx - 3, pcy - 5 + i, pcx - 3 + (5 - Math.abs(i - 5)), pcy - 4 + i, GlacierTheme.BG);
-        }
-        drawPrevNext(ctx, barX + 78, ctrlY, true, mouseX, mouseY);
-    }
-
-    private void drawPrevNext(DrawContext ctx, int cx, int cy, boolean next, int mouseX, int mouseY) {
-        boolean hov = within(mouseX, mouseY, cx - 10, cy - 10, 20, 20);
-        int c = hov ? GlacierTheme.ACCENT : GlacierTheme.TEXT_DIM;
-        int dir = next ? 1 : -1;
-        for (int i = 0; i < 6; i++) {
-            ctx.fill(cx + dir * (i - 3), cy - i, cx + dir * (i - 3) + 1, cy + i, c);
-        }
-        ctx.fill(cx + dir * 4, cy - 6, cx + dir * 4 + 2, cy + 6, c);
-    }
-
-    // =======================================================================
     // SETTINGS POPUP
     // =======================================================================
 
@@ -516,28 +696,33 @@ public class ClickGUIScreen extends Screen {
         draggingSlider = null;
         awaitingBind = false;
         popupBindTarget = null;
+        editingString = null;
         colorPicker.close();
     }
 
-    private int popupX() { return panelX + (panelW - POPUP_W) / 2; }
-    private int popupY() { return panelY + (panelH - POPUP_H) / 2; }
+    private int popupX() { return panelX + 6; }
+    private int popupY() { return panelY + HEADER_H + 4; }
     private int POPUP_W = 270, POPUP_H = 250;
 
-    private void renderPopup(DrawContext ctx, int mouseX, int mouseY) {
-        ctx.fill(panelX, panelY, panelX + panelW, panelY + panelH, 0x66000000);
+    /** Dedicated, full-panel settings page for a single module (replaces the old floating modal). */
+    private void renderSettingsPage(DrawContext ctx, int mouseX, int mouseY) {
         int x = popupX(), y = popupY();
-        if (GuiTextures.has("base_bg")) {
-            GuiTextures.nineSlice(ctx, "base_bg", x, y, POPUP_W, POPUP_H);
+        if (GuiTextures.has("underlined_base_bg")) {
+            GuiTextures.nineSlice(ctx, "underlined_base_bg", x, y, POPUP_W, POPUP_H);
         } else {
             RenderUtil.drawRoundedRect(ctx, x, y, POPUP_W, POPUP_H, GlacierTheme.RADIUS_MD, GlacierTheme.BG_PANEL);
-            RenderUtil.drawOutline(ctx, x, y, POPUP_W, POPUP_H, 1, GlacierTheme.ACCENT);
+            RenderUtil.drawOutline(ctx, x, y, POPUP_W, POPUP_H, 1, GlacierTheme.ACCENT_GLOW);
         }
 
-        ctx.drawTextWithShadow(textRenderer, popupTitle, x + 12, y + 12, GlacierTheme.ACCENT);
-        ctx.drawTextWithShadow(textRenderer, trim(popupDesc, POPUP_W - 24), x + 12, y + 24, GlacierTheme.TEXT_DIM);
+        // Back button (top-left) returns to the module grid.
+        boolean backHov = within(mouseX, mouseY, x + 8, y + 8, 52, 14);
+        ctx.drawTextWithShadow(textRenderer, inter("< Back"), x + 10, y + 10, backHov ? GlacierTheme.ACCENT : GlacierTheme.TEXT_DIM);
+
+        ctx.drawTextWithShadow(textRenderer, inter(popupTitle), x + 70, y + 10, GlacierTheme.ACCENT);
+        ctx.drawTextWithShadow(textRenderer, inter(trim(popupDesc, POPUP_W - 90)), x + 70, y + 22, GlacierTheme.TEXT_DIM);
 
         if (popupToggle != null && popupEnabled != null) {
-            ctx.drawTextWithShadow(textRenderer, "Enabled", x + 12, y + 40, GlacierTheme.TEXT);
+            ctx.drawTextWithShadow(textRenderer, inter("Enabled"), x + 12, y + 40, GlacierTheme.TEXT);
             renderTogglePill(ctx, x + 70, y + 38, popupEnabled.getAsBoolean());
         }
 
@@ -665,7 +850,7 @@ public class ClickGUIScreen extends Screen {
     }
 
     private void renderSetting(DrawContext ctx, Setting<?> setting, int x, int y, int w, int mouseX, int mouseY) {
-        ctx.drawTextWithShadow(textRenderer, setting.getName(), x, y + 2, GlacierTheme.TEXT_DIM);
+        ctx.drawTextWithShadow(textRenderer, inter(setting.getName()), x, y + 2, GlacierTheme.TEXT);
         if (setting instanceof BooleanSetting bs) {
             renderTogglePill(ctx, x + w - 28, y, bs.getValue());
         } else if (setting instanceof NumberSetting ns) {
@@ -673,11 +858,18 @@ public class ClickGUIScreen extends Screen {
         } else if (setting instanceof ModeSetting ms) {
             int btnX = x + w - 84;
             boolean hov = within(mouseX, mouseY, btnX, y, 84, 16);
-            GuiTextures.rect(ctx, "underlined_secondary_bg", btnX, y, 84, 16, hov ? GlacierTheme.ACCENT_BG : GlacierTheme.BG_ITEM);
-            ctx.drawTextWithShadow(textRenderer, trim(ms.getValue(), 76), btnX + 4, y + 4, GlacierTheme.ACCENT);
+            RenderUtil.drawRoundedRect(ctx, btnX, y, 84, 16, 8, hov ? GlacierTheme.ACCENT_BG : 0xCC0B1220);
+            ctx.drawTextWithShadow(textRenderer, inter(trim(ms.getValue(), 76)), btnX + 6, y + 4, GlacierTheme.ACCENT);
         } else if (setting instanceof StringSetting ss) {
-            RenderUtil.drawRoundedRect(ctx, x, y + 12, w, 14, GlacierTheme.RADIUS_SM, GlacierTheme.BG_ITEM);
-            ctx.drawTextWithShadow(textRenderer, trim(ss.getValue(), w - 8), x + 4, y + 15, GlacierTheme.TEXT);
+            boolean focused = editingString == ss;
+            RenderUtil.drawRoundedRect(ctx, x, y + 12, w, 14, 7, focused ? GlacierTheme.ACCENT_BG : 0xCC0B1220);
+            if (focused) RenderUtil.drawRoundedOutline(ctx, x, y + 12, w, 14, 7, 1, GlacierTheme.ACCENT);
+            String shown = trim(ss.getValue() == null ? "" : ss.getValue(), w - 12);
+            ctx.drawTextWithShadow(textRenderer, inter(shown), x + 5, y + 15, GlacierTheme.TEXT);
+            if (focused && (System.currentTimeMillis() / 500) % 2 == 0) {
+                int cx = x + 4 + textRenderer.getWidth(shown);
+                ctx.fill(cx + 1, y + 14, cx + 2, y + 24, GlacierTheme.ACCENT);
+            }
         } else if (setting instanceof ColorSetting cs) {
             int sw = 14, swX = x + w - sw, swY = y;
             ctx.fill(swX, swY, swX + sw, swY + sw, 0xFF000000 | (cs.getValue() & 0xFFFFFF));
@@ -692,7 +884,7 @@ public class ClickGUIScreen extends Screen {
         int knobX = x + fillW;
         Icons.disc(ctx, knobX, y + 2, 4, GlacierTheme.ACCENT_HOVER);
         String val = fmt(ns.getValue());
-        ctx.drawTextWithShadow(textRenderer, val, x + w - textRenderer.getWidth(val), y - 12, GlacierTheme.TEXT);
+        ctx.drawTextWithShadow(textRenderer, inter(val), x + w - textRenderer.getWidth(val), y - 12, GlacierTheme.ACCENT);
         if (draggingSlider == ns) { sliderBarX = x; sliderBarW = w; }
     }
 
@@ -712,7 +904,7 @@ public class ClickGUIScreen extends Screen {
         int iy = y;
         for (String mode : ms.getModes()) {
             boolean hov = within(mouseX, mouseY, x, iy, w, itemH);
-            if (hov) ctx.fill(x, iy, x + w, iy + itemH, GlacierTheme.BG_ITEM_HOVER);
+            if (hov) RenderUtil.drawRoundedRect(ctx, x + 1, iy + 1, w - 2, itemH - 2, 5, GlacierTheme.BG_ITEM_HOVER);
             ctx.drawTextWithShadow(textRenderer, trim(mode, w - 8), x + 4, iy + 4, mode.equals(ms.getValue()) ? GlacierTheme.ACCENT : GlacierTheme.TEXT);
             iy += itemH;
         }
@@ -724,6 +916,8 @@ public class ClickGUIScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mx, double my, int button) {
+        // Convert to panel-local space so clicks line up with the scaled render.
+        mx = localX(mx); my = localY(my);
         int x = (int) mx, y = (int) my;
 
         // color picker is top-most
@@ -740,11 +934,12 @@ public class ClickGUIScreen extends Screen {
             return true;
         }
 
-        // popup
+        // settings page
         if (popupOpen) {
             int px = popupX(), py = popupY();
+            if (within(x, y, px + 8, py + 8, 52, 14)) { closePopup(); return true; }            // Back
             if (within(x, y, px + POPUP_W - 24, py + 8, 24, 24)) { closePopup(); return true; } // X
-            if (!within(x, y, px, py, POPUP_W, POPUP_H)) { closePopup(); return true; }          // outside
+            if (!within(x, y, px, py, POPUP_W, POPUP_H)) { closePopup(); return true; }          // outside (header)
             if (popupToggle != null && within(x, y, px + 70, py + 38, 24, 12)) { popupToggle.run(); return true; }
             // sub-tabs
             if (popupAppearance) {
@@ -759,6 +954,7 @@ public class ClickGUIScreen extends Screen {
                 awaitingBind = true;
                 return true;
             }
+            editingString = null; // clicking anywhere in the list defocuses unless a field is hit
             if (handleSettingsClick(popupSettings, px + 12, py + 62 - popupScroll, POPUP_W - 24, x, y)) return true;
             return true;
         }
@@ -766,32 +962,49 @@ public class ClickGUIScreen extends Screen {
         // close X
         if (within(x, y, panelX + panelW - 34, panelY + HEADER_H / 2 - 10, 24, 20)) { close(); return true; }
 
+        // GUI scale −/+ controls in the header
+        if (handleScaleClick(x, y)) return true;
+
         // tabs
-        int tx = panelX + PAD, ty = panelY + HEADER_H + 6;
+        int tx = panelX + PAD, ty = panelY + HEADER_H + 6, th = TAB_H - 14;
         Tab[] tabs = Tab.values();
-        String[] labels = {"Modules", "Elements", "Editors", "Music Player"};
         for (int i = 0; i < tabs.length; i++) {
-            int tw = textRenderer.getWidth(labels[i]) + 30;
-            if (within(x, y, tx, ty, tw, TAB_H - 14)) {
+            int tw = textRenderer.getWidth(TAB_LABELS[i]) + 30;
+            if (within(x, y, tx, ty, tw, th)) {
                 activeTab = tabs[i];
                 gridScroll = 0;
                 activeEditor = null;
+                searchFocused = false;
                 return true;
             }
             tx += tw + 6;
         }
 
+        // search bar (tab row, beside the Spotify tab)
+        if (searchW > 0 && within(x, y, searchX, searchY, searchW, searchH)) {
+            if (!searchQuery.isEmpty() && within(x, y, searchX + searchW - 18, searchY, 18, searchH)) {
+                searchQuery = ""; gridScroll = 0;
+            }
+            searchFocused = true;
+            return true;
+        }
+        searchFocused = false;
+
         switch (activeTab) {
-            case MODULES -> { return clickModuleGrid(getFilteredModules(), contentX(), contentY(), x, y, button, true); }
-            case ELEMENTS -> {
-                if (within(x, y, contentX(), contentY(), 150, 24)) {
-                    MinecraftClient.getInstance().setScreen(new HUDEditorScreen());
-                    return true;
+            case MODULES -> {
+                // category (folder) sub-tab clicks
+                for (var e : catTabHit.entrySet()) {
+                    int[] b = e.getKey();
+                    if (within(x, y, b[0], b[1], b[2], b[3])) {
+                        folderFilter = e.getValue();
+                        gridScroll = 0;
+                        return true;
+                    }
                 }
-                return clickModuleGrid(modules().getModulesByCategory(Category.HUD), contentX(), contentY() + 34, x, y, button, false);
+                return clickModuleGrid(getFilteredModules(), contentX(), modulesGridY(), x, y, button, false);
             }
             case EDITORS -> { return clickEditors(x, y); }
-            case MUSIC -> { return clickMusic(x, y); }
+            case SPOTIFY -> { return clickSpotifyTab(x, y); }
         }
         return super.mouseClicked(mx, my, button);
     }
@@ -826,6 +1039,15 @@ public class ClickGUIScreen extends Screen {
     private void openModuleSettings(GlacierMod mod) {
         openSettings(mod.getName(), mod.getDescription(), mod.getSettings(), mod::toggle, mod::isEnabled, mod.getName());
         popupBindTarget = mod;
+    }
+
+    private boolean clickSpotifyTab(int x, int y) {
+        SpotifyMediaBridge bridge = modules().getModule(SpotifyMediaBridge.class);
+        if (bridge == null) return false;
+        int cx = contentX(), w = contentW();
+        int ey = contentY() + SPOTIFY_CARD_H + 8;
+        if (within(x, y, cx + 70, ey, 24, 12)) { bridge.toggle(); return true; }
+        return handleSettingsClick(bridge.getSettings(), cx, spotifySettingsY(), w - 6, x, y);
     }
 
     private boolean clickEditors(int x, int y) {
@@ -879,13 +1101,6 @@ public class ClickGUIScreen extends Screen {
         return false;
     }
 
-    private boolean clickMusic(int x, int y) {
-        int barX = contentX() + 120;
-        int pcx = barX + 44, pcy = contentY() + 84;
-        if (within(x, y, pcx - 12, pcy - 12, 24, 24)) { musicPlaying = !musicPlaying; return true; }
-        return false;
-    }
-
     private boolean handleSettingsClick(List<Setting<?>> settings, int x, int y, int w, int mx, int my) {
         int sy = y;
         for (Setting<?> s : settings) {
@@ -911,6 +1126,8 @@ public class ClickGUIScreen extends Screen {
                 }
             } else if (s instanceof ColorSetting cs) {
                 if (within(mx, my, x + w - 14, sy, 14, 14)) { openPickerFor(cs::setValue, cs.getValue(), mx, my); return true; }
+            } else if (s instanceof StringSetting ss) {
+                if (within(mx, my, x, sy + 12, w, 14)) { editingString = ss; return true; }
             }
             sy += SETTING_H + 4;
         }
@@ -947,6 +1164,8 @@ public class ClickGUIScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double mx, double my, int button, double dx, double dy) {
+        mx = localX(mx); my = localY(my);
+        dx /= guiScale(); dy /= guiScale();
         if (colorPicker.isOpen() && colorPicker.mouseDragged(mx, my)) return true;
         if (draggingSlider != null && sliderBarW > 0) {
             double pct = clamp01((mx - sliderBarX) / sliderBarW);
@@ -964,6 +1183,7 @@ public class ClickGUIScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double mx, double my, int button) {
+        mx = localX(mx); my = localY(my);
         if (colorPicker.isOpen()) { colorPicker.mouseReleased(); return true; }
         if (draggingSlider != null) { draggingSlider = null; return true; }
         if (draggingCard != null) {
@@ -981,7 +1201,7 @@ public class ClickGUIScreen extends Screen {
     }
 
     private GlacierMod cardAt(int x, int y, List<GlacierMod> mods) {
-        int gx = contentX(), gy = contentY(), cw = cardWidth();
+        int gx = contentX(), gy = modulesGridY(), cw = cardWidth();
         for (int i = 0; i < mods.size(); i++) {
             int col = i % COLS, row = i / COLS;
             int cx = gx + col * (cw + CARD_GAP);
@@ -1009,11 +1229,24 @@ public class ClickGUIScreen extends Screen {
             awaitingBind = false;
             return true;
         }
+        // text editing of a focused string setting
+        if (editingString != null) {
+            if (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER) {
+                editingString = null; return true;
+            }
+            if (keyCode == GLFW.GLFW_KEY_BACKSPACE) {
+                String v = editingString.getValue();
+                if (v != null && !v.isEmpty()) editingString.setValue(v.substring(0, v.length() - 1));
+                return true;
+            }
+            return true; // swallow other keys while editing
+        }
         if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
             if (colorPicker.isOpen()) { colorPicker.close(); return true; }
             if (openDropdown != null) { openDropdown = null; return true; }
             if (popupOpen) { closePopup(); return true; }
             if (activeEditor != null) { activeEditor = null; return true; }
+            if (searchFocused) { searchFocused = false; return true; }
             close();
             return true;
         }
@@ -1027,6 +1260,11 @@ public class ClickGUIScreen extends Screen {
 
     @Override
     public boolean charTyped(char chr, int modifiers) {
+        if (editingString != null && chr >= 32 && chr != 127) {
+            String v = editingString.getValue() == null ? "" : editingString.getValue();
+            editingString.setValue(v + chr);
+            return true;
+        }
         if (searchFocused && chr >= 32 && searchQuery.length() < 32) {
             searchQuery += chr;
             gridScroll = 0;
@@ -1041,11 +1279,31 @@ public class ClickGUIScreen extends Screen {
 
     private List<GlacierMod> getFilteredModules() {
         List<GlacierMod> all = modules().getModules();
-        if (searchQuery.isEmpty()) return all;
-        List<GlacierMod> out = new ArrayList<>();
-        String q = searchQuery.toLowerCase();
-        for (GlacierMod m : all) if (m.getName().toLowerCase().contains(q)) out.add(m);
-        return out;
+        String q = searchQuery.toLowerCase(Locale.ROOT).trim();
+        boolean allFolders = folderFilter.equals("all");
+        if (q.isEmpty() && allFolders) return all;
+        // Recompute only when the filter inputs change — this method is called every frame from render.
+        String key = q + " " + folderFilter + " " + all.size();
+        if (key.equals(lastFilterQuery)) return filteredModules;
+        lastFilterQuery = key;
+        filteredModules.clear();
+        for (GlacierMod m : all) {
+            if (!allFolders && !folderOf(m).equals(folderFilter)) continue;
+            if (!q.isEmpty() && !matchesSearch(m, q)) continue;
+            filteredModules.add(m);
+        }
+        return filteredModules;
+    }
+
+    private boolean matchesSearch(GlacierMod mod, String query) {
+        if (mod.getName().toLowerCase(Locale.ROOT).contains(query)) return true;
+        if (mod.getDescription().toLowerCase(Locale.ROOT).contains(query)) return true;
+        if (mod.getCategory().name().toLowerCase(Locale.ROOT).contains(query)) return true;
+        for (Setting<?> setting : mod.getSettings()) {
+            if (setting.getName().toLowerCase(Locale.ROOT).contains(query)) return true;
+            if (setting.getDescription().toLowerCase(Locale.ROOT).contains(query)) return true;
+        }
+        return false;
     }
 
     private boolean within(double mx, double my, int x, int y, int w, int h) {
@@ -1086,8 +1344,9 @@ public class ClickGUIScreen extends Screen {
     private void drawStyledCard(DrawContext ctx, CardStyle st, int x, int y, int w, int h,
                                 boolean hovered, boolean enabled, boolean floating) {
         // PNG nine-slice card background takes priority over the drawn style when present.
-        if (GuiTextures.has("modules_base_bg")) {
-            GuiTextures.nineSlice(ctx, "modules_base_bg", x, y, w, h);
+        String cardTex = GuiTextures.has("modules_underlined_base_bg") ? "modules_underlined_base_bg" : "modules_base_bg";
+        if (GuiTextures.has(cardTex)) {
+            GuiTextures.nineSlice(ctx, cardTex, x, y, w, h);
             if (enabled && GuiTextures.has("accent_bg")) GuiTextures.nineSlice(ctx, "accent_bg", x, y, w, 2);
             else if (enabled) RenderUtil.drawOutline(ctx, x, y, w, h, 1, st.accentColor);
             return;
@@ -1125,7 +1384,13 @@ public class ClickGUIScreen extends Screen {
     @Override
     public void close() {
         GuiCustomization.get().save();
-        super.close();
+        // Return to the screen we were opened from (e.g. the Glacier title screen) instead of letting
+        // vanilla recreate its own TitleScreen — which is what caused the start screen to revert.
+        if (parent != null) {
+            client.setScreen(parent);
+        } else {
+            super.close();
+        }
     }
 
     @Override public boolean shouldPause() { return false; }

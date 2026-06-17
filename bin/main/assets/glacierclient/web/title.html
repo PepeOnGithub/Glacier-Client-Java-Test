@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Glacier — Title</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  body.dusk::after { /* soft vignette over the world */
+    content:""; position:fixed; inset:0; pointer-events:none;
+    background: radial-gradient(120% 100% at 30% 40%, transparent 40%, rgba(0,0,0,.45) 100%);
+  }
+  .topbar { position:fixed; top:18px; right:20px; display:flex; gap:12px; z-index:5; }
+  .topbar .icon-btn { width:54px; height:54px; font-size:22px; border-radius:14px; }
+
+  .userchip { position:fixed; top:16px; left:18px; display:flex; align-items:center; gap:10px; z-index:5; }
+  .userchip .head { width:40px; height:40px; border-radius:8px; background:linear-gradient(135deg,#b07a52,#6f4a2f);
+    display:grid; place-items:center; color:#1a1a1a; font-size:18px; box-shadow:0 2px 8px rgba(0,0,0,.5); }
+  .userchip .meta small { color:var(--text-dim); font-size:12px; display:block; }
+  .userchip .meta b { color:var(--accent-soft); font-size:16px; }
+
+  .brand { position:fixed; left:40px; top:300px; display:flex; align-items:center; gap:18px; }
+  .brand .logo { font-size:64px; color:var(--accent); filter:drop-shadow(0 4px 10px rgba(0,0,0,.5)); }
+  .brand h1 { font-size:64px; letter-spacing:.5px; }
+
+  .menu { position:fixed; left:40px; top:430px; width:430px; display:flex; flex-direction:column; gap:14px; }
+  .menu .pill { font-size:19px; }
+
+  .cards { position:fixed; right:28px; bottom:28px; display:flex; flex-direction:column; gap:14px; align-items:flex-end; }
+  .card-evt { background:var(--btn); border-radius:14px; padding:14px 26px; font-size:20px; cursor:pointer;
+    transition:transform .2s var(--ease), background .2s var(--ease); }
+  .card-evt:hover { background:var(--btn-hover); transform:translateY(-2px); }
+  .card-discord { display:flex; align-items:center; gap:14px; padding:16px 22px; border-radius:14px;
+    background:var(--btn); border:1px solid var(--accent); cursor:pointer; transition:transform .2s var(--ease), box-shadow .2s var(--ease); }
+  .card-discord:hover { transform:translateY(-2px); box-shadow:0 8px 22px rgba(91,140,255,.35); }
+  .card-discord .fab { font-size:34px; color:var(--accent-soft); }
+  .card-discord b { font-size:20px; } .card-discord small { color:var(--text-dim); display:block; }
+
+  .verL { position:fixed; left:0; bottom:0; background:var(--btn); padding:10px 18px; border-top-right-radius:12px; font-size:18px; }
+  .verR { position:fixed; right:18px; bottom:0; padding:10px; font-size:22px; color:var(--text-dim); }
+</style>
+</head>
+<body class="dusk">
+  <div class="userchip fade-in">
+    <div class="head"><i class="fa">&#xf007;</i></div>
+    <div class="meta"><small>Logged in as:</small><b id="user">ChikenWings5544</b></div>
+  </div>
+
+  <div class="topbar fade-in">
+    <div class="icon-btn" data-act="achievements" title="Achievements"><i class="fa">&#xf559;</i></div>
+    <div class="icon-btn" data-act="inbox" title="Inbox"><i class="fa">&#xf0e0;</i></div>
+    <div class="icon-btn" data-act="refresh" title="Reload"><i class="fa">&#xf021;</i></div>
+    <div class="icon-btn" data-act="quit" title="Quit"><i class="fa">&#xf00d;</i></div>
+  </div>
+
+  <div class="brand rise"><div class="logo"><img class="logo-img" src="logo.png" alt=""></div><h1>Glacier</h1></div>
+
+  <div class="menu">
+    <div class="pill rise" style="animation-delay:.04s" data-act="play">Play Game</div>
+    <div class="pill rise" style="animation-delay:.08s" data-act="options">Options</div>
+    <div class="pill rise" style="animation-delay:.12s" data-nav="marketplace.html">Marketplace</div>
+    <div class="pill rise" style="animation-delay:.16s" data-nav="dressing.html">Dressing Room</div>
+    <div class="pill rise" style="animation-delay:.20s" data-act="changelog">Changelog</div>
+  </div>
+
+  <div class="cards fade-in">
+    <div class="card-evt" data-act="event">Minecraft Event</div>
+    <div class="card-discord" data-act="discord">
+      <i class="fab">&#xf392;</i>
+      <div><b>Join Our Discord!</b><small>discord.glacierclient.xyz</small></div>
+    </div>
+  </div>
+
+  <div class="verL">Glacier Client v6</div>
+  <div class="verR">v1.21.114</div>
+
+  <script src="bridge.js"></script>
+</body>
+</html>

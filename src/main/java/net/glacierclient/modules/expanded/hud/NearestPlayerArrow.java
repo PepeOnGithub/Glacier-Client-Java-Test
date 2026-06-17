@@ -7,6 +7,8 @@ import net.glacierclient.core.settings.NumberSetting;
 import net.glacierclient.core.theme.GlacierTheme;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.util.math.RotationAxis;
 
 public class NearestPlayerArrow extends HUDMod {
 
@@ -28,19 +30,44 @@ public class NearestPlayerArrow extends HUDMod {
         int cx = x + 30;
         int cy = y + 30;
         MinecraftClient mc = MinecraftClient.getInstance();
+        PlayerEntity target = nearestPlayer(mc);
 
-        context.fill(x, y, x + 60, y + 60, 0xCC1E1E2E);
+        drawBackground(context, x, y, 60, 60);
+        if (mc.player == null || target == null) {
+            context.drawCenteredTextWithShadow(mc.textRenderer, "--", cx, cy - 4, GlacierTheme.TEXT_DIM);
+            return;
+        }
 
-        // Arrow pointing up as placeholder
         int col = arrowColor.getValue();
-        context.fill(cx - 2, cy - 20, cx + 2, cy + 10, col);
-        context.fill(cx - 8, cy - 12, cx + 8, cy - 8, col);
+        double dx = target.getX() - mc.player.getX();
+        double dz = target.getZ() - mc.player.getZ();
+        float angle = (float) Math.toDegrees(Math.atan2(dz, dx)) - mc.player.getYaw() + 90f;
+        context.getMatrices().push();
+        context.getMatrices().translate(cx, cy, 0);
+        context.getMatrices().multiply(RotationAxis.POSITIVE_Z.rotationDegrees(angle));
+        context.drawCenteredTextWithShadow(mc.textRenderer, "^", 0, -7, col);
+        context.getMatrices().pop();
 
         if (showDistance.getValue()) {
-            context.drawCenteredTextWithShadow(mc.textRenderer, "42m", cx, y + 48, GlacierTheme.TEXT_DIM);
+            context.drawCenteredTextWithShadow(mc.textRenderer, Math.round(mc.player.distanceTo(target)) + "m", cx, y + 48, GlacierTheme.TEXT_DIM);
         }
         if (showName.getValue()) {
-            context.drawCenteredTextWithShadow(mc.textRenderer, "Player", cx, y + 2, GlacierTheme.TEXT);
+            context.drawCenteredTextWithShadow(mc.textRenderer, target.getName().getString(), cx, y + 2, GlacierTheme.TEXT);
         }
+    }
+
+    private PlayerEntity nearestPlayer(MinecraftClient mc) {
+        if (mc.world == null || mc.player == null || onlyFriends.getValue()) return null;
+        PlayerEntity closest = null;
+        double closestSq = maxRange.getValue() * maxRange.getValue();
+        for (PlayerEntity player : mc.world.getPlayers()) {
+            if (player == mc.player) continue;
+            double distSq = player.squaredDistanceTo(mc.player);
+            if (distSq <= closestSq) {
+                closestSq = distSq;
+                closest = player;
+            }
+        }
+        return closest;
     }
 }
