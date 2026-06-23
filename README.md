@@ -1,1 +1,0 @@
-# Glacier-Client-Java-Test
